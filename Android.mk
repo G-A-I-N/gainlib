@@ -16,10 +16,10 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					TouchInterface.cpp \
 					Logger.cpp
 					
-LOCAL_C_INCLUDES := $(LOCAL_PATH)/freetype/include \
-                    $(LOCAL_PATH)/freetype/include/freetype2 \
-                    $(LOCAL_PATH)/libpng/include/libpng16 \
-                    $(LOCAL_PATH)
+LOCAL_C_INCLUDES := gain/freetype/include \
+                    gain/freetype/include/freetype2 \
+                    gain/libpng/include/libpng16 \
+                    gain
 
 LOCAL_LDLIBS    := -llog -lGLESv2 -landroid -lEGL -lz  
 
@@ -27,7 +27,7 @@ LOCAL_STATIC_LIBRARIES := freetype libpng
 
 include $(BUILD_SHARED_LIBRARY)
  
-$(call import-add-path, jni/gain ) 
+$(call import-add-path, gain ) 
 $(call import-module , freetype )
 $(call import-module , libpng )
  
