@@ -34,7 +34,9 @@ static const char gFragmentShader[] =
 PixelCanvas::PixelCanvas(int x,int y, int width, int height) :
 		super(x,y,width,height, gVertexShader, gFragmentShader)
 {
-    pMaxPixelBufferSize = width*height;
+	pBitmapWidth = width;
+	pBitmapHeight = height;
+    pMaxPixelBufferSize = pBitmapWidth*pBitmapHeight;
     pBitmap = (unsigned char*)malloc(pMaxPixelBufferSize*4 + 4);
     memset(pBitmap,0x00,pMaxPixelBufferSize*4);
 //    memset(pPixelBuffer+pMaxPixelBufferSize*2,0x00,pMaxPixelBufferSize*2);
@@ -98,14 +100,6 @@ bool PixelCanvas::initVariables()
 
 	return true;
 }
-
-
-
-void PixelCanvas::updateG(float time, float timeDelta) 
-{
-	super::updateG( time,  timeDelta);
-}
-
 
 void PixelCanvas::enableAttributes() 
 {

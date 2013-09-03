@@ -22,9 +22,6 @@ public:
 	PixelCanvas(int x, int y, int width, int height);
 	virtual ~PixelCanvas();
 
-	//Base
-	virtual void updateG(float time, float timeDelta);
-
 	void setPixel(int x, int y, char alpha,char blue,char green,char red);
 	void setPixel(int x, int y, unsigned int abgr);
 

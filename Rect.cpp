@@ -59,7 +59,7 @@ void Rect::set(int aX, int aY, int aWidth, int aHeight)
 {
 	setN(
 		 -1.f + 2.f*(float)aX/GetCore()->screen_width,
-		 -1.f + 2.f*(float)aY/GetCore()->screen_width,
+		 -1.f/GetCore()->ratio + 2.f*(float)aY/GetCore()->screen_width,
 		 2.f*(float)aWidth/GetCore()->screen_width,
 		 2.f*(float)aHeight/GetCore()->screen_width
 		 );
