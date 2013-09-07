@@ -10,14 +10,14 @@
 
 #include <helpers.h>
 #include <GainApp.h>
+#include <Base.h>
 #include <Core.h>
+#include <TouchInterface.h>
+#include <Layer.h>
 #include <Rect.h>
 #include <Bitmap.h>
 #include <PngBitmap.h>
 #include <Text.h>
 #include <PixelCanvas.h>
-#include <Base.h>
-#include <Core.h>
-#include <TouchInterface.h>
 
 #endif /* GAIN_H_ */
