@@ -9,9 +9,10 @@
 
 namespace Gain {
 
-Layer::Layer() {
-	// TODO Auto-generated constructor stub
-
+Layer::Layer() :
+	Gain::Base()
+{
+    LOCK_INIT(renderClientsLock);
 }
 
 Layer::~Layer() {
@@ -66,5 +67,21 @@ void Layer::updateG(float time, float deltaTime)
     LOCK_RELEASE(renderClientsLock);
 }
 
+bool Layer::setupGraphics()
+{
+	return true;
+}
+bool Layer::initVariables()
+{
+	return true;
+}
+void Layer::enableAttributes()
+{
+
+}
+void Layer::disableAttributes()
+{
+
+}
 
 } /* namespace Gain */

@@ -22,6 +22,11 @@ public:
 	virtual void render();
 	virtual void updateG(float time, float deltaTime) ;
 
+	virtual bool setupGraphics();
+	virtual bool initVariables();
+	virtual void enableAttributes();
+	virtual void disableAttributes();
+
 	void addRenderClient(Gain::Base* aBase);
 	void removeRenderClient(Gain::Base* aBase);
 protected:
