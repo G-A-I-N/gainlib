@@ -142,8 +142,8 @@ void Text::setText(const char* text)
 	pBitmapHeight = pPixelSize;
 
 	setSizeN(
-			2.f*(float)pBitmapWidth/GetCore()->screen_width,
-			2.f*(float)pBitmapHeight/GetCore()->screen_width
+			2.f*((float)pBitmapWidth)/GetCore()->screen_width,
+			2.f*((float)pBitmapHeight)/GetCore()->screen_width
 	);
 
 	x=0;
@@ -230,7 +230,7 @@ void Text::updateG(float time, float timeDelta)
 }
 
 
-void Text::enableAttributes() 
+void Text::enableAttributes()
 {
 	super::enableAttributes();
 
