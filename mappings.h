@@ -23,8 +23,6 @@
 
 
 
-
-//#include "mappings_android.h"
 #ifdef ANDROID
 #include <android/log.h> // this is needed to make android logging working.
 #define PTHREAD
@@ -146,7 +144,7 @@ extern QGLFunctions* g_qglfunctions;
     #define LOGFREETEXT(x)
     #define LOGSTATE(x,y)
     #define LOGVALUE(x,y)
-    #define LOGSCOPE(x)
+    #define LOGSCOPE
 #endif
 
 
