@@ -26,7 +26,7 @@
 #define LOGISON // if this is defined, logging is on.
 #define LOGTOSOCKET // if this is defined, data is sent to socket instead of file
 #define LOGID //if this is enabled, id is generated to a matching object/integer
-#define USESEQNUMBERS // if this is defined, instead of time, running sequence number is as timestamp
+//#define USESEQNUMBERS // if this is defined, instead of time, running sequence number is as timestamp
 
 #define LOGINIT Logger::Instance();
 #define LOGSTOP delete Logger::Instance();
@@ -34,11 +34,12 @@
 #ifdef LOGISON
     #define LOGEVENTSTART(x) Logger::Instance()->EventStart(x);
     #define LOGEVENTSTOP(x) Logger::Instance()->EventStop(x);
+    #define LOGEVENT2START(x,y) Logger::Instance()->EventStart(x,y);
+    #define LOGEVENT2STOP(x,y) Logger::Instance()->EventStop(x,y);
     #define LOGFREETEXT(x) Logger::Instance()->FreeText(x);
     #define LOGSTATE(x,y) Logger::Instance()->StateMachine(x,y);
     #define LOGVALUE(x,y) Logger::Instance()->ValueABS(x,y);
-    #define FUNCTIONSCOPE TimeToPicEventObj myFuncScope(__FUNCTION__);
-
+    #define LOGSCOPE TimeToPicEventObj myFuncScope(__PRETTY_FUNCTION__);
 
 	#ifdef LOGID
 		#define LOGFUNC(y)	snprintf(__temp,sizeof(__temp),"[%04i]",Logger::Instance()->id((int)y))
@@ -67,7 +68,7 @@
     #define LOGFREETEXT(x)
     #define LOGSTATE(x,y)
     #define LOGVALUE(x,y)
-	#define FUNCTIONSCOPE
+	#define LOGSCOPE
 	#define LOGOBJECTSTART(x,y)
 	#define LOGOBJECTSTOP(x,y)
 #endif
@@ -90,6 +91,8 @@ public:
 public:
 	void EventStart(const char* eventName);
 	void EventStop(const char* eventName);
+	void EventStart(const char* eventName,const char* eventName2);
+	void EventStop(const char* eventName,const char* eventName2);
 	void FreeText(const char* eventName);
 	void StateMachine(const char* machineName, const char* stateName);
 	void ValueABS(const char* valueName, unsigned int value);

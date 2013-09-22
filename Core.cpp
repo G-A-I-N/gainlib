@@ -44,8 +44,7 @@ Core* GetCore() {
 }
 
 bool Core::setupGraphics(int w, int h) {
-	LOGEVENTSTART(__FUNCTION__);
-
+	LOGSCOPE;
 
     INIT_GL;
 
@@ -89,18 +88,17 @@ bool Core::setupGraphics(int w, int h) {
     glViewport(0, 0, w, h);
     checkGlError("glViewport");
 
-	LOGEVENTSTOP(__FUNCTION__);
-	return true;
+    return true;
 }
 
 void Core::updateG(float time, float deltaTime)
 {
-	LOGEVENTSTART(__FUNCTION__);
 
 	if (pScene > renderClients.size()) {
 		return;
 	}
     LOCK_ACQUIRE(renderClientsLock);
+	LOGSCOPE;
 
     static int lastTime = 0;
     int newTime = time;
@@ -109,7 +107,7 @@ void Core::updateG(float time, float deltaTime)
 		char buf[32];
 		sprintf(buf, "fps(%d)\0",pFps);
 
-		//LOGI(buf);
+		LOGI(buf);
 		pFps=0;
 	}
 
@@ -154,15 +152,16 @@ void Core::updateG(float time, float deltaTime)
 
 	}
     LOCK_RELEASE(renderClientsLock);
-	LOGEVENTSTOP(__FUNCTION__);
 
 }
 
-void Core::update(float time, float deltaTime) {
+void Core::update(float time, float deltaTime)
+{
 	if (pScene > renderClients.size()) {
 		return;
 	}
     LOCK_ACQUIRE(renderClientsLock);
+	LOGSCOPE;
 	if (renderClients.size() > SCENE_DEFAULT_BACK) {
 		std::vector<BaseContainer*> current = renderClients[SCENE_DEFAULT_BACK];
 		for (size_t n = 0; n < current.size(); n++) {
@@ -200,6 +199,8 @@ void Core::update(float time, float deltaTime) {
 
 void Core::renderFrame() {
 	//	LOGI("renderFrame()");
+    LOCK_ACQUIRE(renderClientsLock);
+	LOGSCOPE;
 	static float grey = 0.001f;
 	pFps ++;
 
@@ -209,7 +210,6 @@ void Core::renderFrame() {
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	checkGlError("glClear");
 
-    LOCK_ACQUIRE(renderClientsLock);
 	if (renderClients.size() > SCENE_DEFAULT_BACK) {
 		std::vector<BaseContainer*> current = renderClients[SCENE_DEFAULT_BACK];
 		for (size_t n = 0; n < current.size(); n++) {
@@ -246,11 +246,14 @@ void Core::renderFrame() {
     LOCK_RELEASE(renderClientsLock);
 }
 
-void Core::addRenderClient(Base* aBase, unsigned int aScene) {
+void Core::addRenderClient(Base* aBase, unsigned int aScene)
+{
+
 	BaseContainer* container = new BaseContainer();
 	container->base = aBase;
 	container->state = NOT_INITIALIZED;
     LOCK_ACQUIRE(renderClientsLock);
+	LOGSCOPE;
 	while (renderClients.size() <= aScene) {
 		renderClients.push_back(std::vector<BaseContainer*>(0));
 	}
@@ -260,6 +263,7 @@ void Core::addRenderClient(Base* aBase, unsigned int aScene) {
 
 void Core::removeRenderClient(Base* base, unsigned int aScene) {
     LOCK_ACQUIRE(renderClientsLock);
+	LOGSCOPE;
 	if (aScene < renderClients.size()) {
 		for (size_t n = 0; n < renderClients[aScene].size(); n++)
 			if (base == renderClients[aScene][n]->base) {
@@ -274,6 +278,7 @@ void Core::removeRenderClient(Base* base, unsigned int aScene) {
 
 void Core::invalidateAllRenderers(bool fullReset) {
     LOCK_ACQUIRE(renderClientsLock);
+	LOGSCOPE;
 	for (size_t n = 0; n < renderClients.size(); n++) {
 		for (size_t w = 0; w < renderClients[n].size(); w++) {
 			renderClients[n][w]->state=NOT_INITIALIZED;
@@ -285,10 +290,12 @@ void Core::invalidateAllRenderers(bool fullReset) {
     LOCK_RELEASE(renderClientsLock);
 }
 
-void Core::addTouchClient(TouchInterface* aInterface, unsigned int aScene) {
+void Core::addTouchClient(TouchInterface* aInterface, unsigned int aScene)
+{
 	TouchContainer* container = new TouchContainer();
 	container->touchInterface = aInterface;
     LOCK_ACQUIRE(touchClientsLock);
+	LOGSCOPE;
 	while (touchClients.size() <= aScene) {
 		touchClients.push_back(std::vector<TouchContainer*>(0));
 	}
@@ -296,8 +303,10 @@ void Core::addTouchClient(TouchInterface* aInterface, unsigned int aScene) {
     LOCK_RELEASE(touchClientsLock);
 }
 
-void Core::removeTouchClient(TouchInterface* aInterface, unsigned int aScene) {
+void Core::removeTouchClient(TouchInterface* aInterface, unsigned int aScene)
+{
     LOCK_ACQUIRE(touchClientsLock);
+	LOGSCOPE;
 	if (aScene < touchClients.size()) {
 		for (size_t n = 0; n < touchClients[aScene].size(); n++)
 			if (aInterface == touchClients[aScene][n]->touchInterface) {
@@ -310,7 +319,9 @@ void Core::removeTouchClient(TouchInterface* aInterface, unsigned int aScene) {
 }
 
 
-void Core::offerTouchDown(TouchPoint* aTouchPoint) {
+void Core::offerTouchDown(TouchPoint* aTouchPoint)
+{
+	LOGSCOPE;
 	if (touchClients.size() > SCENE_DEFAULT_BACK) {
 		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_BACK];
 		for (size_t n = 0; n < current.size(); n++) {
@@ -337,7 +348,9 @@ void Core::offerTouchDown(TouchPoint* aTouchPoint) {
 
 }
 
-void Core::offerTouchMove(TouchPoint* aTouchPoint) {
+void Core::offerTouchMove(TouchPoint* aTouchPoint)
+{
+	LOGSCOPE;
 	if (touchClients.size() > SCENE_DEFAULT_BACK) {
 		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_BACK];
 		for (size_t n = 0; n < current.size(); n++) {
@@ -364,7 +377,9 @@ void Core::offerTouchMove(TouchPoint* aTouchPoint) {
 
 }
 
-void Core::offerTouchUp(TouchPoint* aTouchPoint) {
+void Core::offerTouchUp(TouchPoint* aTouchPoint)
+{
+	LOGSCOPE;
 	if(touchClients.size() > SCENE_DEFAULT_BACK) {
 		std::vector< TouchContainer* > current = touchClients[SCENE_DEFAULT_BACK];
 		for(size_t n =0; n<current.size() ; n++) {

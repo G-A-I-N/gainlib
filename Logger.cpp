@@ -82,6 +82,20 @@ void Logger::EventStop(const char* eventName)
 	WriteItem(buf);
 }
 
+void Logger::EventStart(const char* eventName,const char* eventName2)
+{
+	char buf[MAX_BUF];
+	snprintf(buf,sizeof(buf), "event;start;%s%s",eventName,eventName2);
+	WriteItem(buf);
+}
+
+void Logger::EventStop(const char* eventName,const char* eventName2)
+{
+	char buf[MAX_BUF];
+	snprintf(buf,sizeof(buf), "event;stop;%s%s",eventName,eventName2);
+	WriteItem(buf);
+}
+
 void Logger::FreeText(const char* eventName)
 {
 	char buf[MAX_BUF];

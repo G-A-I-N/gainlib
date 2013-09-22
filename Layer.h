@@ -8,6 +8,8 @@
 #ifndef LAYER_H_
 #define LAYER_H_
 
+#include <queue>
+#include <map>
 #include <gain.h>
 
 namespace Gain {
@@ -29,8 +31,11 @@ public:
 
 	void addRenderClient(Gain::Base* aBase);
 	void removeRenderClient(Gain::Base* aBase);
+	void removeAllRenderClients();
 protected:
-	std::vector<BaseContainer*> renderClients;
+	std::map<Gain::Base*,BaseContainer*> renderClients;
+	std::queue<BaseContainer*> addClientsFifo;
+	std::queue<BaseContainer*> removeClientsFifo;
 
     LOCK renderClientsLock;
 

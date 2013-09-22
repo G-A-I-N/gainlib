@@ -37,7 +37,7 @@ Bitmap::Bitmap(float x,float y, float width, float height, const char* aVertexSh
 		aVertexShader ? aVertexShader:gVertexShader,
 		aFragmentShader ? aFragmentShader:gFragmentShader)
 {
-	initVariables();
+	//initVariables();
 	// TODO Auto-generated constructor stub
 
 }
@@ -47,7 +47,7 @@ Bitmap::Bitmap(int x,int y, int width, int height, const char* aVertexShader,con
 		aVertexShader ? aVertexShader:gVertexShader,
 		aFragmentShader ? aFragmentShader:gFragmentShader)
 {
-	initVariables();
+	//initVariables();
 	// TODO Auto-generated constructor stub
 
 }
@@ -91,7 +91,7 @@ bool Bitmap::initVariables() {
 
 	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, /*GL10.GL_REPLACE*/ GL_MODULATE);
 
-
+	pBitmapSlotSize = 3;
 	static uint32_t onepixelWhiteBuffer = 0xffffffff;
 	glTexImage2D(GL_TEXTURE_2D, // target
 			0,  // level, 0 = base, no minimap,
@@ -152,6 +152,14 @@ void Bitmap::enableAttributes() {
 void Bitmap::disableAttributes() {
     GL_EXT_FUNC glDisableVertexAttribArray(attribute_texcoord);
     super::disableAttributes();
+}
+
+int Bitmap::getBitmap(int* width, int* height, uint8_t** bitmap)
+{
+	*width = pBitmapWidth;
+	*height = pBitmapHeight;
+	*bitmap = pBitmap;
+	return pBitmapSlotSize;
 }
 
 

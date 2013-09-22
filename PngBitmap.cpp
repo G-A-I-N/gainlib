@@ -70,8 +70,8 @@ void PngBitmap::readFile(const char* aFileName)
 
     png_read_info(png_ptr, info_ptr);
 
-    png_width = png_get_image_width(png_ptr, info_ptr);
-    png_height = png_get_image_height(png_ptr, info_ptr);
+    pBitmapWidth = png_get_image_width(png_ptr, info_ptr);
+    pBitmapHeight = png_get_image_height(png_ptr, info_ptr);
     color_type = png_get_color_type(png_ptr, info_ptr);
     bit_depth = png_get_bit_depth(png_ptr, info_ptr);
 
@@ -84,11 +84,12 @@ void PngBitmap::readFile(const char* aFileName)
             printf("[read_png_file] Error during read_image");
 
     int row_bytes = png_get_rowbytes(png_ptr,info_ptr);
-    png_data = (png_byte*) malloc(png_height*row_bytes);
+    pBitmapSlotSize = row_bytes*8/pBitmapWidth;
+    pBitmap = (png_byte*) malloc(pBitmapHeight*row_bytes);
 
-    row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * png_height);
-    for (y=0; y<png_height; y++)
-            row_pointers[y] = (png_byte*) &png_data[y*row_bytes];
+    row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * pBitmapHeight);
+    for (y=0; y<pBitmapHeight; y++)
+            row_pointers[y] = (png_byte*) &pBitmap[y*row_bytes];
 
     png_read_image(png_ptr, row_pointers);
 
@@ -121,12 +122,12 @@ bool PngBitmap::initVariables() {
 	glTexImage2D(GL_TEXTURE_2D, // target
 			0,  // level, 0 = base, no minimap,
 			GL_RGBA, // internalformat
-			png_width,  // width
-			png_height,  // height
+			pBitmapWidth,  // width
+			pBitmapHeight,  // height
 			0,  // border, always 0 in OpenGL ES
 			GL_RGBA,  // format
 			GL_UNSIGNED_BYTE, // type
-			png_data);
+			pBitmap);
 
 	GLfloat square_texcoords[] = {
 			// front
@@ -150,7 +151,7 @@ bool PngBitmap::initVariables() {
 
 
 
-void PngBitmap::updateG(float time, float timeDelta) 
+void PngBitmap::updateG(float time, float timeDelta)
 {
 	super::updateG( time,  timeDelta);
 }

@@ -32,9 +32,7 @@ protected:
 	virtual bool initVariables();
 	virtual void enableAttributes();
 	virtual void disableAttributes();
-  
-    int png_width, png_height;
-    unsigned char* png_data;
+
 };
 
 } /* namespace Gain */

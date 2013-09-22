@@ -32,34 +32,6 @@
 #include <stdint.h>
 #include <string>
 
-//THREAD pthread
-
-//#define PTHREAD
-#ifdef PTHREAD
-
-#include <pthread.h>
-
-#define LOCK pthread_mutex_t
-#define LOCK_INIT( lock ) pthread_mutex_init( &lock , NULL)
-#define LOCK_ACQUIRE( lock ) pthread_mutex_lock( &lock )
-#define LOCK_RELEASE( lock ) pthread_mutex_unlock( &lock )
-
-#elif QTHREAD
-
-#define LOCK int
-#define LOCK_INIT(lock)
-#define LOCK_ACQUIRE(lock)
-#define LOCK_RELEASE(lock)
-
-#else
-
-#define LOCK volatile int
-#define LOCK_INIT(lock) {(lock) = 0;}
-#define LOCK_ACQUIRE(lock) {while((lock)==1) { } (lock) = 1;}
-#define LOCK_RELEASE(lock) {(lock) = 0;}
-
-#endif
-
 
 
 ///////////////////////////////////////
@@ -133,7 +105,8 @@ extern QGLFunctions* g_qglfunctions;
     #define LOGSTATE(x,y) timeToPicLogState(x,y);
     #define LOGVALUE(x,y) timeToPicValueAbs(x,y);
 
-	#define LOGSCOPE scopeTrace myScope(__FUNCTION__);
+	#define LOGSCOPE scopeTrace myScope(__PRETTY_FUNCTION__);
+	#define LOGSCOPEINFO(param) scopeTrace myScope(__FUNCTION__ + param);
 
 #else
     /* Empty macros when loggin is disabled */
@@ -206,6 +179,37 @@ inline void checkGlError(const char* op) {
         LOGI("after %s() glError (0x%x)\n", op, error);
     }
 }
+
+
+//THREAD pthread
+
+//#define PTHREAD
+#ifdef PTHREAD
+
+#include <pthread.h>
+
+#define LOCK pthread_mutex_t
+#define LOCK_INIT( lock ) pthread_mutex_init( &lock , NULL)
+#define LOCK_ACQUIRE( lock ) pthread_mutex_lock( &lock )
+#define LOCK_RELEASE( lock ) pthread_mutex_unlock( &lock )
+//#define LOCK_ACQUIRE( lock ) {LOGEVENT2START("L",__func__); pthread_mutex_lock( &lock );}
+//#define LOCK_RELEASE( lock ) {pthread_mutex_unlock( &lock ); LOGEVENT2STOP("L",__func__);}
+
+#elif QTHREAD
+
+#define LOCK int
+#define LOCK_INIT(lock)
+#define LOCK_ACQUIRE(lock)
+#define LOCK_RELEASE(lock)
+
+#else
+
+#define LOCK volatile int
+#define LOCK_INIT(lock) {(lock) = 0;}
+#define LOCK_ACQUIRE(lock) {while((lock)==1) { } (lock) = 1;}
+#define LOCK_RELEASE(lock) {(lock) = 0;}
+
+#endif
 
 
 

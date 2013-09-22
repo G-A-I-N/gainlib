@@ -190,6 +190,8 @@ bool Text::initVariables()
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
+	//alpha
+	pBitmapSlotSize = 1;
 
 	static uint8_t tempbuf = 0x80;
 	glTexImage2D(GL_TEXTURE_2D, // target

@@ -25,6 +25,8 @@ public:
 	//Base
 	virtual void updateG(float time, float timeDelta);
 
+	//return about of bytes in one bitmap slot
+	int getBitmap(int* width, int* height, uint8_t** bitmap);
 protected:
 
 	virtual bool initVariables();
@@ -34,6 +36,8 @@ protected:
 	uint8_t* pBitmap;
 	int pBitmapWidth;
 	int pBitmapHeight;
+	//size of the slot in bytes
+	int pBitmapSlotSize;
 
 
 	GLint attribute_texcoord;

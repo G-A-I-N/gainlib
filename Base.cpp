@@ -21,7 +21,23 @@ void Base::updateG(float /*time*/, float /*deltaTime*/)
 {
 }
 
+
 GLuint Base::createProgram(const char* pVertexSource, const char* pFragmentSource) {
+	static const char* lastLoaded_vertex;
+	static const char* lastLoaded_fragment;
+	static GLuint lastLoaded_program;
+
+	if (pVertexSource == lastLoaded_vertex &&
+		pFragmentSource == lastLoaded_fragment)
+	{
+
+		return lastLoaded_program;
+	}
+	lastLoaded_vertex = pVertexSource;
+	lastLoaded_fragment = pFragmentSource;
+
+
+
 	GLuint vertexShader = loadShader(GL_VERTEX_SHADER, pVertexSource);
 	if (!vertexShader) {
 		return 0;
@@ -56,6 +72,7 @@ GLuint Base::createProgram(const char* pVertexSource, const char* pFragmentSourc
 			program = 0;
 		}
 	}
+	lastLoaded_program = program;
 	return program;
 }
 

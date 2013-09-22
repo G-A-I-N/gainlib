@@ -108,6 +108,11 @@ void Rect::setRotation(GLfloat aAngle)
 //
 //}
 
+/*
+ * params x,y center of rect
+ * params width, height
+ */
+
 void Rect::setN(float x, float y, float width, float height)
 {
 	setSizeN(width,height);
@@ -138,6 +143,7 @@ void Rect::setCenterN(float x, float y)
 void Rect::setCornersN(float tl_x, float tl_y, float tr_x, float tr_y,
 		float bl_x, float bl_y, float br_x, float br_y)
 {
+	//LOGSCOPE;
 	square_vertices[0] = tl_x;
 	square_vertices[1] = tl_y;
 	square_vertices[2] = tr_x;
