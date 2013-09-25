@@ -39,11 +39,20 @@ PixelCanvas::PixelCanvas(int x,int y, int width, int height) :
     pMaxPixelBufferSize = pBitmapWidth*pBitmapHeight;
     pBitmap = (unsigned char*)malloc(pMaxPixelBufferSize*4 + 4);
     memset(pBitmap,0x00,pMaxPixelBufferSize*4);
-//    memset(pPixelBuffer+pMaxPixelBufferSize*2,0x00,pMaxPixelBufferSize*2);
 }
 
+PixelCanvas::PixelCanvas(int width, int height) :
+		super(0,0,width,height, gVertexShader, gFragmentShader)
+{
+	pBitmapWidth = width;
+	pBitmapHeight = height;
+    pMaxPixelBufferSize = pBitmapWidth*pBitmapHeight;
+    pBitmap = (unsigned char*)malloc(pMaxPixelBufferSize*4 + 4);
+    memset(pBitmap,0x00,pMaxPixelBufferSize*4);
+}
+
+
 PixelCanvas::~PixelCanvas() {
-	// TODO Auto-generated destructor stub
 }
 
 bool PixelCanvas::initVariables()
@@ -101,7 +110,7 @@ bool PixelCanvas::initVariables()
 	return true;
 }
 
-void PixelCanvas::enableAttributes() 
+void PixelCanvas::enableAttributes()
 {
 	super::enableAttributes();
 

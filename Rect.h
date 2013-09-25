@@ -16,15 +16,27 @@ class Rect: public Gain::Base {
 public:
 	Rect(int x, int y, int width, int height, const char* vertexShader=NULL, const char* fragmentShader=NULL);
 	Rect(float x, float y, float width, float height, const char* vertexShader=NULL, const char* fragmentShader=NULL);
+	Rect(const char* vertexShader=NULL, const char* fragmentShader=NULL);
 private:
 	void privateConstruct(const char* vertexShader, const char* fragmentShader);
 public:
 	virtual ~Rect();
 
 	void set(int x, int y, int width, int height);
-
 	void setN(float x, float y, float width, float height);
+
+	void setX(int x);
+	void setY(int y);
+	void setXN(float x);
+	void setYN(float y);
+
+	void setWidth(int width);
+	void setHeight(int height);
+	void setWidthN(float width);
+	void setHeightN(float height);
+
 	void setSizeN(float width, float height);
+
 	void setCenterN(float x, float y);
 	void setCornersN(
 			float tl_x, float tl_y,

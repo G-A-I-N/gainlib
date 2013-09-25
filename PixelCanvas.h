@@ -12,7 +12,7 @@
 
 namespace Gain {
 
-class PixelCanvas: 
+class PixelCanvas:
     public Gain::Bitmap
 {
 private:
@@ -20,6 +20,7 @@ private:
 
 public:
 	PixelCanvas(int x, int y, int width, int height);
+	PixelCanvas(int width, int height);
 	virtual ~PixelCanvas();
 
 	void setPixel(int x, int y, char alpha,char blue,char green,char red);

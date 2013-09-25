@@ -16,14 +16,15 @@ PngBitmap::PngBitmap(int x,int y, int width, int height, const char* aPngFile) :
 Bitmap(x,y,width,height)
 {
 	readFile(aPngFile);
+}
 
-	initVariables();
-	// TODO Auto-generated constructor stub
-
+PngBitmap::PngBitmap(const char* aPngFile) :
+Bitmap()
+{
+	readFile(aPngFile);
 }
 
 PngBitmap::~PngBitmap() {
-	// TODO Auto-generated destructor stub
 }
 
 void PngBitmap::readFile(const char* aFileName)

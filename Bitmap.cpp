@@ -37,9 +37,6 @@ Bitmap::Bitmap(float x,float y, float width, float height, const char* aVertexSh
 		aVertexShader ? aVertexShader:gVertexShader,
 		aFragmentShader ? aFragmentShader:gFragmentShader)
 {
-	//initVariables();
-	// TODO Auto-generated constructor stub
-
 }
 
 Bitmap::Bitmap(int x,int y, int width, int height, const char* aVertexShader,const char* aFragmentShader) :
@@ -47,13 +44,16 @@ Bitmap::Bitmap(int x,int y, int width, int height, const char* aVertexShader,con
 		aVertexShader ? aVertexShader:gVertexShader,
 		aFragmentShader ? aFragmentShader:gFragmentShader)
 {
-	//initVariables();
-	// TODO Auto-generated constructor stub
+}
 
+Bitmap::Bitmap( const char* aVertexShader,const char* aFragmentShader) :
+		super(
+		aVertexShader ? aVertexShader:gVertexShader,
+		aFragmentShader ? aFragmentShader:gFragmentShader)
+{
 }
 
 Bitmap::~Bitmap() {
-	// TODO Auto-generated destructor stub
 }
 
 bool Bitmap::initVariables() {

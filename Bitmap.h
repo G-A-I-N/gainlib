@@ -20,6 +20,7 @@ private:
 public:
 	Bitmap(float x, float y, float width, float height, const char* vertex = NULL, const char* fragment = NULL);
 	Bitmap(int x, int y, int width, int height, const char* vertex = NULL, const char* fragment = NULL);
+	Bitmap(const char* vertex = NULL, const char* fragment = NULL);
 	virtual ~Bitmap();
 
 	//Base

@@ -38,7 +38,11 @@ Rect::Rect(float x, float y, float width, float height, const char* vertexShader
 	privateConstruct(vertexShader, fragmentShader);
 	setN(x,y,width,height);
 }
-
+Rect::Rect(const char* vertexShader, const char* fragmentShader)
+{
+	privateConstruct(vertexShader, fragmentShader);
+	setN(0,0,0,0);
+}
 
 void Rect::privateConstruct(const char* aVertexShader, const char* aFragmentShader)
 {
@@ -55,15 +59,6 @@ Rect::~Rect()
 	/* empty */
 }
 
-void Rect::set(int aX, int aY, int aWidth, int aHeight)
-{
-	setN(
-		 -1.f + 2.f*(float)aX/GetCore()->screen_width,
-		 -1.f/GetCore()->ratio + 2.f*(float)aY/GetCore()->screen_width,
-		 2.f*(float)aWidth/GetCore()->screen_width,
-		 2.f*(float)aHeight/GetCore()->screen_width
-		 );
-}
 
 void Rect::setColor(GLfloat aColor[4])
 {
@@ -108,30 +103,85 @@ void Rect::setRotation(GLfloat aAngle)
 //
 //}
 
-/*
- * params x,y center of rect
- * params width, height
- */
 
-void Rect::setN(float x, float y, float width, float height)
+void Rect::setX(int aX)
 {
-	setSizeN(width,height);
-	setCenterN(x + width*0.5f, y + height*0.5f);
+	setXN(-1.f + 2.f*(float)aX/GetCore()->screen_width);
 }
+
+void Rect::setY(int aY)
+{
+	 setYN(-1.f/GetCore()->ratio + 2.f*(float)aY/GetCore()->screen_width);
+}
+
+void Rect::setXN(float x)
+{
+	translate[0] = x;
+}
+
+void Rect::setYN(float y)
+{
+	translate[1] = -y*GetCore()->ratio;
+}
+
+
+void Rect::setWidth(int aWidth)
+{
+	setWidthN(2.f*(float)aWidth/GetCore()->screen_width);
+
+}
+void Rect::setHeight(int aHeight)
+{
+	setHeightN(2.f*(float)aHeight/GetCore()->screen_width);
+}
+
+void Rect::set(int aX, int aY, int aWidth, int aHeight)
+{
+	setX(aX);
+	setY(aY);
+	setWidth(aWidth);
+	setHeight(aHeight);
+
+//	setN(
+//		 -1.f + 2.f*(float)aX/GetCore()->screen_width,
+//		 -1.f/GetCore()->ratio + 2.f*(float)aY/GetCore()->screen_width,
+//		 2.f*(float)aWidth/GetCore()->screen_width,
+//		 2.f*(float)aHeight/GetCore()->screen_width
+//		 );
+}
+
+void Rect::setN(float aX, float aY, float aWidth, float aHeight)
+{
+	setXN(aX);
+	setYN(aY);
+	setWidthN(aWidth);
+	setHeightN(aHeight);
+}
+
+
+void Rect::setWidthN(float width)
+{
+	float half_width=width*0.5f;
+	square_vertices[0] = -half_width;
+	square_vertices[2] = half_width;
+	square_vertices[4] = half_width;
+	square_vertices[6] = -half_width;
+
+}
+void Rect::setHeightN(float height)
+{
+	float half_height=height*0.5f;
+	square_vertices[1] = -half_height;
+	square_vertices[3] = -half_height;
+	square_vertices[5] = half_height;
+	square_vertices[7] = half_height;
+}
+
 
 void Rect::setSizeN(float width, float height)
 {
-	float half_width=width*0.5f;
-	float half_height=height*0.5f;
-
-	square_vertices[0] = -half_width;
-	square_vertices[1] = -half_height;
-	square_vertices[2] = half_width;
-	square_vertices[3] = -half_height;
-	square_vertices[4] = half_width;
-	square_vertices[5] = half_height;
-	square_vertices[6] = -half_width;
-	square_vertices[7] = half_height;
+	setWidthN(width);
+	setHeightN(height);
 }
 
 void Rect::setCenterN(float x, float y)
@@ -143,7 +193,6 @@ void Rect::setCenterN(float x, float y)
 void Rect::setCornersN(float tl_x, float tl_y, float tr_x, float tr_y,
 		float bl_x, float bl_y, float br_x, float br_y)
 {
-	//LOGSCOPE;
 	square_vertices[0] = tl_x;
 	square_vertices[1] = tl_y;
 	square_vertices[2] = tr_x;
