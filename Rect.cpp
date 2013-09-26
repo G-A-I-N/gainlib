@@ -65,10 +65,11 @@ void Rect::setColor(GLfloat aColor[4])
 	memcpy(color,aColor, sizeof(color));
 }
 
-void Rect::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+Rect* Rect::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 {
 	GLfloat color[4] = {red, green, blue, alpha};
 	setColor(color);
+	return this;
 }
 
 void Rect::setRotation(GLfloat aAngle)
@@ -106,33 +107,33 @@ void Rect::setRotation(GLfloat aAngle)
 
 void Rect::setX(int aX)
 {
-	setXN(-1.f + 2.f*(float)aX/GetCore()->screen_width);
+	setXN(-1.f + 2.f*((float)aX)/GetCore()->screen_width);
 }
 
 void Rect::setY(int aY)
 {
-	 setYN(-1.f/GetCore()->ratio + 2.f*(float)aY/GetCore()->screen_width);
+	 setYN(-1.f/GetCore()->ratio + 2.f*((float)aY)/GetCore()->screen_width);
 }
 
 void Rect::setXN(float x)
 {
-	translate[0] = x;
+	pPositionX = x;
 }
 
 void Rect::setYN(float y)
 {
-	translate[1] = -y*GetCore()->ratio;
+	pPositionY = -y*GetCore()->ratio;
 }
 
 
 void Rect::setWidth(int aWidth)
 {
-	setWidthN(2.f*(float)aWidth/GetCore()->screen_width);
+	setWidthN(2.f*((float)aWidth)/GetCore()->screen_width);
 
 }
 void Rect::setHeight(int aHeight)
 {
-	setHeightN(2.f*(float)aHeight/GetCore()->screen_width);
+	setHeightN(2.f*((float)aHeight)/GetCore()->screen_width);
 }
 
 void Rect::set(int aX, int aY, int aWidth, int aHeight)
@@ -161,33 +162,47 @@ void Rect::setN(float aX, float aY, float aWidth, float aHeight)
 
 void Rect::setWidthN(float width)
 {
-	float half_width=width*0.5f;
-	square_vertices[0] = -half_width;
-	square_vertices[2] = half_width;
-	square_vertices[4] = half_width;
-	square_vertices[6] = -half_width;
+	pHalfWidth=width*0.5f;
+	square_vertices[0] = -pHalfWidth;
+	square_vertices[2] = pHalfWidth;
+	square_vertices[4] = pHalfWidth;
+	square_vertices[6] = -pHalfWidth;
 
 }
 void Rect::setHeightN(float height)
 {
-	float half_height=height*0.5f;
-	square_vertices[1] = -half_height;
-	square_vertices[3] = -half_height;
-	square_vertices[5] = half_height;
-	square_vertices[7] = half_height;
+	pHalfHeight=height*0.5f;
+	square_vertices[1] = -pHalfHeight;
+	square_vertices[3] = -pHalfHeight;
+	square_vertices[5] = pHalfHeight;
+	square_vertices[7] = pHalfHeight;
 }
 
 
-void Rect::setSizeN(float width, float height)
+Rect* Rect::setSizeN(float width, float height)
 {
 	setWidthN(width);
 	setHeightN(height);
+	return this;
+}
+Rect* Rect::setPositionN(float x, float y, Placement aPlacement)
+{
+	setXN(x);
+	setYN(y);
+	setPlacement(aPlacement);
+	return this;
+}
+
+void Rect::setPlacement(Placement aPlacement)
+{
+	pPlacement = aPlacement;
 }
 
 void Rect::setCenterN(float x, float y)
 {
-	translate[0] = x;
-	translate[1] = -y*GetCore()->ratio;
+	setXN(x);
+	setYN(y);
+	setPlacement(MID_CENTER);
 }
 
 void Rect::setCornersN(float tl_x, float tl_y, float tr_x, float tr_y,
@@ -202,8 +217,8 @@ void Rect::setCornersN(float tl_x, float tl_y, float tr_x, float tr_y,
 	square_vertices[6] = bl_x;
 	square_vertices[7] = bl_y;
 
-	translate[0] = 0;
-	translate[1] = 0;
+	pPositionX = 0;
+	pPositionY = 0;
 }
 
 
@@ -267,7 +282,22 @@ bool Rect::setupGraphics() {
 
 void Rect::updateG(float time, float timeDelta)
 {
-	translate_mat = glm::translate(glm::mat4(1.0f), glm::vec3(translate[0],translate[1], 0.0));
+//	if(updateTranslationMat)
+	{
+		float translateX = pPositionX;
+		float translateY = pPositionY;
+
+		if(pPlacement & (PLACEMENT_LEFT | PLACEMENT_RIGHT))
+		{
+			translateX += pPlacement & PLACEMENT_RIGHT ? -pHalfWidth : pHalfWidth;
+		}
+		if(pPlacement & (PLACEMENT_TOP | PLACEMENT_BOTTOM))
+		{
+			translateY += (pPlacement & PLACEMENT_TOP ? -pHalfHeight : pHalfHeight)*GetCore()->ratio;
+		}
+
+		translate_mat = glm::translate(glm::mat4(1.0f), glm::vec3(translateX,translateY, 0.0));
+	}
 	scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.f,GetCore()->ratio, 1.0));
 	rotate = glm::rotate(glm::mat4(1.0f), pAngle, glm::vec3(0.0, 0.0, 1.0)) ;
 

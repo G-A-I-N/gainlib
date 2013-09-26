@@ -12,6 +12,27 @@
 
 namespace Gain {
 
+typedef enum _Placement
+{
+	PLACEMENT_LEFT   = 0x02,
+	PLACEMENT_RIGHT  = 0x01,
+	PLACEMENT_TOP    = 0x20,
+	PLACEMENT_BOTTOM = 0x10,
+
+	TOP_LEFT      = 0x22,
+	TOP_CENTER    = 0x20,
+	TOP_RIGHT     = 0x21,
+
+	MID_LEFT      = 0x02,
+	MID_CENTER    = 0x00,
+	MID_RIGHT     = 0x01,
+
+	BOT_LEFT      = 0x12,
+	BOT_CENTER    = 0x10,
+	BOT_RIGHT     = 0x11
+
+} Placement;
+
 class Rect: public Gain::Base {
 public:
 	Rect(int x, int y, int width, int height, const char* vertexShader=NULL, const char* fragmentShader=NULL);
@@ -35,7 +56,11 @@ public:
 	void setWidthN(float width);
 	void setHeightN(float height);
 
-	void setSizeN(float width, float height);
+	Rect* setSizeN(float width, float height);
+	Rect* setPositionN(float x,float y,Placement placement);
+
+	void setPlacement(Placement aPlacement);
+
 
 	void setCenterN(float x, float y);
 	void setCornersN(
@@ -46,7 +71,7 @@ public:
 			);
 
 	void setColor(GLfloat color[4]);
-	void setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+	Rect* setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 
 	void setRotation(GLfloat angle);
 
@@ -63,6 +88,11 @@ protected:
 
 //	float pXcenter,pYcenter,pWidth,pHeight;
 
+	float pHalfWidth,pHalfHeight;
+	float pPositionX, pPositionY;
+
+	Placement pPlacement;
+
 	GLfloat pAngle;
 
 	GLint attribute_coord2d;
@@ -75,7 +105,7 @@ protected:
 	GLint uniform_color;
 
 	GLfloat square_vertices[8];
-	GLfloat translate[2];
+	GLfloat trunslate[2];
 
 	GLfloat TODO_fix_this_add_memoryleakage;
 	GLfloat color[4];
