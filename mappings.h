@@ -9,7 +9,7 @@
 #define MAPPINGS_H_
 
 
-//#define LOGISON
+#define LOGISON
 
 #if 0
 #ifndef TARGET_LOGGER_ADDRESS

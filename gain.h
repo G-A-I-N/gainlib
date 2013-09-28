@@ -19,5 +19,6 @@
 #include <PngBitmap.h>
 #include <Text.h>
 #include <PixelCanvas.h>
+#include <PerfCounterItem.h>
 
 #endif /* GAIN_H_ */

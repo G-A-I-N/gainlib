@@ -28,6 +28,10 @@ Core::Core()
 {
     LOCK_INIT(renderClientsLock);
     LOCK_INIT(touchClientsLock);
+
+	myCoreUpdateLoopCallCounter.SetName("updateG loop");
+	myAppUpdateLoopCallCounter.SetName("update loop");
+	myRenderLoopCallCounter.SetName("Render loop");
 }
 
 Core::~Core() {
@@ -94,10 +98,13 @@ bool Core::setupGraphics(int w, int h) {
 void Core::updateG(float time, float deltaTime)
 {
 
+	myCoreUpdateLoopCallCounter.Increment(1);
+
 	if (pScene > renderClients.size()) {
 		return;
 	}
     LOCK_ACQUIRE(renderClientsLock);
+#if 0
 	LOGSCOPE;
 
     static int lastTime = 0;
@@ -110,8 +117,9 @@ void Core::updateG(float time, float deltaTime)
 		LOGI(buf);
 		pFps=0;
 	}
-
     lastTime = time;
+#endif
+
 
     if (renderClients.size() > SCENE_DEFAULT_BACK) {
 		std::vector<BaseContainer*> current = renderClients[SCENE_DEFAULT_BACK];
@@ -157,11 +165,12 @@ void Core::updateG(float time, float deltaTime)
 
 void Core::update(float time, float deltaTime)
 {
+	myAppUpdateLoopCallCounter.Increment(1);
+
 	if (pScene > renderClients.size()) {
 		return;
 	}
     LOCK_ACQUIRE(renderClientsLock);
-	LOGSCOPE;
 	if (renderClients.size() > SCENE_DEFAULT_BACK) {
 		std::vector<BaseContainer*> current = renderClients[SCENE_DEFAULT_BACK];
 		for (size_t n = 0; n < current.size(); n++) {
@@ -199,8 +208,8 @@ void Core::update(float time, float deltaTime)
 
 void Core::renderFrame() {
 	//	LOGI("renderFrame()");
+	myRenderLoopCallCounter.Increment(1);
     LOCK_ACQUIRE(renderClientsLock);
-	LOGSCOPE;
 	static float grey = 0.001f;
 	pFps ++;
 

@@ -18,7 +18,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include "mappings.h"
-
+#include "PerfCounterItem.h"
 #include "TouchInterface.h"
 
 
@@ -82,6 +82,14 @@ private:
     LOCK touchClientsLock;
 
 	int pFps;
+
+	/* PerformanceCounters. Initialized when name is set */
+	Gain::PerfCounterItem myCoreUpdateLoopCallCounter;
+	Gain::PerfCounterItem myAppUpdateLoopCallCounter;
+	Gain::PerfCounterItem myRenderLoopCallCounter;
+
+
+
 };
 
 Core* GetCore();

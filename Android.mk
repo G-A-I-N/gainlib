@@ -15,7 +15,9 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					PngBitmap.cpp\
 					Text.cpp\
 					TouchInterface.cpp \
-					Logger.cpp
+					Logger.cpp \
+					PerfomanceCounter.cpp \
+					PerfCounterItem.cpp
 					
 LOCAL_C_INCLUDES := gain/freetype/include \
                     gain/freetype/include/freetype2 \
