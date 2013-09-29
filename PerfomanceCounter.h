@@ -10,7 +10,7 @@
 
 #include <string>
 #include <vector>
-
+#include "gain.h"
 using namespace std;
 
 namespace Gain {
@@ -22,6 +22,12 @@ public:
 
 	/* Sends all current performance counters to logging API. Call this less than 1Hz rate to avoid overhead */
 	void DumpCounters();
+
+	/* Sets visualization mode of counters. If on, values are shown top of screen */
+	bool VisualizeCounters(bool SetOn);
+
+	/* Toggles visualization mode of counters. Returns status of visualization after toggle  */
+	bool ToggleVisualizationOfCounters();
 
 	/* Create new Performancecounter. You receive Id for return. If -1 then adding failed. If already exists,
 	 * you get current id  */
@@ -45,14 +51,19 @@ private:
 
 	int FindPerformanceCounter(char *name);
 
+	void UpdateCounterValuesToCanvas();
+
 	struct performanceCounterItem {
 		string PerformanceCounterName;
 		int PerformanceCounterValue;
+		Gain::Text *VisualizeTextValueRect;
+		Gain::Text *VisualizeTextNameRect;
 	};
 
 	vector<performanceCounterItem>mPerformanceCounters;
 
-
+	Gain::Text *mPerfCounterInfoText;
+	bool mbVisualizationIsOn;
 
 };
 

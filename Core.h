@@ -87,6 +87,7 @@ private:
 	Gain::PerfCounterItem myCoreUpdateLoopCallCounter;
 	Gain::PerfCounterItem myAppUpdateLoopCallCounter;
 	Gain::PerfCounterItem myRenderLoopCallCounter;
+	Gain::PerfCounterItem myRenderClientsCountCounter;
 
 
 

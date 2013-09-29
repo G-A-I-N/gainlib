@@ -29,9 +29,10 @@ Core::Core()
     LOCK_INIT(renderClientsLock);
     LOCK_INIT(touchClientsLock);
 
-	myCoreUpdateLoopCallCounter.SetName("updateG loop");
-	myAppUpdateLoopCallCounter.SetName("update loop");
-	myRenderLoopCallCounter.SetName("Render loop");
+	myCoreUpdateLoopCallCounter.SetName("updateGLoop rate");
+	myAppUpdateLoopCallCounter.SetName("updateLoop rate");
+	myRenderLoopCallCounter.SetName("RenderLoop rate");
+	myRenderClientsCountCounter.SetName("Render clients count");
 }
 
 Core::~Core() {
@@ -100,6 +101,10 @@ void Core::updateG(float time, float deltaTime)
 
 	myCoreUpdateLoopCallCounter.Increment(1);
 
+	int renderClientItems = 0;
+
+
+
 	if (pScene > renderClients.size()) {
 		return;
 	}
@@ -130,6 +135,7 @@ void Core::updateG(float time, float deltaTime)
 				child->state = INITIALIZED;
 			}
 			child->base->updateG(time, deltaTime);
+			renderClientItems++;
 		}
 
 	}
@@ -143,6 +149,7 @@ void Core::updateG(float time, float deltaTime)
 				child->state = INITIALIZED;
 			}
 			child->base->updateG(time, deltaTime);
+			renderClientItems++;
 		}
 
 	}
@@ -156,10 +163,14 @@ void Core::updateG(float time, float deltaTime)
 				child->state = INITIALIZED;
 			}
 			child->base->updateG(time, deltaTime);
+			renderClientItems++;
 		}
 
 	}
     LOCK_RELEASE(renderClientsLock);
+
+    /* Update renderClients performance counter */
+    myRenderClientsCountCounter.SetCounterValue(renderClientItems);
 
 }
 

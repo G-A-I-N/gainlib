@@ -5,6 +5,8 @@
  *      Author: Erkki
  */
 
+#include <string>
+#include <sstream>
 #include "gain.h"
 
 #include "PerfomanceCounter.h"
@@ -21,31 +23,133 @@ PerfomanceCounter* GetPerformanceCounter() {
 }
 
 PerfomanceCounter::PerfomanceCounter() {
-	// TODO Auto-generated constructor stub
+	mbVisualizationIsOn = false;
+	mPerfCounterInfoText = NULL;
 
 }
 
 PerfomanceCounter::~PerfomanceCounter() {
-	// TODO Auto-generated destructor stub
+}
+
+bool PerfomanceCounter::ToggleVisualizationOfCounters() {
+
+	VisualizeCounters(!mbVisualizationIsOn);
+
+	return mbVisualizationIsOn;
+}
+
+bool PerfomanceCounter::VisualizeCounters(bool SetOn){
+
+	Core* core = GetCore();
+	bool ret = false;
+
+	if (SetOn==true) {
+
+		if (mbVisualizationIsOn==false) {
+
+			int x,y;
+			const int textHeight = 24;
+			int yOffset = core->screen_height/2-(mPerformanceCounters.size()*textHeight)/2;
+
+			x = core->screen_width*(1/16.0);
+			y = -1*textHeight+yOffset;
+
+			assert(mPerfCounterInfoText==NULL);
+			mPerfCounterInfoText = new Gain::Text((int)x, (int)y, (int)textHeight,"Perfomance counters");
+			mPerfCounterInfoText->setColor(1.f, 0.0f, 0.0f, 1.0f);
+			mPerfCounterInfoText->setPlacement(TOP_LEFT);
+			Gain::GetCore()->addRenderClient(mPerfCounterInfoText,SCENE_DEFAULT_FRONT);
+
+			for (int k=0;k<mPerformanceCounters.size();k++) {
+
+				assert( mPerformanceCounters[k].VisualizeTextNameRect==NULL);
+				assert( mPerformanceCounters[k].VisualizeTextValueRect==NULL);
+
+				y = k*textHeight+yOffset;
+
+				if (y<core->screen_height) { // Show only items that fits to screen
+
+					x = core->screen_width*(1/16.0);
+					Gain::Text *myHeaderText = new Gain::Text((int)x, (int)y, (int)textHeight,mPerformanceCounters[k].PerformanceCounterName.c_str());
+					myHeaderText->setColor(1.f, 0.0f, 0.0f, 1.0f);
+					myHeaderText->setPlacement(TOP_LEFT);
+					Gain::GetCore()->addRenderClient(myHeaderText,SCENE_DEFAULT_FRONT);
+					mPerformanceCounters[k].VisualizeTextNameRect = myHeaderText;
+
+					x = core->screen_width*(3/4.0);
+					Gain::Text *myValueText = new Gain::Text((int)x, y, textHeight,"0");
+					myValueText->setColor(1.f, 0.0f, 0.0f, 1.0f);
+					myValueText->setPlacement(TOP_LEFT);
+					Gain::GetCore()->addRenderClient(myValueText,SCENE_DEFAULT_FRONT);
+					mPerformanceCounters[k].VisualizeTextValueRect = myValueText;
+				}
+			}
+			mbVisualizationIsOn = true;
+			ret = true;
+		}
+	}
+	else {
+
+		if (mbVisualizationIsOn==true) {
+
+			if (mPerfCounterInfoText!=NULL) {
+				mPerfCounterInfoText->setColor(1,1,1,0);
+				core->removeRenderClient(mPerfCounterInfoText);
+				mPerfCounterInfoText = NULL; // deleted by render client
+			}
+
+			for (int k=0;k<mPerformanceCounters.size();k++) {
+
+				if(mPerformanceCounters[k].VisualizeTextNameRect!=NULL) {
+				mPerformanceCounters[k].VisualizeTextNameRect->setColor(1,1,1,0);
+				core->removeRenderClient(mPerformanceCounters[k].VisualizeTextNameRect);
+				mPerformanceCounters[k].VisualizeTextNameRect = NULL; // deleted by render client
+				}
+
+				if(mPerformanceCounters[k].VisualizeTextValueRect!=NULL) {
+				mPerformanceCounters[k].VisualizeTextValueRect->setColor(1,1,1,0);
+				core->removeRenderClient(mPerformanceCounters[k].VisualizeTextValueRect);
+				mPerformanceCounters[k].VisualizeTextValueRect = NULL; // deleted by render client
+				}
+			}
+			mbVisualizationIsOn = false;
+			ret = true;
+		}
+	}
+	return ret;
 }
 
 
 void PerfomanceCounter::DumpCounters() {
 
+	UpdateCounterValuesToCanvas();
+
 	for (int k=0;k<mPerformanceCounters.size();k++) {
 
-		performanceCounterItem myCounter;
-
-		myCounter = mPerformanceCounters[k];
-
 		/* Use TimeToPic format */
-		LOGVALUE(myCounter.PerformanceCounterName.c_str(),myCounter.PerformanceCounterValue);
+		LOGVALUE(mPerformanceCounters[k].PerformanceCounterName.c_str(),mPerformanceCounters[k].PerformanceCounterValue);
 
 		/* reset value */
 		/* Note that mutex protection is not added. In some cases result may be inaccurate if simultaneuous access
 		 * to same item. For performance reasones, mutex is not added
 		 */
 		mPerformanceCounters[k].PerformanceCounterValue = 0;
+	}
+
+}
+
+void PerfomanceCounter::UpdateCounterValuesToCanvas() {
+
+	for (int k=0;k<mPerformanceCounters.size();k++) {
+
+		if (mPerformanceCounters[k].VisualizeTextValueRect!=NULL) {
+
+			ostringstream ss;
+			ss << mPerformanceCounters[k].PerformanceCounterValue;
+			ss.str();
+			mPerformanceCounters[k].VisualizeTextValueRect->setText(ss.str().c_str());
+		}
+
 	}
 
 }
@@ -73,6 +177,8 @@ int PerfomanceCounter::AddPerformanceCounter(char *name) {
 		performanceCounterItem myCounter;
 		myCounter.PerformanceCounterName = string(name);
 		myCounter.PerformanceCounterValue = 0;
+		myCounter.VisualizeTextNameRect = NULL;
+		myCounter.VisualizeTextValueRect = NULL;
 
 		mPerformanceCounters.push_back (myCounter);
 		ret = mPerformanceCounters.size()-1;
@@ -80,6 +186,13 @@ int PerfomanceCounter::AddPerformanceCounter(char *name) {
 	else {
 		/* reuse */
 	}
+
+	/* Refresh counter visualization if on */
+	if (this->mbVisualizationIsOn == true) {
+		VisualizeCounters(false);
+		VisualizeCounters(true);
+	}
+
 	return ret;
 }
 

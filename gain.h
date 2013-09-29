@@ -20,5 +20,6 @@
 #include <Text.h>
 #include <PixelCanvas.h>
 #include <PerfCounterItem.h>
+#include <PerfomanceCounter.h>
 
 #endif /* GAIN_H_ */
