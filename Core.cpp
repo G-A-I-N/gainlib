@@ -10,9 +10,11 @@
 #include "Core.h"
 #include "Base.h"
 #include "TouchInterface.h"
+#include "PerfomanceCounter.h"
 
 #undef CORE_INCLUDE
 
+const float performanceCounterDumpTimeIntervalSec = 1.0;
 
 static void printGLString(const char *name, GLenum s) {
     const char *v = (const char *) glGetString(s);
@@ -33,6 +35,7 @@ Core::Core()
 	myAppUpdateLoopCallCounter.SetName("updateLoop rate");
 	myRenderLoopCallCounter.SetName("RenderLoop rate");
 	myRenderClientsCountCounter.SetName("Render clients count");
+	mlastPerforManceCounterUpdateTimeSec = 0;
 }
 
 Core::~Core() {
@@ -215,6 +218,13 @@ void Core::update(float time, float deltaTime)
 	}
 
     LOCK_RELEASE(renderClientsLock);
+
+    /* Performance counters dump position */
+    mlastPerforManceCounterUpdateTimeSec+=deltaTime;
+	if (mlastPerforManceCounterUpdateTimeSec>performanceCounterDumpTimeIntervalSec) {
+		GetPerformanceCounter()->DumpCounters();
+		mlastPerforManceCounterUpdateTimeSec=0;
+	}
 }
 
 void Core::renderFrame() {

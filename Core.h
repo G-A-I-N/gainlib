@@ -90,6 +90,8 @@ private:
 	Gain::PerfCounterItem myRenderClientsCountCounter;
 
 
+	/* Performance counters dump timer */
+	float mlastPerforManceCounterUpdateTimeSec;
 
 };
 
