@@ -291,19 +291,52 @@ void Core::addRenderClient(Base* aBase, unsigned int aScene)
     LOCK_RELEASE(renderClientsLock);
 }
 
-void Core::removeRenderClient(Base* base, unsigned int aScene) {
-    LOCK_ACQUIRE(renderClientsLock);
+void Core::removeRenderClient(Base* base, int aScene) {
+	LOCK_ACQUIRE(renderClientsLock);
 	LOGSCOPE;
-	if (aScene < renderClients.size()) {
-		for (size_t n = 0; n < renderClients[aScene].size(); n++)
-			if (base == renderClients[aScene][n]->base) {
-				renderClients[aScene].erase(renderClients[aScene].begin() + n);
-                LOCK_RELEASE(renderClientsLock);
-				return;
-			}
-	}
+	if (aScene < renderClients.size() || aScene==-1) {
 
-    LOCK_RELEASE(renderClientsLock);
+		/* Search base pointer from all scenes or designated scene */
+		size_t SceneStart = 0;
+		size_t SceneFinish = 0;
+		if (aScene==-1) {
+			/* Search from all scenes */
+			SceneStart = 0;
+			SceneFinish = renderClients.size()-1;
+		}
+		else {
+			SceneStart = aScene;
+			SceneFinish = aScene;
+		}
+
+		/* Iterate scenes */
+		for (size_t y = SceneStart;y<SceneFinish+1;y++) {
+
+			/* Iterates vectors of containers */
+			for (size_t n = 0; n < renderClients[y].size(); n++) {
+				/* If match */
+				if (base == renderClients[y][n]->base && base!=NULL) {
+
+					/* Delete container and and render client. */
+					BaseContainer* container = renderClients[y][n];
+
+					renderClients[y].erase(renderClients[y].begin() + n);
+
+					/* Delete render client item from memory. */
+					delete container->base;
+					container->base = NULL;
+
+					/* delete container from memory. Note that render client is not deleted.*/
+					delete container;
+					container = NULL;
+					goto exitFors; // avoid early returns
+				}
+			}
+		}
+	}
+	exitFors:
+	LOCK_RELEASE(renderClientsLock);
+	return;
 }
 
 void Core::invalidateAllRenderers(bool fullReset) {
