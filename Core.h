@@ -39,6 +39,7 @@ class Base;
 typedef struct _BaseContainer{
 	Base* base;
 	BaseState state;
+
 } BaseContainer;
 
 
@@ -57,7 +58,12 @@ public:
 	void renderFrame();
 
     void addRenderClient(Base* aBase, unsigned int aScene=SCENE_DEFAULT_BACK) ;
-    void removeRenderClient(Base* base, unsigned int aScene=SCENE_DEFAULT_BACK) ;
+
+    /* Removes render client item from scene. For performance reasons, using
+     * aScene, deletion is bit faster. If aScene == -1, then base is looked up
+     * from all layers.
+     */
+    void removeRenderClient(Base* base, int aScene=-1) ;
 
     void addTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_DEFAULT_BACK) ;
     void removeTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_DEFAULT_BACK) ;
@@ -75,8 +81,8 @@ public:
 	float ratio, reversed_ratio;
 private:
     unsigned int pScene;
-	std::vector< std::vector<BaseContainer*> > renderClients;
-	std::vector< std::vector<TouchContainer*> > touchClients;
+    std::vector< std::vector<BaseContainer*> > renderClients;
+    std::vector< std::vector<TouchContainer*> > touchClients;
 
     LOCK renderClientsLock;
     LOCK touchClientsLock;
