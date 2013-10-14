@@ -112,7 +112,7 @@ void Rect::setX(int aX)
 
 void Rect::setY(int aY)
 {
-	 setYN(-1.f/GetCore()->ratio + 2.f*((float)aY)/GetCore()->screen_width);
+	 setYN(-1.f*GetCore()->reversed_ratio + 2.f*((float)aY)/GetCore()->screen_width);
 }
 
 void Rect::setXN(float x)
