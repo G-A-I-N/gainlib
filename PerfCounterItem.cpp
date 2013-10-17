@@ -18,7 +18,7 @@ PerfCounterItem::~PerfCounterItem() {
 }
 
 
-bool PerfCounterItem::SetName(char* name) {
+bool PerfCounterItem::SetName(const char* name) {
 	bool ret = false;
 
 	mPerfCounterId = GetPerformanceCounter()->AddPerformanceCounter(name);

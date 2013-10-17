@@ -154,7 +154,7 @@ void PerfomanceCounter::UpdateCounterValuesToCanvas() {
 
 }
 
-int PerfomanceCounter::FindPerformanceCounter(char *name) {
+int PerfomanceCounter::FindPerformanceCounter(const char *name) {
 
 	int ret = -1;
 	/* Slow linear search */
@@ -168,7 +168,7 @@ int PerfomanceCounter::FindPerformanceCounter(char *name) {
 	return ret;
 }
 
-int PerfomanceCounter::AddPerformanceCounter(char *name) {
+int PerfomanceCounter::AddPerformanceCounter(const char *name) {
 
 	int ret = FindPerformanceCounter(name);
 
@@ -197,7 +197,7 @@ int PerfomanceCounter::AddPerformanceCounter(char *name) {
 }
 
 
-bool PerfomanceCounter::IncrementPerformanceCounter(char *performanceCounterName,int increment) {
+bool PerfomanceCounter::IncrementPerformanceCounter(const char *performanceCounterName,int increment) {
 	bool ret = false;
 
 	int PerfCounterId = FindPerformanceCounter(performanceCounterName);
@@ -220,7 +220,7 @@ bool PerfomanceCounter::IncrementPerformanceCounter(int PerformanceCounterId,int
 	return ret;
 }
 
-bool PerfomanceCounter::SetPerformanceCounter(char *performanceCounterName,int newValue) {
+bool PerfomanceCounter::SetPerformanceCounter(const char *performanceCounterName,int newValue) {
 	bool ret = false;
 
 	int PerfCounterId = FindPerformanceCounter(performanceCounterName);
@@ -242,7 +242,7 @@ bool  PerfomanceCounter::SetPerformanceCounter(int PerformanceCounterId,int newV
 
 
 
-int PerfomanceCounter::GetPerformanceCounterId(char *performanceCounterName) {
+int PerfomanceCounter::GetPerformanceCounterId(const char *performanceCounterName) {
 	int ret = 0;
 	ret =  FindPerformanceCounter(performanceCounterName);
 	return ret;
