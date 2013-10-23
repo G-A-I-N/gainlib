@@ -21,6 +21,7 @@
 #include "PerfCounterItem.h"
 #include "TouchInterface.h"
 
+#define CORE GetCore()
 
 namespace Gain {
 
