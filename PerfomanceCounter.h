@@ -31,25 +31,25 @@ public:
 
 	/* Create new Performancecounter. You receive Id for return. If -1 then adding failed. If already exists,
 	 * you get current id  */
-	int AddPerformanceCounter(char *name);
+	int AddPerformanceCounter(const char *name);
 
 	/* Increment performanceCounter by Name. Name lookup is slow, but usage is easier */
-	bool IncrementPerformanceCounter(char *performanceCounterName,int increment);
+	bool IncrementPerformanceCounter(const char *performanceCounterName,int increment);
 
 	/* Increment performance counter by using performance counter id */
 	bool IncrementPerformanceCounter(int PerformanceCounterId,int increment);
 
 	/* Set performanceCounter by Name. Name lookup is slow, but usage is easier */
-	bool SetPerformanceCounter(char *performanceCounterName,int newValue);
+	bool SetPerformanceCounter(const char *performanceCounterName,int newValue);
 
 	/* Set performance counter by using performance counter id */
 	bool SetPerformanceCounter(int PerformanceCounterId,int newValue);
 
 	/* Get Performance counter Id */
-	int GetPerformanceCounterId(char *performanceCounterName);
+	int GetPerformanceCounterId(const char *performanceCounterName);
 private:
 
-	int FindPerformanceCounter(char *name);
+	int FindPerformanceCounter(const char *name);
 
 	void UpdateCounterValuesToCanvas();
 

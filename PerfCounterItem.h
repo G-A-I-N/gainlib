@@ -16,7 +16,7 @@ public:
 	virtual ~PerfCounterItem();
 
 	/* Set PerformanceCounter Object name. If not set, nothing is traced */
-	bool SetName(char *name);
+	bool SetName(const char *name);
 
 	/* Incrmenent performance counter value by increment. Use this if you "add" or call something */
 	bool Increment(int incrementvalue);
