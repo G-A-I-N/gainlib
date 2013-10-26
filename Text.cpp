@@ -167,6 +167,10 @@ void Text::setText(const char* text)
 	updateBitmap = true;
 }
 
+char *Text::getText() {
+	return pTextBuffer;
+}
+
 bool Text::initVariables()
 {
 	if(!super::initVariables()) {

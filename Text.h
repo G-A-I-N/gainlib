@@ -29,6 +29,7 @@ public:
 	virtual ~Text();
 
 	void setText(const char* text);
+	char *getText();
 	//Base
 	virtual void updateG(float time, float timeDelta);
 
