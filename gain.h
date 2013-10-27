@@ -14,6 +14,7 @@
 #include <Core.h>
 #include <TouchInterface.h>
 #include <Layer.h>
+#include <Menu.h>
 #include <Rect.h>
 #include <Bitmap.h>
 #include <PngBitmap.h>

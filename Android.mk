@@ -8,6 +8,7 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					Core.cpp\
 					Base.cpp\
 					Layer.cpp\
+					Menu.cpp\
 					Rect.cpp\
 					ShaderTest.cpp\
 					PixelCanvas.cpp\
