@@ -385,30 +385,31 @@ void Core::removeTouchClient(TouchInterface* aInterface, unsigned int aScene)
 void Core::offerTouchDown(TouchPoint* aTouchPoint)
 {
 	LOGSCOPE;
-	if (touchClients.size() > SCENE_DEFAULT_BACK) {
-		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_BACK];
-		for (size_t n = 0; n < current.size(); n++) {
+	TouchState touchState = TOUCH_NOT_CONSUMED;
+
+	if (touchClients.size() > SCENE_DEFAULT_FRONT) {
+		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_FRONT];
+		for (size_t n = 0; n < current.size() && touchState; n++) {
 			TouchContainer* container = current[n];
-			container->touchInterface->TouchDown(aTouchPoint);
+			touchState = container->touchInterface->TouchDown(aTouchPoint);
 		}
 	}
 
 	if (pScene > SCENE_DEFAULT_FRONT && pScene < touchClients.size()) {
 		std::vector<TouchContainer*> current = touchClients[pScene];
-		for (size_t n = 0; n < current.size(); n++) {
+		for (size_t n = 0; n < current.size() && touchState; n++) {
 			TouchContainer* container = current[n];
-			container->touchInterface->TouchDown(aTouchPoint);
+			touchState = container->touchInterface->TouchDown(aTouchPoint);
 		}
 	}
 
-	if (touchClients.size() > SCENE_DEFAULT_FRONT) {
-		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_FRONT];
-		for (size_t n = 0; n < current.size(); n++) {
+	if (touchClients.size() > SCENE_DEFAULT_BACK) {
+		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_BACK];
+		for (size_t n = 0; n < current.size() && touchState; n++) {
 			TouchContainer* container = current[n];
-			container->touchInterface->TouchDown(aTouchPoint);
+			touchState = container->touchInterface->TouchDown(aTouchPoint);
 		}
 	}
-
 }
 
 void Core::offerTouchMove(TouchPoint* aTouchPoint)
