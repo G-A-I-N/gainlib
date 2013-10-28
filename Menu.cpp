@@ -17,6 +17,7 @@ Menu::Menu()
 
 	CORE->addRenderClient( this , SCENE_DEFAULT_FRONT );
 	CORE->addTouchClient( this , SCENE_DEFAULT_FRONT );
+
 }
 
 Menu::~Menu()
@@ -35,9 +36,16 @@ TouchState Menu::TouchDown(TouchPoint* point)
 	if(!pMenuBg && abs(point->Xn) > 0.95)
 	{
 		pMenuBg = new Rect(-0.95f,-1.3f,1.9f,2.6f);
-		pMenuBg->setPositionN(0,0,MID_CENTER);
+
+		if(point->Xn > 0.95)
+			pMenuBg->setPositionN(2,0,MID_CENTER);
+		else
+			pMenuBg->setPositionN(-2,0,MID_CENTER);
+
+		pMenuBg->moveToN(0,0,2.7f);
 		pMenuBg->setColor(0,0,0.5,0.8);
 		addRenderClient( pMenuBg );
+		pMenuBg->addAnimationListener(this);
 		return TOUCH_CONSUMED;
 	}
 	if(pMenuBg)
@@ -72,6 +80,11 @@ TouchState Menu::TouchUp(TouchPoint* point)
 		return TOUCH_CONSUMED;
 	}
 	return TOUCH_NOT_CONSUMED;
+}
+
+void Menu::animationFinishedCallback(Base*)
+{
+
 }
 
 } /* namespace Gain */

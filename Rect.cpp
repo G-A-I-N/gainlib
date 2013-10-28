@@ -5,6 +5,7 @@
  *      Author: villekankainen
  */
 
+#include <algorithm>
 #include "Rect.h"
 
 namespace Gain {
@@ -78,7 +79,7 @@ void Rect::setRotation(GLfloat aAngle)
 }
 
 //void Rect::mapToGraphics() {
-//	Core* core = GetCore();
+//	Core* core = CORE;
 //
 //	float half_width  = pWidth / core->screen_width;
 //	float half_height = pHeight / core->screen_width;
@@ -107,12 +108,12 @@ void Rect::setRotation(GLfloat aAngle)
 
 void Rect::setX(int aX)
 {
-	setXN(-1.f + 2.f*((float)aX)/GetCore()->screen_width);
+	setXN(-1.f + 2.f*((float)aX)/CORE->screen_width);
 }
 
 void Rect::setY(int aY)
 {
-	 setYN(-1.f*GetCore()->reversed_ratio + 2.f*((float)aY)/GetCore()->screen_width);
+	 setYN(-1.f*CORE->reversed_ratio + 2.f*((float)aY)/CORE->screen_width);
 }
 
 void Rect::setXN(float x)
@@ -122,18 +123,27 @@ void Rect::setXN(float x)
 
 void Rect::setYN(float y)
 {
-	pPositionY = -y*GetCore()->ratio;
+	pPositionY = -y*CORE->ratio;
 }
 
+float Rect::getXN()
+{
+	return pPositionX;
+}
+
+float Rect::getYN()
+{
+	return -pPositionY*CORE->reversed_ratio;
+}
 
 void Rect::setWidth(int aWidth)
 {
-	setWidthN(2.f*((float)aWidth)/GetCore()->screen_width);
+	setWidthN(2.f*((float)aWidth)/CORE->screen_width);
 
 }
 void Rect::setHeight(int aHeight)
 {
-	setHeightN(2.f*((float)aHeight)/GetCore()->screen_width);
+	setHeightN(2.f*((float)aHeight)/CORE->screen_width);
 }
 
 void Rect::set(int aX, int aY, int aWidth, int aHeight)
@@ -144,10 +154,10 @@ void Rect::set(int aX, int aY, int aWidth, int aHeight)
 	setHeight(aHeight);
 
 //	setN(
-//		 -1.f + 2.f*(float)aX/GetCore()->screen_width,
-//		 -1.f/GetCore()->ratio + 2.f*(float)aY/GetCore()->screen_width,
-//		 2.f*(float)aWidth/GetCore()->screen_width,
-//		 2.f*(float)aHeight/GetCore()->screen_width
+//		 -1.f + 2.f*(float)aX/CORE->screen_width,
+//		 -1.f/CORE->ratio + 2.f*(float)aY/CORE->screen_width,
+//		 2.f*(float)aWidth/CORE->screen_width,
+//		 2.f*(float)aHeight/CORE->screen_width
 //		 );
 }
 
@@ -280,8 +290,9 @@ bool Rect::setupGraphics() {
 	return true;
 }
 
-void Rect::updateG(float time, float timeDelta)
+void Rect::updateG(float sec, float deltaSec)
 {
+	updateAnimation(sec,deltaSec);
 //	if(updateTranslationMat)
 	{
 		float translateX = pPositionX;
@@ -293,17 +304,17 @@ void Rect::updateG(float time, float timeDelta)
 		}
 		if(pPlacement & (PLACEMENT_TOP | PLACEMENT_BOTTOM))
 		{
-			translateY += (pPlacement & PLACEMENT_TOP ? -pHalfHeight : pHalfHeight)*GetCore()->ratio;
+			translateY += (pPlacement & PLACEMENT_TOP ? -pHalfHeight : pHalfHeight)*CORE->ratio;
 		}
 
 		translate_mat = glm::translate(glm::mat4(1.0f), glm::vec3(translateX,translateY, 0.0));
 	}
-	scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.f,GetCore()->ratio, 1.0));
+	scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.f,CORE->ratio, 1.0));
 	rotate = glm::rotate(glm::mat4(1.0f), pAngle, glm::vec3(0.0, 0.0, 1.0)) ;
 
 	anim = translate_mat * scale * rotate;
 
-    Base::updateG(time,timeDelta);
+    Base::updateG(sec,deltaSec);
 }
 
 void Rect::enableAttributes() {
@@ -346,6 +357,57 @@ void Rect::render() {
 	disableAttributes();
 
 
+}
+
+void Rect::moveToN(float aTargetX, float aTargetY, float sec)
+{
+
+	AnimationContainer* anim = new AnimationContainer();
+	anim->targetX = aTargetX;
+	anim->targetY = aTargetY;
+	anim->startX = getXN();
+	anim->startY = getYN();
+
+	anim->time = sec;
+
+	pAnimationList.push(anim);
+}
+
+void Rect::updateAnimation(float sec, float deltaSec)
+{
+	if(pAnimationList.size())
+	{
+		AnimationContainer* anim = pAnimationList.front();
+	    anim->elapsedTime += deltaSec;
+
+	    float currentPosition = std::min(1.f, anim->elapsedTime / anim->time);
+//	    currentPosition*=currentPosition;
+
+	    if(anim->startX != anim->targetX){
+	    	setXN(anim->startX + (anim->targetX - anim->startX)*currentPosition);
+	    }
+	    if(anim->startY != anim->targetY){
+	    	setYN(anim->startY + (anim->targetY - anim->startY)*currentPosition);
+	    }
+
+	    if(currentPosition == 1.f)
+	    {
+		    std::map<Base*,Base*>::iterator it;
+		    for(it = pAnimationListener.begin();it != pAnimationListener.end();it++)
+		    {
+		    	it->first->animationFinishedCallback(this);
+		    }
+
+		    pAnimationList.pop();
+	    	delete anim;
+	    	anim=0;
+	    }
+	}
+}
+
+void Rect::addAnimationListener(Base* aListener)
+{
+	pAnimationListener.insert(std::pair<Base*,Base*>(aListener,aListener));
 }
 
 

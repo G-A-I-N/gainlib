@@ -32,6 +32,7 @@ protected:
 	virtual void enableAttributes() = 0;
 	virtual void disableAttributes() = 0;
 
+
 	GLuint program;
 };
 

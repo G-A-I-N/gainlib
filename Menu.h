@@ -27,6 +27,7 @@ public:
 
 	virtual void update(float sec, float deltaSec);
 
+	virtual void animationFinishedCallback(Base*);
 protected:
 	int pPointerId;
 	Rect* pMenuBg;

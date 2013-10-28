@@ -8,7 +8,11 @@
 #ifndef RECT_H_
 #define RECT_H_
 
+#include <queue>
+#include <map>
+
 #include "Base.h"
+
 
 namespace Gain {
 
@@ -33,6 +37,20 @@ typedef enum _Placement
 
 } Placement;
 
+class AnimationContainer
+{
+public:
+	AnimationContainer()
+	:elapsedTime(0),time(0),startX(0), startY(0), targetX(0),targetY(0)
+	{}
+
+	float elapsedTime, time;
+
+	float startX,startY;
+	float targetX, targetY;
+
+};
+
 class Rect: public Gain::Base {
 public:
 	Rect(int x, int y, int width, int height, const char* vertexShader=NULL, const char* fragmentShader=NULL);
@@ -48,8 +66,12 @@ public:
 
 	void setX(int x);
 	void setY(int y);
+
 	void setXN(float x);
 	void setYN(float y);
+
+	float getXN();
+	float getYN();
 
 	void setWidth(int width);
 	void setHeight(int height);
@@ -60,6 +82,7 @@ public:
 	Rect* setPositionN(float x,float y,Placement placement);
 
 	void setPlacement(Placement aPlacement);
+
 
 
 	void setCenterN(float x, float y);
@@ -79,12 +102,21 @@ public:
 	virtual bool setupGraphics();
 	virtual void render();
 	virtual void updateG(float time, float deltaTime);
+
 	//virtual void mapToGraphics();
+
+	virtual void addAnimationListener(Base* aListener);
+	virtual void moveToN(float targetX, float targetY, float sec);
 
 protected:
 	virtual bool initVariables();
 	virtual void enableAttributes();
 	virtual void disableAttributes();
+
+	virtual void updateAnimation(float sec, float deltaSec);
+
+
+
 
 //	float pXcenter,pYcenter,pWidth,pHeight;
 
@@ -117,6 +149,9 @@ protected:
 
 	const char* pVertexShader;
 	const char* pFragmentShader;
+
+	std::queue<AnimationContainer*> pAnimationList;
+	std::map<Base*,Base*> pAnimationListener;
 };
 
 } /* namespace Gain */
