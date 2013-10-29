@@ -286,6 +286,7 @@ bool Rect::setupGraphics() {
 		}
 	}
 	initVariables();
+    setReady();
 
 	return true;
 }
@@ -317,7 +318,8 @@ void Rect::updateG(float sec, float deltaSec)
     Base::updateG(sec,deltaSec);
 }
 
-void Rect::enableAttributes() {
+void Rect::enableAttributes() const
+{
 
     GL_EXT_FUNC glEnableVertexAttribArray(attribute_coord2d);
 
@@ -338,12 +340,14 @@ void Rect::enableAttributes() {
 
 }
 
-void Rect::disableAttributes() {
+void Rect::disableAttributes() const
+{
     GL_EXT_FUNC glDisableVertexAttribArray(attribute_coord2d);
 	checkGlError("glDisableVertexAttribArray");
 }
 
-void Rect::render() {
+void Rect::render() const
+{
     GL_EXT_FUNC glUseProgram(program);
 	checkGlError("glUseProgram");
 

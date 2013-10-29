@@ -36,8 +36,8 @@ public:
 protected:
 
 	virtual bool initVariables();
-	virtual void enableAttributes();
-	virtual void disableAttributes();
+	virtual void enableAttributes() const;
+	virtual void disableAttributes() const;
 
 	char* pTextBuffer;
 	int pPixelSize;

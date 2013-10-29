@@ -11,12 +11,18 @@
 namespace Gain {
 
 Menu::Menu()
-: pMenuBg(0), pPointerId(-1)
+: pMenuBg(0), pPointerId(-1),pMenuVisible(false)
 {
 	// TODO Auto-generated constructor stub
 
 	CORE->addRenderClient( this , SCENE_DEFAULT_FRONT );
 	CORE->addTouchClient( this , SCENE_DEFAULT_FRONT );
+
+	pMenuBg = new Rect(-0.95f,-1.3f,1.9f,2.6f);
+	pMenuBg->setColor(0,0,0.5,0.8);
+	addRenderClient( pMenuBg );
+	pMenuBg->addAnimationListener(this);
+	pMenuBg->setPositionN(100,0,MID_CENTER);
 
 }
 
@@ -33,24 +39,28 @@ void Menu::update(float sec, float deltaSec)
 
 TouchState Menu::TouchDown(TouchPoint* point)
 {
-	if(!pMenuBg && abs(point->Xn) > 0.95)
-	{
-		pMenuBg = new Rect(-0.95f,-1.3f,1.9f,2.6f);
-
-		if(point->Xn > 0.95)
-			pMenuBg->setPositionN(2,0,MID_CENTER);
-		else
-			pMenuBg->setPositionN(-2,0,MID_CENTER);
-
-		pMenuBg->moveToN(0,0,2.7f);
-		pMenuBg->setColor(0,0,0.5,0.8);
-		addRenderClient( pMenuBg );
-		pMenuBg->addAnimationListener(this);
-		return TOUCH_CONSUMED;
-	}
-	if(pMenuBg)
+	if(abs(point->Xn) > 0.90)
 	{
 		pPointerId = point->ID;
+
+		if(point->Xn > 0.95)
+			pXCorrection = 0.9f;
+		else
+			pXCorrection = -0.9f;
+
+
+		if(pMenuVisible)
+		{
+			pXCorrection*=-1.f;
+		}
+		pMenuVisible = !pMenuVisible;
+		pMenuBg->setPositionN(point->Xn + pXCorrection,0,MID_CENTER);
+
+		return TOUCH_CONSUMED;
+	}
+	if(pMenuVisible)
+	{
+		pPointerIdMenu = point->ID;
 		return TOUCH_CONSUMED;
 	}
 	return TOUCH_NOT_CONSUMED;
@@ -58,7 +68,12 @@ TouchState Menu::TouchDown(TouchPoint* point)
 
 TouchState Menu::TouchMove(TouchPoint* point)
 {
-	if(point->ID == pPointerId)
+	if(point->ID == pPointerId && pMenuBg)
+	{
+		pMenuBg->setPositionN(point->Xn + pXCorrection,0,MID_CENTER);
+		return TOUCH_CONSUMED;
+	}
+	if(point->ID == pPointerIdMenu)
 	{
 		return TOUCH_CONSUMED;
 	}
@@ -68,22 +83,30 @@ TouchState Menu::TouchMove(TouchPoint* point)
 TouchState Menu::TouchUp(TouchPoint* point)
 {
 
-	if(pMenuBg && abs(point->Xn) > 0.95)
-	{
-		removeRenderClient(pMenuBg);
-		pMenuBg = 0;
-		return TOUCH_CONSUMED;
-	}
 	if(point->ID == pPointerId)
 	{
+		if( abs(point->Xn) > 0.5)
+		{
+			//return to previous
+			pMenuVisible = !pMenuVisible;
+		}
+		if(!pMenuVisible)
+		{
+			pMenuBg->moveToN(pXCorrection*4.f, 0, 0.3f);
+		} else {
+			pMenuBg->moveToN(0,0,0.3f);
+		}
 		pPointerId = -1;
 		return TOUCH_CONSUMED;
 	}
 	return TOUCH_NOT_CONSUMED;
 }
 
-void Menu::animationFinishedCallback(Base*)
+void Menu::animationFinishedCallback(Base* aBase)
 {
+	if(pMenuBg == aBase && abs(pMenuBg->getXN())>1.f)
+	{
+	}
 
 }
 

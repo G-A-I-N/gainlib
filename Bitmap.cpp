@@ -129,7 +129,8 @@ void Bitmap::updateG(float time, float timeDelta) {
 }
 
 
-void Bitmap::enableAttributes() {
+void Bitmap::enableAttributes() const
+{
 	super::enableAttributes();
 
     GL_EXT_FUNC glActiveTexture(GL_TEXTURE0);
@@ -149,7 +150,8 @@ void Bitmap::enableAttributes() {
 
 }
 
-void Bitmap::disableAttributes() {
+void Bitmap::disableAttributes() const
+{
     GL_EXT_FUNC glDisableVertexAttribArray(attribute_texcoord);
     super::disableAttributes();
 }

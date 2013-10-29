@@ -29,8 +29,10 @@ public:
 
 	virtual void animationFinishedCallback(Base*);
 protected:
-	int pPointerId;
+	int pPointerId,pPointerIdMenu;
 	Rect* pMenuBg;
+	float pXCorrection;
+	bool pMenuVisible;
 };
 
 } /* namespace Gain */

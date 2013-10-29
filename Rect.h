@@ -100,7 +100,7 @@ public:
 
 	//Base
 	virtual bool setupGraphics();
-	virtual void render();
+	virtual void render() const;
 	virtual void updateG(float time, float deltaTime);
 
 	//virtual void mapToGraphics();
@@ -110,8 +110,8 @@ public:
 
 protected:
 	virtual bool initVariables();
-	virtual void enableAttributes();
-	virtual void disableAttributes();
+	virtual void enableAttributes() const;
+	virtual void disableAttributes() const;
 
 	virtual void updateAnimation(float sec, float deltaSec);
 

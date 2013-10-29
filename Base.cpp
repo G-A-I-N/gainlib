@@ -10,6 +10,7 @@
 namespace Gain {
 
 Base::Base()
+:pState(NOT_INITIALIZED)
 {
 }
 

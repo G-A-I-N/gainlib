@@ -110,9 +110,22 @@ bool PixelCanvas::initVariables()
 	return true;
 }
 
-void PixelCanvas::enableAttributes()
+void PixelCanvas::enableAttributes() const
 {
 	super::enableAttributes();
+
+	GL_EXT_FUNC glEnableVertexAttribArray(attribute_texcoord);
+}
+
+void PixelCanvas::disableAttributes() const
+{
+    GL_EXT_FUNC glDisableVertexAttribArray(attribute_texcoord);
+	super::disableAttributes();
+}
+
+void PixelCanvas::updateG(float sec,float deltaSec)
+{
+	super::updateG(sec,deltaSec);
 
 	if(updateBitmap)
 	{
@@ -154,11 +167,6 @@ void PixelCanvas::enableAttributes()
 				0                   // offset of first element
 		);
 	}
-}
-
-void PixelCanvas::disableAttributes() {
-    GL_EXT_FUNC glDisableVertexAttribArray(attribute_texcoord);
-	super::disableAttributes();
 }
 
 void PixelCanvas::setPixel(int x, int y, unsigned int abgr)

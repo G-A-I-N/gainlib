@@ -233,12 +233,6 @@ bool Text::initVariables()
 void Text::updateG(float time, float timeDelta)
 {
 	super::updateG( time,  timeDelta);
-}
-
-
-void Text::enableAttributes()
-{
-	super::enableAttributes();
 
 	if(updateBitmap)
 	{
@@ -282,7 +276,15 @@ void Text::enableAttributes()
 	}
 }
 
-void Text::disableAttributes() {
+
+void Text::enableAttributes() const
+{
+	super::enableAttributes();
+	GL_EXT_FUNC glEnableVertexAttribArray(attribute_texcoord);
+}
+
+void Text::disableAttributes() const
+{
     GL_EXT_FUNC glDisableVertexAttribArray(attribute_texcoord);
 	super::disableAttributes();
 }

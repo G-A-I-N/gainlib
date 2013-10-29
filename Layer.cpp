@@ -21,22 +21,16 @@ Layer::~Layer() {
 
 void Layer::addRenderClient(Gain::Base* aBase)
 {
-	BaseContainer* container = new BaseContainer();
-	container->base = aBase;
-	container->state = NOT_INITIALIZED;
     LOCK_ACQUIRE(renderClientsLock);
 	LOGSCOPE;
-	addClientsFifo.push(container);
+	addClientsFifo.push(aBase);
 	LOCK_RELEASE(renderClientsLock);
 }
 void Layer::removeRenderClient(Gain::Base* aBase)
 {
-	BaseContainer* container = new BaseContainer();
-	container->base = aBase;
-	container->state = NOT_INITIALIZED;
     LOCK_ACQUIRE(renderClientsLock);
 	LOGSCOPE;
-	removeClientsFifo.push(container);
+	removeClientsFifo.push(aBase);
    	LOCK_RELEASE(renderClientsLock);
 }
 
@@ -48,24 +42,35 @@ void Layer::removeAllRenderClients()
     LOCK_RELEASE(renderClientsLock);
 }
 
-void Layer::render()
+void Layer::render() const
+{
+    LOGSCOPE;
+    std::set<Base*>::iterator it;
+	for (it=renderClients.begin(); it!=renderClients.end(); ++it)
+	{
+		Base* child = *it;
+		if (child->getState() == INITIALIZED) {
+			child->render();
+		}
+	}
+}
+
+void Layer::updateG(float time, float deltaTime)
 {
     LOCK_ACQUIRE(renderClientsLock);
+	LOGSCOPE;
     while(addClientsFifo.size())
     {
 
-    	Gain::Base* base = addClientsFifo.front()->base;
+    	Gain::Base* base = addClientsFifo.front();
     	addClientsFifo.pop();
-    	BaseContainer* container = new BaseContainer();
-    	container->base = base;
-    	container->state = NOT_INITIALIZED;
-    	renderClients.insert(std::pair<Base*,BaseContainer*>(base,container));
+    	renderClients.insert(base);
     }
     while(removeClientsFifo.size())
     {
-    	Gain::Base* base = removeClientsFifo.front()->base;
+    	Gain::Base* base = removeClientsFifo.front();
     	removeClientsFifo.pop();
-        std::map<Base*,BaseContainer*>::iterator it =
+        std::set<Base*>::iterator it =
         		renderClients.find(base);
         if(it != renderClients.end())
         {
@@ -74,50 +79,31 @@ void Layer::render()
 	}
     LOCK_RELEASE(renderClientsLock);
 
-    LOGSCOPE;
-    std::map<Base*,BaseContainer*>::iterator it;
+    std::set<Base*>::iterator it;
 	for (it=renderClients.begin(); it!=renderClients.end(); ++it)
 	{
-		BaseContainer* child = it->second;
-		if (child->state != INITIALIZED) {
-			child->base->setupGraphics();
+		Base* child = *it;
+		if (child->getState() == NOT_INITIALIZED) {
+			child->setupGraphics();
 		}
-		child->base->render();
+		child->updateG(time, deltaTime);
 	}
-}
-
-void Layer::updateG(float time, float deltaTime)
-{
-    LOCK_ACQUIRE(renderClientsLock);
-	LOGSCOPE;
-    std::map<Base*,BaseContainer*>::iterator it;
-	for (it=renderClients.begin(); it!=renderClients.end(); ++it)
-	{
-		BaseContainer* child = it->second;
-		if (child->state == NOT_INITIALIZED) {
-			child->base->setupGraphics();
-			child->state = INITIALIZED;
-		}
-		child->base->updateG(time, deltaTime);
-	}
-    LOCK_RELEASE(renderClientsLock);
 }
 
 bool Layer::setupGraphics()
 {
+	setReady();
 	return true;
 }
 bool Layer::initVariables()
 {
 	return true;
 }
-void Layer::enableAttributes()
+void Layer::enableAttributes() const
 {
-
 }
-void Layer::disableAttributes()
+void Layer::disableAttributes() const
 {
-
 }
 
 } /* namespace Gain */

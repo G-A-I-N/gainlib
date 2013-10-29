@@ -12,6 +12,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <vector>
+#include <deque>
+#include <queue>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -25,28 +27,23 @@
 
 namespace Gain {
 
+class Base;
+
 enum Scene {
 	SCENE_DEFAULT_BACK=0, //rendered each round first
 	SCENE_DEFAULT_FRONT, //rendered each round last
 	SCENE_LAST_INDEX
 };
 
-enum BaseState {
-	NOT_INITIALIZED=0,
-	INITIALIZED
-};
-
-class Base;
-typedef struct _BaseContainer{
-	Base* base;
-	BaseState state;
-
-} BaseContainer;
-
-
 typedef struct _TouchContainer{
 	TouchInterface* touchInterface;
 } TouchContainer;
+
+typedef struct _BaseQueueContainer
+{
+    Base* base;
+    unsigned int scene;
+} BaseQueueContainer;
 
 class Core {
 public:
@@ -56,7 +53,7 @@ public:
 	bool setupGraphics(int w, int h);
 	void updateG(float time, float timeDelta);
 	void update(float time, float timeDelta);
-	void renderFrame();
+	void renderFrame() const;
 
     void addRenderClient(Base* aBase, unsigned int aScene=SCENE_DEFAULT_BACK) ;
 
@@ -82,8 +79,11 @@ public:
 	float ratio, reversed_ratio;
 private:
     unsigned int pScene;
-    std::vector< std::vector<BaseContainer*> > renderClients;
+    std::vector< std::deque<Base*> > renderClients;
     std::vector< std::vector<TouchContainer*> > touchClients;
+
+    std::queue< BaseQueueContainer > addClientsMultimap;
+    std::queue< BaseQueueContainer > removeClientsMultimap;
 
     LOCK renderClientsLock;
     LOCK touchClientsLock;

@@ -23,14 +23,16 @@ public:
 	PixelCanvas(int width, int height);
 	virtual ~PixelCanvas();
 
+	virtual void updateG(float,float);
+
 	void setPixel(int x, int y, char alpha,char blue,char green,char red);
 	void setPixel(int x, int y, unsigned int abgr);
 
 protected:
 
 	virtual bool initVariables();
-	virtual void enableAttributes();
-	virtual void disableAttributes();
+	virtual void enableAttributes() const;
+	virtual void disableAttributes() const;
 
     unsigned int pMaxPixelBufferSize;
 };

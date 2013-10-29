@@ -9,7 +9,7 @@
 #define LAYER_H_
 
 #include <queue>
-#include <map>
+#include <set>
 #include <Base.h>
 
 namespace Gain {
@@ -21,21 +21,21 @@ public:
 	Layer();
 	virtual ~Layer();
 
-	virtual void render();
+	virtual void render() const;
 	virtual void updateG(float time, float deltaTime) ;
 
 	virtual bool setupGraphics();
 	virtual bool initVariables();
-	virtual void enableAttributes();
-	virtual void disableAttributes();
+	virtual void enableAttributes() const;
+	virtual void disableAttributes() const;
 
 	void addRenderClient(Gain::Base* aBase);
 	void removeRenderClient(Gain::Base* aBase);
 	void removeAllRenderClients();
 protected:
-	std::map<Gain::Base*,BaseContainer*> renderClients;
-	std::queue<BaseContainer*> addClientsFifo;
-	std::queue<BaseContainer*> removeClientsFifo;
+	std::set<Gain::Base*> renderClients;
+	std::queue<Gain::Base*> addClientsFifo;
+	std::queue<Gain::Base*> removeClientsFifo;
 
     LOCK renderClientsLock;
 
