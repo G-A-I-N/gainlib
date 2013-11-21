@@ -34,8 +34,6 @@ GLuint Base::createProgram(const char* pVertexSource, const char* pFragmentSourc
 
 		return lastLoaded_program;
 	}
-	lastLoaded_vertex = pVertexSource;
-	lastLoaded_fragment = pFragmentSource;
 
 
 
@@ -73,6 +71,9 @@ GLuint Base::createProgram(const char* pVertexSource, const char* pFragmentSourc
 			program = 0;
 		}
 	}
+	lastLoaded_vertex = pVertexSource;
+	lastLoaded_fragment = pFragmentSource;
+
 	lastLoaded_program = program;
 	return program;
 }

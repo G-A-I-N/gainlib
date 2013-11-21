@@ -21,6 +21,8 @@ public:
 	Layer();
 	virtual ~Layer();
 
+	virtual void renderPre() const;
+	virtual void renderPost() const;
 	virtual void render() const;
 	virtual void updateG(float time, float deltaTime) ;
 

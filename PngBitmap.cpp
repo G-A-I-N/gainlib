@@ -12,6 +12,13 @@
 
 namespace Gain {
 
+
+PngBitmap::PngBitmap(float x,float y, float width, float height, const char* aPngFile) :
+Bitmap(x,y,width,height)
+{
+	readFile(aPngFile);
+}
+
 PngBitmap::PngBitmap(int x,int y, int width, int height, const char* aPngFile) :
 Bitmap(x,y,width,height)
 {

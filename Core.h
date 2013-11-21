@@ -32,7 +32,9 @@ class Base;
 enum Scene {
 	SCENE_DEFAULT_BACK=0, //rendered each round first
 	SCENE_DEFAULT_FRONT, //rendered each round last
-	SCENE_LAST_INDEX
+	SCENE_FIRST_INDEX,
+	SCENE_LAST_INDEX=99, //98 scenes, should be enough for everyone ;)
+	SCENE_ACTIVE //points to currently set scene
 };
 
 typedef struct _TouchContainer{
@@ -55,7 +57,7 @@ public:
 	void update(float time, float timeDelta);
 	void renderFrame() const;
 
-    void addRenderClient(Base* aBase, unsigned int aScene=SCENE_DEFAULT_BACK) ;
+    void addRenderClient(Base* aBase, unsigned int aScene=SCENE_ACTIVE) ;
 
     /* Removes render client item from scene. For performance reasons, using
      * aScene, deletion is bit faster. If aScene == -1, then base is looked up

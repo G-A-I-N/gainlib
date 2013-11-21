@@ -304,6 +304,10 @@ void Core::renderFrame() const
 void Core::addRenderClient(Base* aBase, unsigned int aScene)
 {
 
+	if(aScene >= SCENE_LAST_INDEX)
+	{
+		aScene = pScene;
+	}
     LOCK_ACQUIRE(renderClientsLock);
 	LOGSCOPE;
 	while (renderClients.size() <= aScene) {

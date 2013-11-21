@@ -20,6 +20,7 @@ private:
 
 public:
 	PngBitmap(int x, int y, int width, int height, const char* aPngFile);
+	PngBitmap(float x, float y, float width, float height, const char* aPngFile);
 	PngBitmap(const char* aPngFile);
 	virtual ~PngBitmap();
 

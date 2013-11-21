@@ -22,14 +22,14 @@ Layer::~Layer() {
 void Layer::addRenderClient(Gain::Base* aBase)
 {
     LOCK_ACQUIRE(renderClientsLock);
-	LOGSCOPE;
+	;
 	addClientsFifo.push(aBase);
 	LOCK_RELEASE(renderClientsLock);
 }
 void Layer::removeRenderClient(Gain::Base* aBase)
 {
     LOCK_ACQUIRE(renderClientsLock);
-	LOGSCOPE;
+	;
 	removeClientsFifo.push(aBase);
    	LOCK_RELEASE(renderClientsLock);
 }
@@ -37,14 +37,19 @@ void Layer::removeRenderClient(Gain::Base* aBase)
 void Layer::removeAllRenderClients()
 {
     LOCK_ACQUIRE(renderClientsLock);
-	LOGSCOPE;
+	;
 	//renderClients.clear();
     LOCK_RELEASE(renderClientsLock);
 }
 
+void Layer::renderPre() const
+{}
+void Layer::renderPost() const
+{}
+
 void Layer::render() const
 {
-    LOGSCOPE;
+    renderPre();
     std::set<Base*>::iterator it;
 	for (it=renderClients.begin(); it!=renderClients.end(); ++it)
 	{
@@ -53,12 +58,12 @@ void Layer::render() const
 			child->render();
 		}
 	}
+    renderPost();
 }
 
 void Layer::updateG(float time, float deltaTime)
 {
     LOCK_ACQUIRE(renderClientsLock);
-	LOGSCOPE;
     while(addClientsFifo.size())
     {
 

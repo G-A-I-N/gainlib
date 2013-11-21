@@ -32,6 +32,7 @@ Rect::Rect(int x, int y, int width, int height, const char* vertexShader, const 
 {
 	privateConstruct(vertexShader, fragmentShader);
 	set(x,y,width,height);
+	setPlacement(TOP_LEFT);
 }
 
 Rect::Rect(float x, float y, float width, float height, const char* vertexShader, const char* fragmentShader)
@@ -406,6 +407,12 @@ void Rect::updateAnimation(float sec, float deltaSec)
 	    	delete anim;
 	    	anim=0;
 	    }
+	    if(pAnimationList.size())
+		{
+			AnimationContainer* anim = pAnimationList.front();
+			anim->startX = getXN();
+			anim->startY = getYN();
+		}
 	}
 }
 
