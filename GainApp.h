@@ -9,10 +9,11 @@
 #define GAINAPP_H_
 
 #include "TouchInterface.h"
+#include "EventListener.h"
 
 namespace Gain {
 
-class GainApp : public TouchInterface {
+class GainApp : public TouchInterface, EventListener {
 public:
 	GainApp();
 	virtual ~GainApp();
@@ -22,6 +23,8 @@ public:
 	virtual TouchState TouchDown(TouchPoint* point);
 	virtual TouchState TouchMove(TouchPoint* point);
 	virtual TouchState TouchUp(TouchPoint* point);
+
+	virtual void onEvent(Base* caller, EventType type) {};
 
 	virtual void Suspend();
 	virtual void Resume();

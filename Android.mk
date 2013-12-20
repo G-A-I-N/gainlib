@@ -9,6 +9,7 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					Base.cpp\
 					Layer.cpp\
 					Menu.cpp\
+					Button.cpp\
 					Rect.cpp\
 					ShaderTest.cpp\
 					PixelCanvas.cpp\
@@ -16,6 +17,7 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					PngBitmap.cpp\
 					Text.cpp\
 					TouchInterface.cpp \
+					EventListener.cpp \
 					Logger.cpp \
 					PerfomanceCounter.cpp \
 					PerfCounterItem.cpp

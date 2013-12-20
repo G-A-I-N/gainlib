@@ -9,15 +9,19 @@
 #define BASE_H_
 
 #include "Core.h"
+#include "EventListener.h"
+#include <map>
 
 namespace Gain {
+
+class Base;
 
 typedef enum _BaseState {
 	NOT_INITIALIZED=0,
 	INITIALIZED
 } BaseState;
 
-class Base {
+class Base : public EventListener {
 public:
     Base();
 	virtual ~Base();
@@ -28,9 +32,13 @@ public:
     virtual void updateG(float sec, float deltaSec) ;
     virtual void update(float sec, float deltaSec) {};
 
-	virtual void animationFinishedCallback(Base* aListener) {};
+    //EventListener
+    virtual void onEvent(Base* aListener, EventType aType) {};
+
 	virtual void invalidate() {program=0;pState = NOT_INITIALIZED;};
 	virtual BaseState getState() { return pState; };
+
+	virtual void addEventListener(EventListener* aListener);
 
 protected:
 	GLuint createProgram(const char* pVertexSource, const char* pFragmentSource);
@@ -41,6 +49,8 @@ protected:
 	virtual void disableAttributes() const = 0;
 
 	virtual void setReady() { pState = INITIALIZED; };
+
+	std::map<EventListener*,EventListener*> pEventListener;
 
 	BaseState pState;
 	GLuint program;

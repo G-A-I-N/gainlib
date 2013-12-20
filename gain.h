@@ -16,6 +16,7 @@
 #include <Layer.h>
 #include <Menu.h>
 #include <Rect.h>
+#include <Button.h>
 #include <Bitmap.h>
 #include <PngBitmap.h>
 #include <Text.h>

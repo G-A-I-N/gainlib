@@ -21,7 +21,7 @@ Menu::Menu()
 	pMenuBg = new Rect(-0.95f,-1.3f,1.9f,2.6f);
 	pMenuBg->setColor(0,0,0.5,0.8);
 	addRenderClient( pMenuBg );
-	pMenuBg->addAnimationListener(this);
+	pMenuBg->addEventListener(this);
 	pMenuBg->setPositionN(100,0,MID_CENTER);
 
 }
@@ -102,7 +102,7 @@ TouchState Menu::TouchUp(TouchPoint* point)
 	return TOUCH_NOT_CONSUMED;
 }
 
-void Menu::animationFinishedCallback(Base* aBase)
+void Menu::onEvent(Base* aBase, EventType)
 {
 	if(pMenuBg == aBase && abs(pMenuBg->getXN())>1.f)
 	{

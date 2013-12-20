@@ -61,9 +61,10 @@ Rect::~Rect()
 }
 
 
-void Rect::setColor(GLfloat aColor[4])
+Rect* Rect::setColor(GLfloat aColor[4])
 {
 	memcpy(color,aColor, sizeof(color));
+	return this;
 }
 
 Rect* Rect::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
@@ -73,9 +74,10 @@ Rect* Rect::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 	return this;
 }
 
-void Rect::setRotation(GLfloat aAngle)
+Rect* Rect::setRotation(GLfloat aAngle)
 {
 	pAngle = aAngle;
+	return this;
 }
 
 //void Rect::mapToGraphics() {
@@ -106,24 +108,28 @@ void Rect::setRotation(GLfloat aAngle)
 //}
 
 
-void Rect::setX(int aX)
+Rect* Rect::setX(int aX)
 {
 	setXN(-1.f + 2.f*((float)aX)/CORE->screen_width);
+	return this;
 }
 
-void Rect::setY(int aY)
+Rect* Rect::setY(int aY)
 {
 	 setYN(-1.f*CORE->reversed_ratio + 2.f*((float)aY)/CORE->screen_width);
+	 return this;
 }
 
-void Rect::setXN(float x)
+Rect* Rect::setXN(float x)
 {
 	pPositionX = x;
+	return this;
 }
 
-void Rect::setYN(float y)
+Rect* Rect::setYN(float y)
 {
 	pPositionY = -y*CORE->ratio;
+	return this;
 }
 
 float Rect::getXN()
@@ -136,41 +142,38 @@ float Rect::getYN()
 	return -pPositionY*CORE->reversed_ratio;
 }
 
-void Rect::setWidth(int aWidth)
+Rect* Rect::setWidth(int aWidth)
 {
 	setWidthN(2.f*((float)aWidth)/CORE->screen_width);
-
+	return this;
 }
-void Rect::setHeight(int aHeight)
+Rect* Rect::setHeight(int aHeight)
 {
 	setHeightN(2.f*((float)aHeight)/CORE->screen_width);
+	return this;
 }
 
-void Rect::set(int aX, int aY, int aWidth, int aHeight)
+Rect* Rect::set(int aX, int aY, int aWidth, int aHeight)
 {
 	setX(aX);
 	setY(aY);
 	setWidth(aWidth);
 	setHeight(aHeight);
 
-//	setN(
-//		 -1.f + 2.f*(float)aX/CORE->screen_width,
-//		 -1.f/CORE->ratio + 2.f*(float)aY/CORE->screen_width,
-//		 2.f*(float)aWidth/CORE->screen_width,
-//		 2.f*(float)aHeight/CORE->screen_width
-//		 );
+	return this;
 }
 
-void Rect::setN(float aX, float aY, float aWidth, float aHeight)
+Rect* Rect::setN(float aX, float aY, float aWidth, float aHeight)
 {
 	setXN(aX);
 	setYN(aY);
 	setWidthN(aWidth);
 	setHeightN(aHeight);
+	return this;
 }
 
 
-void Rect::setWidthN(float width)
+Rect* Rect::setWidthN(float width)
 {
 	pHalfWidth=width*0.5f;
 	square_vertices[0] = -pHalfWidth;
@@ -178,14 +181,16 @@ void Rect::setWidthN(float width)
 	square_vertices[4] = pHalfWidth;
 	square_vertices[6] = -pHalfWidth;
 
+	return this;
 }
-void Rect::setHeightN(float height)
+Rect* Rect::setHeightN(float height)
 {
 	pHalfHeight=height*0.5f;
 	square_vertices[1] = -pHalfHeight;
 	square_vertices[3] = -pHalfHeight;
 	square_vertices[5] = pHalfHeight;
 	square_vertices[7] = pHalfHeight;
+	return this;
 }
 
 
@@ -203,19 +208,21 @@ Rect* Rect::setPositionN(float x, float y, Placement aPlacement)
 	return this;
 }
 
-void Rect::setPlacement(Placement aPlacement)
+Rect* Rect::setPlacement(Placement aPlacement)
 {
 	pPlacement = aPlacement;
+	return this;
 }
 
-void Rect::setCenterN(float x, float y)
+Rect* Rect::setCenterN(float x, float y)
 {
 	setXN(x);
 	setYN(y);
 	setPlacement(MID_CENTER);
+	return this;
 }
 
-void Rect::setCornersN(float tl_x, float tl_y, float tr_x, float tr_y,
+Rect* Rect::setCornersN(float tl_x, float tl_y, float tr_x, float tr_y,
 		float bl_x, float bl_y, float br_x, float br_y)
 {
 	square_vertices[0] = tl_x;
@@ -229,6 +236,7 @@ void Rect::setCornersN(float tl_x, float tl_y, float tr_x, float tr_y,
 
 	pPositionX = 0;
 	pPositionY = 0;
+	return this;
 }
 
 
@@ -396,10 +404,10 @@ void Rect::updateAnimation(float sec, float deltaSec)
 
 	    if(currentPosition == 1.f)
 	    {
-		    std::map<Base*,Base*>::iterator it;
-		    for(it = pAnimationListener.begin();it != pAnimationListener.end();it++)
+		    std::map<EventListener*,EventListener*>::iterator it;
+		    for(it = pEventListener.begin();it != pEventListener.end();it++)
 		    {
-		    	it->first->animationFinishedCallback(this);
+		    	it->first->onEvent(this, EVENT_ANIMATION_FINISHED);
 		    }
 
 		    pAnimationList.pop();
@@ -409,10 +417,13 @@ void Rect::updateAnimation(float sec, float deltaSec)
 	}
 }
 
-void Rect::addAnimationListener(Base* aListener)
+bool Rect::isWithin(float Xn, float Yn)
 {
-	pAnimationListener.insert(std::pair<Base*,Base*>(aListener,aListener));
+	//TODO: currently works only on centered rects
+	return Xn < pPositionX+pHalfWidth  &&
+		   Xn > pPositionX-pHalfWidth  &&
+		   Yn < pPositionX+pHalfHeight &&
+		   Yn > pPositionX-pHalfHeight;
 }
-
 
 } /* namespace Gain */
