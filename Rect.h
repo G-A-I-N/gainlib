@@ -61,53 +61,51 @@ private:
 public:
 	virtual ~Rect();
 
-	void set(int x, int y, int width, int height);
-	void setN(float x, float y, float width, float height);
+	Rect* set(int x, int y, int width, int height);
+	virtual Rect* setN(float x, float y, float width, float height);
 
-	void setX(int x);
-	void setY(int y);
+	Rect* setX(int x);
+	Rect* setY(int y);
 
-	void setXN(float x);
-	void setYN(float y);
+	virtual Rect* setXN(float x);
+	virtual Rect* setYN(float y);
 
 	float getXN();
 	float getYN();
 
-	void setWidth(int width);
-	void setHeight(int height);
-	void setWidthN(float width);
-	void setHeightN(float height);
+	Rect* setWidth(int width);
+	Rect* setHeight(int height);
+	virtual Rect* setWidthN(float width);
+	virtual Rect* setHeightN(float height);
 
 	Rect* setSizeN(float width, float height);
 	Rect* setPositionN(float x,float y,Placement placement);
 
-	void setPlacement(Placement aPlacement);
+	virtual Rect* setPlacement(Placement aPlacement);
 
 
 
-	void setCenterN(float x, float y);
-	void setCornersN(
+	Rect* setCenterN(float x, float y);
+	Rect* setCornersN(
 			float tl_x, float tl_y,
 			float tr_x, float tr_y,
 			float bl_x, float bl_y,
 			float br_x, float br_y
 			);
 
-	void setColor(GLfloat color[4]);
+	Rect* setColor(GLfloat color[4]);
 	Rect* setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 
-	void setRotation(GLfloat angle);
+	Rect* setRotation(GLfloat angle);
 
 	//Base
 	virtual bool setupGraphics();
 	virtual void render() const;
 	virtual void updateG(float time, float deltaTime);
 
-	//virtual void mapToGraphics();
-
-	virtual void addAnimationListener(Base* aListener);
 	virtual void moveToN(float targetX, float targetY, float sec);
 
+	virtual bool isWithin(float nX, float nY);
 protected:
 	virtual bool initVariables();
 	virtual void enableAttributes() const;
@@ -131,12 +129,14 @@ protected:
 	GLuint vbo_square_vertices;
 	GLuint ibo_square_elements;
 
+public:
 	glm::mat4 anim;
+	GLfloat square_vertices[8];
+protected:
 
 	GLint uniform_anim;
 	GLint uniform_color;
 
-	GLfloat square_vertices[8];
 	GLfloat trunslate[2];
 
 	GLfloat TODO_fix_this_add_memoryleakage;
@@ -151,7 +151,6 @@ protected:
 	const char* pFragmentShader;
 
 	std::queue<AnimationContainer*> pAnimationList;
-	std::map<Base*,Base*> pAnimationListener;
 };
 
 } /* namespace Gain */

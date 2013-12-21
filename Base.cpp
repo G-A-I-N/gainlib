@@ -9,8 +9,9 @@
 
 namespace Gain {
 
-Base::Base()
-:pState(NOT_INITIALIZED)
+Base::Base() :
+    pState(NOT_INITIALIZED),
+    program(0)
 {
 }
 
@@ -103,6 +104,11 @@ GLuint Base::loadShader(GLenum shaderType, const char* pSource) {
 		}
 	}
 	return shader;
+}
+
+void Base::addEventListener(EventListener* aListener)
+{
+	pEventListener.insert(std::pair<EventListener*,EventListener*>(aListener,aListener));
 }
 
 } /* namespace Gain */

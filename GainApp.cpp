@@ -16,6 +16,7 @@ namespace Gain {
 
 
 GainApp::GainApp()
+: EventListener(), TouchInterface()
 {}
 
 GainApp::~GainApp()

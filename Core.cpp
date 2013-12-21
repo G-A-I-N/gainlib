@@ -25,8 +25,15 @@ namespace Gain {
 
 //#define CORE_PERF
 
-Core::Core()
-:pScene(SCENE_DEFAULT_BACK),pFps(0)
+Core::Core() :
+     pScene(SCENE_DEFAULT_BACK)
+    ,pFps(0)
+    ,screen_height(0)
+    ,screen_width(0)
+    ,reversed_ratio(1)
+    ,ratio(1)
+    ,scale_width(1)
+    ,scale_height(1)
 {
     LOCK_INIT(renderClientsLock);
     LOCK_INIT(touchClientsLock);
@@ -213,7 +220,7 @@ void Core::update(float time, float deltaTime)
 		std::deque<Base*>::iterator it;
 		for (it = current.begin();it != current.end(); ++it) {
 			Base* child = *it;
-			if (child->getState() == INITIALIZED) {
+			if (child && child->getState() == INITIALIZED) {
 				child->update(time, deltaTime);
 			}
 		}
