@@ -25,6 +25,7 @@ private:
 	typedef Gain::Rect super;
 public:
 	Button(float x, float y, float width, float height);
+	Button();
 	virtual ~Button();
 
 	virtual TouchState TouchDown(TouchPoint* aPoint);
@@ -39,6 +40,9 @@ public:
 	virtual void enableAttributes() const;
 	virtual void disableAttributes() const;
 
+	virtual Button* setIndex(ButtonIndex aIndex);
+	virtual Button* nextIndex() ;
+	virtual ButtonIndex getIndex() ;
 	void addButtonState(Gain::Rect* aRect,  ButtonState aState, ButtonIndex aIndex = 0);
 protected:
 	int pActiveIndex;

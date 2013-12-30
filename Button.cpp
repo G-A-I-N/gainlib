@@ -19,6 +19,17 @@ Button::Button(float x, float y, float width, float height) :
 	CORE->addTouchClient(this);
 }
 
+Button::Button() :
+	pActiveState(ButtonUp),
+	pActiveIndex(-1),
+	pPointerId(-1),
+	Rect()
+{
+	LOCK_INIT(pButtonStateLock);
+	CORE->addTouchClient(this);
+}
+
+
 Button::~Button()
 {}
 
@@ -64,9 +75,9 @@ void Button::updateG(float time, float deltaTime)
 			active->setupGraphics();
 		}
 
+		active->updateG(time,deltaTime);
 		memcpy(&active->square_vertices, &square_vertices, sizeof(square_vertices));
 		active->anim=anim;
-//		active->updateG(time,deltaTime);
 	}
 }
 
@@ -128,6 +139,25 @@ TouchState Button::TouchUp(TouchPoint* aPoint)
 		}
     }
 	return TOUCH_NOT_CONSUMED;
+}
+
+Button* Button::setIndex(ButtonIndex aIndex)
+{
+	pActiveIndex = aIndex;
+	return this;
+}
+
+Button* Button::nextIndex()
+{
+	++pActiveIndex;
+	if(pActiveIndex >= pButtonFaces.size())
+	{
+		pActiveIndex=0;
+	}
+}
+ButtonIndex Button::getIndex()
+{
+	return pActiveIndex;
 }
 
 
