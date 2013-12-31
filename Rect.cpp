@@ -54,6 +54,7 @@ void Rect::privateConstruct(const char* aVertexShader, const char* aFragmentShad
     // set default to white
     setColor(1.0f,1.0f,1.0f,1.f);
 	pAngle=0.f;
+	setPlacement(MID_CENTER);
 }
 
 Rect::~Rect()
@@ -429,8 +430,8 @@ bool Rect::isWithin(float Xn, float Yn)
 	//TODO: currently works only on centered rects
 	return Xn < pPositionX+pHalfWidth  &&
 		   Xn > pPositionX-pHalfWidth  &&
-		   Yn < pPositionX+pHalfHeight &&
-		   Yn > pPositionX-pHalfHeight;
+		   Yn < pPositionY+pHalfHeight &&
+		   Yn > pPositionY-pHalfHeight;
 }
 
 } /* namespace Gain */
