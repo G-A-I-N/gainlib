@@ -28,6 +28,8 @@ public:
 	void setPixel(int x, int y, char alpha,char blue,char green,char red);
 	void setPixel(int x, int y, unsigned int abgr);
 
+	void getPixel(int x, int y, char *alpha,char *blue,char *green,char *red);
+	void getPixel(int x, int y, unsigned int *abgr);
 protected:
 
 	virtual bool initVariables();

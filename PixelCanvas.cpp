@@ -174,7 +174,7 @@ void PixelCanvas::setPixel(int x, int y, unsigned int abgr)
 	int width = pBitmapWidth;
     unsigned int location = y*width + x;
 
-	int* buffer = (int*)pBitmap;
+	unsigned int* buffer = (unsigned int*)pBitmap;
     if(buffer && location < pMaxPixelBufferSize)
     {
 		buffer[location] = abgr;
@@ -186,6 +186,29 @@ void PixelCanvas::setPixel(int x, int y, char a,char b,char g,char r)
 {
 	unsigned int value =  a<<24 | b<<16 | g<<8 | r;
 	setPixel(x,y,value);
+}
+
+void PixelCanvas::getPixel(int x, int y, unsigned int *abgr)
+{
+	int width = pBitmapWidth;
+    unsigned int location = y*width + x;
+
+	unsigned int* buffer = (unsigned int*)pBitmap;
+    if(buffer && location < pMaxPixelBufferSize)
+    {
+    	*abgr = buffer[location];
+    }
+}
+
+void PixelCanvas::getPixel(int x, int y, char *a,char *b,char *g,char *r)
+{
+	unsigned int value;
+	getPixel(x,y,&value);
+	// a<<24 | b<<16 | g<<8 | r;
+	*a = value >> 24;
+	*b = value >> 16;
+	*g = value >> 8;
+	*r = value;
 }
 
 } /* namespace Gain */
