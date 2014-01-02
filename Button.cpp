@@ -77,7 +77,7 @@ void Button::updateG(float time, float deltaTime)
 
 		active->updateG(time,deltaTime);
 		memcpy(&active->square_vertices, &square_vertices, sizeof(square_vertices));
-		active->anim=anim;
+		memcpy(&active->anim,&anim,sizeof(anim));
 	}
 }
 
@@ -154,6 +154,7 @@ Button* Button::nextIndex()
 	{
 		pActiveIndex=0;
 	}
+	return this;
 }
 ButtonIndex Button::getIndex()
 {

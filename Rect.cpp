@@ -427,11 +427,12 @@ void Rect::updateAnimation(float sec, float deltaSec)
 
 bool Rect::isWithin(float Xn, float Yn)
 {
+	float yInGl = -Yn*CORE->ratio;
 	//TODO: currently works only on centered rects
-	return Xn < pPositionX+pHalfWidth  &&
-		   Xn > pPositionX-pHalfWidth  &&
-		   Yn < pPositionY+pHalfHeight &&
-		   Yn > pPositionY-pHalfHeight;
+	return (Xn < (pPositionX+pHalfWidth))  &&
+		   (Xn > (pPositionX-pHalfWidth))  &&
+		   (yInGl < (pPositionY+pHalfHeight)) &&
+		   (yInGl > (pPositionY-pHalfHeight));
 }
 
 } /* namespace Gain */
