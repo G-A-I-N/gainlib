@@ -406,11 +406,7 @@ void Rect::updateAnimation(float sec, float deltaSec)
 
 	    if(currentPosition == 1.f)
 	    {
-		    std::map<EventListener*,EventListener*>::iterator it;
-		    for(it = pEventListener.begin();it != pEventListener.end();it++)
-		    {
-		    	it->first->onEvent(this, EVENT_ANIMATION_FINISHED);
-		    }
+		    triggerEvent(EVENT_ANIMATION_FINISHED);
 
 		    pAnimationList.pop();
 	    	delete anim;

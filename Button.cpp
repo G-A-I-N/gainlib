@@ -130,12 +130,8 @@ TouchState Button::TouchUp(TouchPoint* aPoint)
 		pActiveState = ButtonUp;
 	    if(isWithin(aPoint->Xn, aPoint->Yn))
 		{
-			std::map<EventListener*,EventListener*>::iterator it;
-			for(it = pEventListener.begin();it != pEventListener.end();it++)
-			{
-				it->first->onEvent(this, EVENT_BUTTON);
-			}
-			return TOUCH_CONSUMED;
+	    	triggerEvent(EVENT_BUTTON);
+	    	return TOUCH_CONSUMED;
 		}
     }
 	return TOUCH_NOT_CONSUMED;

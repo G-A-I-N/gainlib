@@ -39,6 +39,7 @@ public:
 	virtual BaseState getState() { return pState; };
 
 	virtual void addEventListener(EventListener* aListener);
+	virtual void triggerEvent(EventType type);
 
 protected:
 	GLuint createProgram(const char* pVertexSource, const char* pFragmentSource);

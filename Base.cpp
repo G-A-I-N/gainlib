@@ -111,4 +111,15 @@ void Base::addEventListener(EventListener* aListener)
 	pEventListener.insert(std::pair<EventListener*,EventListener*>(aListener,aListener));
 }
 
+void Base::triggerEvent(EventType aEventType)
+{
+	std::map<EventListener*,EventListener*>::iterator it;
+	for(it = pEventListener.begin();it != pEventListener.end();it++)
+	{
+		it->first->onEvent(this, aEventType);
+	}
+
+}
+
+
 } /* namespace Gain */

@@ -37,19 +37,25 @@ typedef enum _Placement
 
 } Placement;
 
-class AnimationContainer
+typedef enum _AnimationType
+{
+	ANIM_NONE=0,
+	ANIM_MOVE,
+	ANIM_COLOR
+} AnimationType;
+
+typedef struct _AnimationContainer
 {
 public:
-	AnimationContainer()
-	:elapsedTime(0),time(0),startX(0), startY(0), targetX(0),targetY(0)
-	{}
+
 
 	float elapsedTime, time;
 
 	float startX,startY;
 	float targetX, targetY;
 
-};
+	//Animation
+} AnimationContainer;
 
 class Rect: public Gain::Base {
 public:
