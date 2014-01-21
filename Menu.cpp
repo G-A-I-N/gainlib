@@ -92,9 +92,9 @@ TouchState Menu::TouchUp(TouchPoint* point)
 		}
 		if(!pMenuVisible)
 		{
-			pMenuBg->moveToN(pXCorrection*4.f, 0, 0.3f);
+			pMenuBg->toPositionN(pXCorrection*4.f, 0, 0.3f);
 		} else {
-			pMenuBg->moveToN(0,0,0.3f);
+			pMenuBg->toPositionN(0,0,0.3f);
 		}
 		pPointerId = -1;
 		return TOUCH_CONSUMED;

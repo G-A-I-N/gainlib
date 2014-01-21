@@ -8,7 +8,7 @@
 #ifndef RECT_H_
 #define RECT_H_
 
-#include <queue>
+#include <set>
 #include <map>
 
 #include "Base.h"
@@ -41,8 +41,16 @@ typedef enum _AnimationType
 {
 	ANIM_NONE=0,
 	ANIM_MOVE,
-	ANIM_COLOR
+	ANIM_COLOR,
+	ANIM_FADE
 } AnimationType;
+
+typedef enum _colorIndex {
+	COLOR_RED=0,
+	COLOR_GREEN,
+	COLOR_BLUE,
+	COLOR_APLHA
+} ColorIndex;
 
 typedef struct _AnimationContainer
 {
@@ -54,7 +62,10 @@ public:
 	float startX,startY;
 	float targetX, targetY;
 
+	float startColor[4];
+	float targetColor[4];
 	//Animation
+	AnimationType type;
 } AnimationContainer;
 
 class Rect: public Gain::Base {
@@ -99,8 +110,10 @@ public:
 			float br_x, float br_y
 			);
 
+
 	Rect* setColor(GLfloat color[4]);
 	Rect* setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
+	Rect* setAlpha(GLfloat alpha);
 
 	Rect* setRotation(GLfloat angle);
 
@@ -109,7 +122,18 @@ public:
 	virtual void render() const;
 	virtual void updateG(float time, float deltaTime);
 
-	virtual void moveToN(float targetX, float targetY, float sec);
+	virtual void toPositionN(float targetX, float targetY, float sec);
+
+	/**
+	 * Fades to target alpha in given time
+	 *
+	 * Uses Rect's animation framework to fade the alpha value to given level in given time.
+	 * Is parallel to all other animation that are running.
+	 *
+	 * \param aTargetAlpha to fade to
+	 * \param sec time to spend fading
+	 */
+	virtual void toAlphaN(float aTargetAplha, float sec);
 
 	virtual bool isWithin(float nX, float nY);
 protected:
@@ -156,7 +180,7 @@ protected:
 	const char* pVertexShader;
 	const char* pFragmentShader;
 
-	std::queue<AnimationContainer*> pAnimationList;
+	std::set<AnimationContainer*> pAnimationList;
 };
 
 } /* namespace Gain */

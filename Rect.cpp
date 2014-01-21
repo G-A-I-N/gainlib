@@ -76,6 +76,11 @@ Rect* Rect::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 	return this;
 }
 
+Rect* Rect::setAlpha(GLfloat alpha)
+{
+	color[COLOR_APLHA] = alpha;
+	return this;
+}
 Rect* Rect::setRotation(GLfloat aAngle)
 {
 	pAngle = aAngle;
@@ -373,7 +378,7 @@ void Rect::render() const
 
 }
 
-void Rect::moveToN(float aTargetX, float aTargetY, float sec)
+void Rect::toPositionN(float aTargetX, float aTargetY, float sec)
 {
 
 	AnimationContainer* anim = new AnimationContainer();
@@ -381,43 +386,70 @@ void Rect::moveToN(float aTargetX, float aTargetY, float sec)
 	anim->targetY = aTargetY;
 	anim->startX = getXN();
 	anim->startY = getYN();
+	anim->type = ANIM_MOVE;
 
 	anim->time = sec;
 
-	pAnimationList.push(anim);
+	pAnimationList.insert(anim);
+}
+
+
+void Rect::toAlphaN(float aTargetAplha, float sec)
+{
+
+	AnimationContainer* anim = new AnimationContainer();
+	memcpy(anim->startColor,color,sizeof(color));
+	memcpy(anim->targetColor,color,sizeof(color));
+	anim->targetColor[COLOR_APLHA] = aTargetAplha;
+	anim->type = ANIM_FADE;
+
+	anim->time = sec;
+
+	pAnimationList.insert(anim);
 }
 
 void Rect::updateAnimation(float sec, float deltaSec)
 {
-	if(pAnimationList.size())
+	std::set<AnimationContainer*>::iterator it = pAnimationList.begin();
+	while(it!=pAnimationList.end())
 	{
-		AnimationContainer* anim = pAnimationList.front();
+		AnimationContainer* anim = *it;
 	    anim->elapsedTime += deltaSec;
 
 	    float currentPosition = std::min(1.f, anim->elapsedTime / anim->time);
-//	    currentPosition*=currentPosition;
 
-	    if(anim->startX != anim->targetX){
-	    	setXN(anim->startX + (anim->targetX - anim->startX)*currentPosition);
+	    if(ANIM_MOVE == anim->type)
+	    {
+			if(anim->startX != anim->targetX){
+				setXN(anim->startX + (anim->targetX - anim->startX)*currentPosition);
+			}
+			if(anim->startY != anim->targetY){
+				setYN(anim->startY + (anim->targetY - anim->startY)*currentPosition);
+			}
 	    }
-	    if(anim->startY != anim->targetY){
-	    	setYN(anim->startY + (anim->targetY - anim->startY)*currentPosition);
+	    if(ANIM_COLOR == anim->type)
+	    {
+	    	for(unsigned int color_i=COLOR_RED;color_i<=COLOR_APLHA;++color_i)
+	    	{
+	    		color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
+	    	}
 	    }
+	    if(ANIM_FADE == anim->type)
+	    {
+	    	ColorIndex color_i=COLOR_APLHA;
+	    	color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
+	    }
+
+	    std::set<AnimationContainer*>::iterator delete_it = it;
+	    it++;
 
 	    if(currentPosition == 1.f)
 	    {
 		    triggerEvent(EVENT_ANIMATION_FINISHED);
-
-		    pAnimationList.pop();
+		    pAnimationList.erase(delete_it);
 	    	delete anim;
 	    	anim=0;
 	    }
-	    if(pAnimationList.size())
-		{
-			AnimationContainer* anim = pAnimationList.front();
-			anim->startX = getXN();
-			anim->startY = getYN();
-		}
 	}
 }
 
