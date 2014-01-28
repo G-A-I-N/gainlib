@@ -8,10 +8,11 @@
 #ifndef MAPPINGS_H_
 #define MAPPINGS_H_
 
-
-#ifdef NDEBUG
-//#define LOGISON
+// Undefine following if wanting disable logging
+#if 1
+#define LOGISON
 #endif
+
 
 #if 0
 #ifndef TARGET_LOGGER_ADDRESS

@@ -122,6 +122,18 @@ public:
 	virtual void render() const;
 	virtual void updateG(float time, float deltaTime);
 
+	/**
+	 * Moves target to given coordinates in given time
+	 *
+	 * Uses Rect's animation framework to move item to specified position in given time.
+	 * Is parallel to all other animation that are running.
+	 *
+	 * Coordinates are given in normalized coordinates.
+	 *
+	 * \param targetX of target x-coordinate in normalized form.
+	 * \param targetY of target y-coordinate in normalized form.
+	 * \param sec time (seconds) to spend transition from current pos to new position.
+	 */
 	virtual void toPositionN(float targetX, float targetY, float sec);
 
 	/**
@@ -131,7 +143,7 @@ public:
 	 * Is parallel to all other animation that are running.
 	 *
 	 * \param aTargetAlpha to fade to
-	 * \param sec time to spend fading
+	 * \param sec time (seconds) to spend fading
 	 */
 	virtual void toAlphaN(float aTargetAplha, float sec);
 
