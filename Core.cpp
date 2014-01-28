@@ -124,13 +124,13 @@ void Core::updateG(float time, float deltaTime)
     lastTime = time;
 #endif
 
-    while(addClientsMultimap.size())
+    while(addClientsMultimap.empty()==false)
     {
     	BaseQueueContainer container = addClientsMultimap.front();
     	renderClients[container.scene].push_back(container.base);
     	addClientsMultimap.pop();
     }
-    while(removeClientsMultimap.size())
+    while(removeClientsMultimap.empty()==false)
     {
 
     	BaseQueueContainer container = removeClientsMultimap.front();

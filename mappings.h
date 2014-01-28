@@ -162,8 +162,7 @@ static void timeToPicNamedEventStop(const char *name)
 
 class scopeTrace {
 public:
-	inline scopeTrace(const char *scopeName) {
-		scopeText = scopeName;
+	inline scopeTrace(const char *scopeName) :  scopeText(scopeName) {
 		LOGEVENTSTART(scopeText.c_str());
 	}
 	inline ~scopeTrace() {

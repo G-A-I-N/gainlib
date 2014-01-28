@@ -64,14 +64,14 @@ void Layer::render() const
 void Layer::updateG(float time, float deltaTime)
 {
     LOCK_ACQUIRE(renderClientsLock);
-    while(addClientsFifo.size())
+    while(addClientsFifo.empty()==false)
     {
 
     	Gain::Base* base = addClientsFifo.front();
     	addClientsFifo.pop();
     	renderClients.insert(base);
     }
-    while(removeClientsFifo.size())
+    while(removeClientsFifo.empty()==false)
     {
     	Gain::Base* base = removeClientsFifo.front();
     	removeClientsFifo.pop();
