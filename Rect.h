@@ -162,6 +162,7 @@ protected:
 public:
 	glm::mat4 anim;
 	GLfloat square_vertices[8];
+	GLfloat color[4];
 protected:
 
 	GLint uniform_anim;
@@ -170,7 +171,7 @@ protected:
 	GLfloat trunslate[2];
 
 	GLfloat TODO_fix_this_add_memoryleakage;
-	GLfloat color[4];
+
 
 	glm::mat4 translate_mat;
 	glm::mat4 translate_parent;

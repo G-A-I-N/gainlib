@@ -76,8 +76,9 @@ void Button::updateG(float time, float deltaTime)
 		}
 
 		active->updateG(time,deltaTime);
-		memcpy(&active->square_vertices, &square_vertices, sizeof(square_vertices));
+		memcpy(active->square_vertices, square_vertices, sizeof(square_vertices));
 		memcpy(&active->anim,&anim,sizeof(anim));
+		memcpy(active->color,color,sizeof(color));
 	}
 }
 
