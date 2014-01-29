@@ -147,6 +147,15 @@ public:
 	 */
 	virtual void toAlphaN(float aTargetAplha, float sec);
 
+	/**
+	 * Checks if rect overlaps given coordinate. If yes, returns true.
+	 *
+	 * API function for checking object overlaps specified position.
+	 *
+	 *
+	 * \param nX as normalized x-coordinate.
+	 * \param nY as normalized y-coordinate.
+	 */
 	virtual bool isWithin(float nX, float nY);
 protected:
 	virtual bool initVariables();
