@@ -42,7 +42,8 @@ typedef enum _AnimationType
 	ANIM_NONE=0,
 	ANIM_MOVE,
 	ANIM_COLOR,
-	ANIM_FADE
+	ANIM_FADE,
+	ANIM_SIZE
 } AnimationType;
 
 typedef enum _colorIndex {
@@ -61,6 +62,9 @@ public:
 
 	float startX,startY;
 	float targetX, targetY;
+
+	float startWidth,startHeight;
+	float targetWidth, targetHeight;
 
 	float startColor[4];
 	float targetColor[4];
@@ -89,6 +93,18 @@ public:
 
 	float getXN();
 	float getYN();
+
+	float getWidthN();
+	float getHeightN();
+
+
+	/*
+	 * Returns current angle in degrees
+	 *
+	 *\return angle in degrees
+	 */
+	float getRotation();
+
 
 	Rect* setWidth(int width);
 	Rect* setHeight(int height);
@@ -134,7 +150,7 @@ public:
 	 * \param targetY of target y-coordinate in normalized form.
 	 * \param sec time (seconds) to spend transition from current pos to new position.
 	 */
-	virtual void toPositionN(float targetX, float targetY, float sec);
+	virtual Rect* toPositionN(float targetX, float targetY, float sec);
 
 	/**
 	 * Fades to target alpha in given time
@@ -144,8 +160,37 @@ public:
 	 *
 	 * \param aTargetAlpha to fade to
 	 * \param sec time (seconds) to spend fading
+	 * \return pointer to this object
 	 */
-	virtual void toAlphaN(float aTargetAplha, float sec);
+	virtual Rect* toAlphaN(float aTargetAplha, float sec);
+
+	/**
+	 * Fades to target color in given time
+	 *
+	 * Uses Rect's animation framework to fade the color value to given level in given time.
+	 * Is parallel to all other animation that are running.
+	 *
+	 * \param r red value to fade to
+	 * \param g green value to fade to
+	 * \param b blue value to fade to
+	 * \param aTargetAlpha to fade to
+	 * \param sec time to spend fading
+	 * \return pointer to this object
+	 */
+	virtual Rect* toColorN(float r, float g, float b, float aTargetAplha, float sec);
+
+	/**
+	 * Animates to target width and height in given time
+	 *
+	 * Uses Rect's animation framework to animate current size to given size in given time.
+	 * Is parallel to all other animation that are running.
+	 *
+	 * \param aTargetWidth to animate to
+	 * \param aTargetHeight to animate to
+	 * \param sec time to spend fading
+	 * \return pointer to this object
+	 */
+	virtual Rect* toSizeN(float aTargetWidth, float aTargetHeight, float sec);
 
 	/**
 	 * Checks if rect overlaps given coordinate. If yes, returns true.

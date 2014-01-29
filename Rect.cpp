@@ -87,6 +87,11 @@ Rect* Rect::setRotation(GLfloat aAngle)
 	return this;
 }
 
+float Rect::getRotation()
+{
+	return pAngle;
+}
+
 //void Rect::mapToGraphics() {
 //	Core* core = CORE;
 //
@@ -147,6 +152,16 @@ float Rect::getXN()
 float Rect::getYN()
 {
 	return -pPositionY*CORE->reversed_ratio;
+}
+
+float Rect::getWidthN()
+{
+	return pHalfWidth*2;
+}
+
+float Rect::getHeightN()
+{
+	return pHalfHeight*2;
 }
 
 Rect* Rect::setWidth(int aWidth)
@@ -378,7 +393,7 @@ void Rect::render() const
 
 }
 
-void Rect::toPositionN(float aTargetX, float aTargetY, float sec)
+Rect* Rect::toPositionN(float aTargetX, float aTargetY, float sec)
 {
 
 	AnimationContainer* anim = new AnimationContainer();
@@ -391,10 +406,11 @@ void Rect::toPositionN(float aTargetX, float aTargetY, float sec)
 	anim->time = sec;
 
 	pAnimationList.insert(anim);
+	return this;
 }
 
 
-void Rect::toAlphaN(float aTargetAplha, float sec)
+Rect* Rect::toAlphaN(float aTargetAplha, float sec)
 {
 
 	AnimationContainer* anim = new AnimationContainer();
@@ -406,7 +422,41 @@ void Rect::toAlphaN(float aTargetAplha, float sec)
 	anim->time = sec;
 
 	pAnimationList.insert(anim);
+	return this;
 }
+
+Rect* Rect::toColorN(float aRed, float aGreen, float aBlue, float aTargetAplha, float sec)
+{
+	AnimationContainer* anim = new AnimationContainer();
+	memcpy(anim->startColor,color,sizeof(color));
+	anim->targetColor[COLOR_APLHA] = aTargetAplha;
+	anim->targetColor[COLOR_RED] = aRed;
+	anim->targetColor[COLOR_GREEN] = aGreen;
+	anim->targetColor[COLOR_BLUE] = aBlue;
+	anim->type = ANIM_COLOR;
+
+	anim->time = sec;
+
+	pAnimationList.insert(anim);
+	return this;
+}
+
+
+Rect* Rect::toSizeN(float aTargetWidth, float aTargetHeight, float sec)
+{
+	AnimationContainer* anim = new AnimationContainer();
+	anim->targetWidth = aTargetWidth;
+	anim->targetHeight = aTargetHeight;
+	anim->startWidth = getWidthN();
+	anim->startHeight = getHeightN();
+	anim->type = ANIM_SIZE;
+
+	anim->time = sec;
+
+	pAnimationList.insert(anim);
+	return this;
+}
+
 
 void Rect::updateAnimation(float sec, float deltaSec)
 {
@@ -438,6 +488,16 @@ void Rect::updateAnimation(float sec, float deltaSec)
 	    {
 	    	ColorIndex color_i=COLOR_APLHA;
 	    	color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
+	    }
+	    if(ANIM_SIZE == anim->type)
+	    {
+
+			if(anim->startWidth != anim->targetWidth){
+				setWidthN(anim->startWidth + (anim->targetWidth - anim->startWidth)*currentPosition);
+			}
+			if(anim->startHeight != anim->targetHeight){
+				setHeightN(anim->startHeight + (anim->targetHeight - anim->startHeight)*currentPosition);
+			}
 	    }
 
 	    std::set<AnimationContainer*>::iterator delete_it = it;
