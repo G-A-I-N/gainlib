@@ -266,7 +266,7 @@ void Core::renderFrame() const
 	(const_cast<Gain::PerfCounterItem*>(&myRenderLoopCallCounter))->Increment(1);
 	(*(const_cast<int*>(&pFps))) ++;
 
-	glClearColor(0.f, 1.f, 1.f, 1.0f);
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	checkGlError("glClearColor");
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	checkGlError("glClear");
