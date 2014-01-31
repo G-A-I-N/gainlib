@@ -20,33 +20,95 @@ public:
 	PerfomanceCounter();
 	virtual ~PerfomanceCounter();
 
-	/* Sends all current performance counters to logging API. Call this less than 1Hz rate to avoid overhead */
+	/**
+	 * Send all performance counters to logging API and resets counter values to 0.
+	 *
+	 * Call this less than 1Hz to avoid logging overhead to your application.
+	 */
 	void DumpCounters();
 
-	/* Sets visualization mode of counters. If on, values are shown top of screen */
+	/**
+	 * Toggles visualisation mode of counters on/off.
+	 *
+	 * When user visualisation is turned on, performance counter framework creates canvas
+	 * to top of all GFX and start displaying current values of performance counters. When
+	 * visualisation is turned off, canvas is removed.
+	 *
+	 * \param SetOn Visualisation mode. True sets visualisation on.
+	 */
 	bool VisualizeCounters(bool SetOn);
 
-	/* Toggles visualization mode of counters. Returns status of visualization after toggle  */
+	/**
+	 * Toggles visualisation mode of counters.
+	 *
+	 * \return visualisation status after toggle.
+	 */
 	bool ToggleVisualizationOfCounters();
 
-	/* Create new Performancecounter. You receive Id for return. If -1 then adding failed. If already exists,
-	 * you get current id  */
+	/**
+	 * Create new performance counter.
+	 *
+	 * Adds new counter into tables.
+	 *
+	 * \param name Performancecounter name.
+	 * \return id of counter item. If return value is -1, adding failed. If there is already item with that name
+	 * you will get existing counter id.
+	 */
 	int AddPerformanceCounter(const char *name);
 
-	/* Increment performanceCounter by Name. Name lookup is slow, but usage is easier */
+	/**
+	 * Get performance counter id by name
+	 *
+	 * For fast update of performance counter, it is better to use id instead of
+	 * name lookup. You can use this function for querying id by name.
+	 *
+	 * \param performanceCounterName
+	 * \return id of queried name. If no match, -1 is returned.
+	 */
+	int GetPerformanceCounterId(const char *performanceCounterName);
+
+	/**
+	 * Increment performance counter value
+	 *
+	 * Name lookup is slow, but usage is easier.
+	 *
+	 * \param performanceCounterName the name of counter item.
+	 * \param increment The increment of counter value.
+	 * \return status of operation. True is ok.
+	 */
 	bool IncrementPerformanceCounter(const char *performanceCounterName,int increment);
 
-	/* Increment performance counter by using performance counter id */
+	/**
+	 * Increment performance counter value by using counter id. This is faster than name lookup.
+	 *
+	 * \param PerformanceCounterId the id of counter item.
+	 * \param increment The increment of counter value.
+	 * \return status of operation. True is ok.
+	 */
 	bool IncrementPerformanceCounter(int PerformanceCounterId,int increment);
 
-	/* Set performanceCounter by Name. Name lookup is slow, but usage is easier */
+	/**
+	 * Set performance counter value
+	 *
+	 * Name lookup is slow, but usage is easier.
+	 *
+	 * \param performanceCounterName the name of counter item.
+	 * \param newValue The new value of counter.
+	 * \return status of operation. True is ok.
+	 */
 	bool SetPerformanceCounter(const char *performanceCounterName,int newValue);
 
-	/* Set performance counter by using performance counter id */
+	/**
+	 * Set performance counter value
+	 *
+	 * Name lookup is slow, but usage is easier.
+	 *
+	 * \param PerformanceCounterId the id of counter item.
+	 * \param newValue The new value of counter.
+	 * \return status of operation. True is ok.
+	 */
 	bool SetPerformanceCounter(int PerformanceCounterId,int newValue);
 
-	/* Get Performance counter Id */
-	int GetPerformanceCounterId(const char *performanceCounterName);
 private:
 
 	int FindPerformanceCounter(const char *name);
