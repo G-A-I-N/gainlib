@@ -37,7 +37,22 @@ public:
 	 * \return TouchState that indicates if touch event was consumed. If yes, it is not propagated further.
 	 */
 	virtual TouchState TouchDown(TouchPoint* point);
+	/**
+	 * Touch event for when touch is moved. Before this there has been
+	 * Touch Down event.
+	 *
+	 *
+	 * \param point that indicates position of touch event.
+	 * \return TouchState that indicates if touch event was consumed. If yes, it is not propagated further.
+	 */
 	virtual TouchState TouchMove(TouchPoint* point);
+	/**
+	 * Touch event for when touch is release. Before this there might have been
+	 * TouchMove event. TouchDown is always before  TouchUp.
+	 *
+	 * \param point that indicates position of touch event.
+	 * \return TouchState that indicates if touch event was consumed. If yes, it is not propagated further.
+	 */
 	virtual TouchState TouchUp(TouchPoint* point);
 
 	virtual void onEvent(Base* caller, EventType type) {};
