@@ -462,5 +462,39 @@ void Core::offerTouchUp(TouchPoint* aTouchPoint)
 	}
 }
 
+void Core::initiatePurchase(std::string purchase)
+{
+	pPurchasesToBeDone.insert(purchase);
+}
+
+bool Core::ownsPurchase(std::string purchase)
+{
+	bool owns = false;
+	std::set<std::string>::iterator it = pPurchasesOwned.begin();
+	while(!owns && it != pPurchasesOwned.end())
+	{
+		owns = (*it == purchase);
+		++it;
+	}
+	return owns;
+}
+
+std::string Core::backEndGetPurchaseToBeDone()
+{
+	std::string newPurchase("empty");
+	if( !pPurchasesToBeDone.empty() )
+	{
+		newPurchase = *(pPurchasesToBeDone.begin());
+		pPurchasesToBeDone.erase(pPurchasesToBeDone.begin());
+	}
+	return newPurchase;
+}
+
+void Core::backEndSetPurchase(std::string purchase)
+{
+	LOGI("purchase acquired: %s", purchase.c_str());
+	pPurchasesOwned.insert(purchase);
+}
+
 
 } /* namespace Gain */

@@ -4,10 +4,14 @@
  *      Author: ville.kankainen@kangain.com
  *      License: free to use, no liability
  */
+
+#include "mappings.h"
+#ifdef STORE_RELEASE
+#else
+
 #include <stdio.h>
 #include <errno.h>
 #include <sys/time.h>
-#include "mappings.h"
 #include "logger.h"
 
 #ifndef TARGET_LOGGER_ADDRESS
@@ -171,3 +175,4 @@ inline double Logger::Elapsed()
     return mtime/1000.0;
 #endif
 }
+#endif //STORE_RELEASE

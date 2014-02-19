@@ -8,8 +8,10 @@
 #ifndef MAPPINGS_H_
 #define MAPPINGS_H_
 
+//#define STORE_RELEASE
+
 // Undefine following if wanting disable logging
-#if 1
+#if 0
 #define LOGISON
 #endif
 
@@ -74,7 +76,12 @@ extern QGLFunctions* g_qglfunctions;
 #define GL_EXT_FUNC g_qglfunctions->
 #endif
 
+#ifdef STORE_RELEASE
 
+#define LOGI(...)
+#define LOGE(...)
+
+#else //STORE_RELEASE
 #define  LOG_TAG    "libgain"
 #ifdef ANDROID
 #define LOGI(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__);
@@ -82,8 +89,8 @@ extern QGLFunctions* g_qglfunctions;
 #define  LOGI(...) printf(__VA_ARGS__)
 #endif
 #define  LOGE(...) fprintf(stderr, __VA_ARGS__)
-
 #define  LOG_TAG_TIMETOPIC    "libgain"
+#endif //STORE_RELEASE
 
 #ifdef ANDROID
 #define LOGITIMETOPIC(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__);
