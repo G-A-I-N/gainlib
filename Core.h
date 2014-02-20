@@ -14,6 +14,7 @@
 #include <vector>
 #include <deque>
 #include <queue>
+#include <set>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -76,9 +77,16 @@ public:
 	void offerTouchMove(TouchPoint* aTouchPoint);
 	void offerTouchUp(TouchPoint* aTouchPoint);
 
+	void initiatePurchase(std::string purchase);
+	bool ownsPurchase(std::string purchase);
+
+	std::string backEndGetPurchaseToBeDone();
+	void backEndSetPurchase(std::string purchase);
+
 	float screen_width, screen_height;
 	float scale_width, scale_height;
 	float ratio, reversed_ratio;
+	float normalised_screen_height;
 private:
     unsigned int pScene;
     std::vector< std::deque<Base*> > renderClients;
@@ -86,6 +94,9 @@ private:
 
     std::queue< BaseQueueContainer > addClientsMultimap;
     std::queue< BaseQueueContainer > removeClientsMultimap;
+
+    std::set< std::string > pPurchasesOwned;
+    std::set< std::string > pPurchasesToBeDone;
 
     LOCK renderClientsLock;
     LOCK touchClientsLock;

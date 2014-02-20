@@ -76,6 +76,7 @@ bool Core::setupGraphics(int w, int h) {
 
 	ratio = screen_width/screen_height;
 	reversed_ratio = screen_height/screen_width;
+	normalised_screen_height = reversed_ratio*2.f;
 
 
 	LOGI("setupGraphics(%d, %d)", w, h);
@@ -460,6 +461,40 @@ void Core::offerTouchUp(TouchPoint* aTouchPoint)
 			container->touchInterface->TouchUp(aTouchPoint);
 		}
 	}
+}
+
+void Core::initiatePurchase(std::string purchase)
+{
+	pPurchasesToBeDone.insert(purchase);
+}
+
+bool Core::ownsPurchase(std::string purchase)
+{
+	bool owns = false;
+	std::set<std::string>::iterator it = pPurchasesOwned.begin();
+	while(!owns && it != pPurchasesOwned.end())
+	{
+		owns = (*it == purchase);
+		++it;
+	}
+	return owns;
+}
+
+std::string Core::backEndGetPurchaseToBeDone()
+{
+	std::string newPurchase("empty");
+	if( !pPurchasesToBeDone.empty() )
+	{
+		newPurchase = *(pPurchasesToBeDone.begin());
+		pPurchasesToBeDone.erase(pPurchasesToBeDone.begin());
+	}
+	return newPurchase;
+}
+
+void Core::backEndSetPurchase(std::string purchase)
+{
+	LOGI("purchase acquired: %s", purchase.c_str());
+	pPurchasesOwned.insert(purchase);
 }
 
 

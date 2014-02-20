@@ -8,6 +8,7 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					Core.cpp\
 					Base.cpp\
 					Layer.cpp\
+					EffectLayer.cpp\
 					Menu.cpp\
 					Button.cpp\
 					Rect.cpp\
@@ -15,6 +16,7 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					PixelCanvas.cpp\
 					Bitmap.cpp\
 					PngBitmap.cpp\
+					FboBitmap.cpp\
 					Text.cpp\
 					TouchInterface.cpp \
 					EventListener.cpp \

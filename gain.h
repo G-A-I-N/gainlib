@@ -19,6 +19,7 @@
 #include <Button.h>
 #include <Bitmap.h>
 #include <PngBitmap.h>
+#include <FboBitmap.h>
 #include <Text.h>
 #include <PixelCanvas.h>
 #include <PerfCounterItem.h>
