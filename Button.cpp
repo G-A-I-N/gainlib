@@ -37,7 +37,6 @@ Button::~Button()
 void Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonIndex aIndex)
 {
 	LOCK_ACQUIRE(pButtonStateLock);
-	unsigned int size =  pButtonFaces.size();
 	while (pButtonFaces.size() <= aIndex) {
 		pButtonFaces.push_back(std::vector<Rect*>());
 	}

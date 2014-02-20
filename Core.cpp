@@ -267,7 +267,7 @@ void Core::renderFrame() const
 	(const_cast<Gain::PerfCounterItem*>(&myRenderLoopCallCounter))->Increment(1);
 	(*(const_cast<int*>(&pFps))) ++;
 
-	glClearColor(0.f, 1.f, 1.f, 1.0f);
+	glClearColor(0.f, 0.f, 0.f, 1.0f);
 	checkGlError("glClearColor");
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	checkGlError("glClear");
@@ -461,6 +461,40 @@ void Core::offerTouchUp(TouchPoint* aTouchPoint)
 			container->touchInterface->TouchUp(aTouchPoint);
 		}
 	}
+}
+
+void Core::initiatePurchase(std::string purchase)
+{
+	pPurchasesToBeDone.insert(purchase);
+}
+
+bool Core::ownsPurchase(std::string purchase)
+{
+	bool owns = false;
+	std::set<std::string>::iterator it = pPurchasesOwned.begin();
+	while(!owns && it != pPurchasesOwned.end())
+	{
+		owns = (*it == purchase);
+		++it;
+	}
+	return owns;
+}
+
+std::string Core::backEndGetPurchaseToBeDone()
+{
+	std::string newPurchase("empty");
+	if( !pPurchasesToBeDone.empty() )
+	{
+		newPurchase = *(pPurchasesToBeDone.begin());
+		pPurchasesToBeDone.erase(pPurchasesToBeDone.begin());
+	}
+	return newPurchase;
+}
+
+void Core::backEndSetPurchase(std::string purchase)
+{
+	LOGI("purchase acquired: %s", purchase.c_str());
+	pPurchasesOwned.insert(purchase);
 }
 
 
