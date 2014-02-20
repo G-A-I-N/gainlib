@@ -76,6 +76,7 @@ bool Core::setupGraphics(int w, int h) {
 
 	ratio = screen_width/screen_height;
 	reversed_ratio = screen_height/screen_width;
+	normalised_screen_height = reversed_ratio*2.f;
 
 
 	LOGI("setupGraphics(%d, %d)", w, h);

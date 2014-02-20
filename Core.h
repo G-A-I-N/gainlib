@@ -79,6 +79,7 @@ public:
 	float screen_width, screen_height;
 	float scale_width, scale_height;
 	float ratio, reversed_ratio;
+	float normalised_screen_height;
 private:
     unsigned int pScene;
     std::vector< std::deque<Base*> > renderClients;
