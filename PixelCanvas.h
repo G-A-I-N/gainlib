@@ -43,7 +43,27 @@ public:
 
 	virtual ~PixelCanvas();
 
+	/**
+	 * Set pixel color and alpha values to specified coordinate.
+	 **
+	 * \param x 		x-coordinate of pixel.
+	 * \param y 		y-coordinate of pixel.
+	 * \param alpha		alpha value of pixel.
+	 * \param blue		blue component (RGB) of pixel.
+	 * \param green 	green component of pixel.
+	 * \param red		red component of pixel.
+	 */
+
 	void setPixel(int x, int y, char alpha,char blue,char green,char red);
+
+	/**
+	 * Set pixel color and alpha values to specified coordinate.
+	 **
+	 * \param x 		x-coordinate of pixel.
+	 * \param y 		y-coordinate of pixel.
+	 * \param abgr		32-bit combined value of pixel where alpha resides in most significant byte.
+	 */
+
 	void setPixel(int x, int y, unsigned int abgr);
 
 	/**
@@ -74,6 +94,7 @@ public:
 	 **
 	 * \param sec elapsed time since start.
 	 * \param deltaSec elapsed time last update.
+	 *
 	 */
 
 	virtual void updateG(float sec,float deltaSec);
