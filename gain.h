@@ -24,5 +24,6 @@
 #include <PixelCanvas.h>
 #include <PerfCounterItem.h>
 #include <PerfomanceCounter.h>
+#include <Logger.h>
 
 #endif /* GAIN_H_ */
