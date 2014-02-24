@@ -74,6 +74,20 @@ public:
 
 class Rect: public Gain::Base {
 public:
+
+	/**
+	 * Create rectangle item.
+	 *
+	 *
+	 *
+	 * \param x x-coordinate of rect handle. Handle is set using setPlacement.
+	 * \param x y-coordinate of rect handle.
+	 * \widht Rect width in pixels.
+	 * \heigh Rect height in pixels.
+	 * \vertexShader Pointer to possible vertexShader. If null, default is used.
+	 * \fragmentShader Pointer to possible fragmentShader. If null, default is used.
+	 */
+
 	Rect(int x, int y, int width, int height, const char* vertexShader=NULL, const char* fragmentShader=NULL);
 	Rect(float x, float y, float width, float height, const char* vertexShader=NULL, const char* fragmentShader=NULL);
 	Rect(const char* vertexShader=NULL, const char* fragmentShader=NULL);
