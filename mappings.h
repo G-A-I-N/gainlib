@@ -16,7 +16,7 @@
 //#define STORE_RELEASE
 
 // Undefine following if wanting disable logging
-#if 1
+#if 0
 #define LOGISON
 #endif
 
