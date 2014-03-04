@@ -12,6 +12,7 @@
 
 namespace Gain {
 
+static PngBitmapCache* gBitmapCache = 0;
 
 PngBitmap::PngBitmap(float x,float y, float width, float height, const char* aPngFile) :
 Bitmap(x,y,width,height)
@@ -36,75 +37,19 @@ PngBitmap::~PngBitmap() {
 
 void PngBitmap::readFile(const char* aFileName)
 {
-    unsigned char header[8];    // 8 is the maximum size that can be checked
+	if(!gBitmapCache)
+	{
+		gBitmapCache = new PngBitmapCache();
+	}
 
-    int x, y;
+	BitmapCacheData data = gBitmapCache->loadBitmap(aFileName);
 
-    png_byte color_type;
-    png_byte bit_depth;
-
-    png_structp png_ptr;
-    png_infop info_ptr;
-    int number_of_passes;
-    png_bytep * row_pointers;
-
-    /* open file and test for it being a png */
-    FILE *fp = fopen(aFileName, "rb");
-    if (!fp)
-            printf("[read_png_file] File %s could not be opened for reading", aFileName);
-    fread(header, 1, 8, fp);
-
-    if (png_sig_cmp(header, 0, 8))
-            printf("[read_png_file] File %s is not recognized as a PNG file", aFileName);
-
-
-    /* initialize stuff */
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-
-    if (!png_ptr)
-            printf("[read_png_file] png_create_read_struct failed");
-
-    info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr)
-            printf("[read_png_file] png_create_info_struct failed");
-
-    if (setjmp(
-    		png_jmpbuf( png_ptr ) )
-        )
-            printf("[read_png_file] Error during init_io");
-
-    png_init_io(png_ptr, fp);
-    png_set_sig_bytes(png_ptr, 8);
-
-    png_read_info(png_ptr, info_ptr);
-
-    pBitmapWidth = png_get_image_width(png_ptr, info_ptr);
-    pBitmapHeight = png_get_image_height(png_ptr, info_ptr);
-    color_type = png_get_color_type(png_ptr, info_ptr);
-    bit_depth = png_get_bit_depth(png_ptr, info_ptr);
-
-    number_of_passes = png_set_interlace_handling(png_ptr);
-    png_read_update_info(png_ptr, info_ptr);
-
-
-    /* read file */
-    if (setjmp(png_jmpbuf(png_ptr)))
-            printf("[read_png_file] Error during read_image");
-
-    int row_bytes = png_get_rowbytes(png_ptr,info_ptr);
-    pBitmapSlotSize = row_bytes*8/pBitmapWidth;
-    pBitmap = (png_byte*) malloc(pBitmapHeight*row_bytes);
-
-    row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * pBitmapHeight);
-    for (y=0; y<pBitmapHeight; y++)
-            row_pointers[y] = (png_byte*) &pBitmap[y*row_bytes];
-
-    png_read_image(png_ptr, row_pointers);
-
-    //free(row_pointers);
-
-    fclose(fp);
+    pBitmapWidth = data.width;
+    pBitmapHeight = data.height;
+    pBitmapSlotSize = data.bitsPerPixel;
+    pBitmap = data.bitmap;
 }
+
 bool PngBitmap::initVariables() {
 	if(!super::initVariables()) {
 		return false;
@@ -113,29 +58,12 @@ bool PngBitmap::initVariables() {
 	const char* attribute_name;
 	const char* uniform_name;
 
-	glGenTextures(1, &texture_id);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-	        GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-			GL_CLAMP_TO_EDGE);
-
-	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, /*GL10.GL_REPLACE*/ GL_MODULATE);
-
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-
-	glTexImage2D(GL_TEXTURE_2D, // target
-			0,  // level, 0 = base, no minimap,
-			GL_RGBA, // internalformat
-			pBitmapWidth,  // width
-			pBitmapHeight,  // height
-			0,  // border, always 0 in OpenGL ES
-			GL_RGBA,  // format
-			GL_UNSIGNED_BYTE, // type
-			pBitmap);
+	BitmapCacheData data;
+	data.width = pBitmapWidth;
+	data.height = pBitmapHeight;
+	data.bitsPerPixel = pBitmapSlotSize;
+	data.bitmap = pBitmap;
+	texture_id = gBitmapCache->openglId(&data);
 
 	GLfloat square_texcoords[] = {
 			// front
@@ -192,6 +120,140 @@ void PngBitmap::disableAttributes() const
 	super::disableAttributes();
 }
 
+
+
+
+BitmapCacheData PngBitmapCache::loadBitmap(std::string filename)
+{
+	std::map<std::string,BitmapCacheData>::iterator it = pBitmapMap.find(filename);
+
+	if(it != pBitmapMap.end())
+	{
+		return it->second;
+	}
+
+	BitmapCacheData data;
+
+    unsigned char header[8];    // 8 is the maximum size that can be checked
+
+    int x, y;
+
+    png_byte color_type;
+    png_byte bit_depth;
+
+    png_structp png_ptr;
+    png_infop info_ptr;
+    int number_of_passes;
+    png_bytep * row_pointers;
+
+    /* open file and test for it being a png */
+    FILE *fp = fopen(filename.c_str(), "rb");
+    if (!fp)
+            printf("[read_png_file] File %s could not be opened for reading", filename.c_str());
+    fread(header, 1, 8, fp);
+
+    if (png_sig_cmp(header, 0, 8))
+            printf("[read_png_file] File %s is not recognized as a PNG file",  filename.c_str());
+
+
+    /* initialize stuff */
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+    if (!png_ptr)
+            printf("[read_png_file] png_create_read_struct failed");
+
+    info_ptr = png_create_info_struct(png_ptr);
+    if (!info_ptr)
+            printf("[read_png_file] png_create_info_struct failed");
+
+    if (setjmp(
+    		png_jmpbuf( png_ptr ) )
+        )
+            printf("[read_png_file] Error during init_io");
+
+    png_init_io(png_ptr, fp);
+    png_set_sig_bytes(png_ptr, 8);
+
+    png_read_info(png_ptr, info_ptr);
+
+    data.width = png_get_image_width(png_ptr, info_ptr);
+    data.height = png_get_image_height(png_ptr, info_ptr);
+    color_type = png_get_color_type(png_ptr, info_ptr);
+    bit_depth = png_get_bit_depth(png_ptr, info_ptr);
+
+    number_of_passes = png_set_interlace_handling(png_ptr);
+    png_read_update_info(png_ptr, info_ptr);
+
+
+    /* read file */
+    if (setjmp(png_jmpbuf(png_ptr)))
+            printf("[read_png_file] Error during read_image");
+
+    int row_bytes = png_get_rowbytes(png_ptr,info_ptr);
+    data.bitsPerPixel = row_bytes*8/data.width;
+    data.bitmap = (png_byte*) malloc(data.height*row_bytes);
+
+    row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * data.height);
+    for (y=0; y<data.height; y++)
+            row_pointers[y] = (png_byte*) &data.bitmap[y*row_bytes];
+
+    png_read_image(png_ptr, row_pointers);
+
+    fclose(fp);
+
+	pBitmapMap[filename] = data;
+	return data;
+
+}
+
+static unsigned long sdbm(uint8_t* data, int len )
+{
+	unsigned long hash = 0;
+
+	//65599
+	while (--len)
+		hash = data[len] + (hash << 6) + (hash << 16) - hash;
+
+	return hash;
+}
+
+GLuint PngBitmapCache::openglId(BitmapCacheData* data)
+{
+	unsigned long hash = sdbm(data->bitmap,data->height*data->width);
+	std::map<unsigned long,unsigned int>::iterator it = pOpenglCache.find(hash);
+	if(it != pOpenglCache.end())
+	{
+		return it->second;
+	}
+
+	GLuint texture_id;
+	glGenTextures(1, &texture_id);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+	        GL_CLAMP_TO_EDGE);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+			GL_CLAMP_TO_EDGE);
+
+	//glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, /*GL10.GL_REPLACE*/ GL_MODULATE);
+
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	glTexImage2D(GL_TEXTURE_2D, // target
+			0,  // level, 0 = base, no minimap,
+			GL_RGBA, // internalformat
+			data->width,  // width
+			data->height,  // height
+			0,  // border, always 0 in OpenGL ES
+			GL_RGBA,  // format
+			GL_UNSIGNED_BYTE, // type
+			data->bitmap);
+
+	pOpenglCache.insert(std::pair<unsigned long, unsigned int>(hash,texture_id));
+	return texture_id;
+}
 
 
 } /* namespace Gain */

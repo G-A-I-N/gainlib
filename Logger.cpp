@@ -14,8 +14,13 @@
 #include <sys/time.h>
 #include "logger.h"
 
+/* Logger port should be defined in mappings.h */
+
 #ifndef TARGET_LOGGER_ADDRESS
 #define TARGET_LOGGER_ADDRESS "localhost"
+#endif
+
+#ifndef TARGET_LOGGER_PORT
 #define TARGET_LOGGER_PORT 8888
 #endif
 
@@ -49,7 +54,6 @@ Logger::Logger() :
 		LOGITIMETOPIC("no connection\n");
 
 		// no connection
-		//exit(1);
 	}
 	LOGITIMETOPIC("connection ready\n");
 
@@ -64,7 +68,6 @@ Logger::~Logger() {
 
 Logger* Logger::Instance()
 {
-	//LOGITIMETOPIC("%s\n",__func__);
 	static Logger* instance=NULL;
 	if(instance == NULL) {
 		instance = new Logger();
@@ -75,28 +78,28 @@ Logger* Logger::Instance()
 void Logger::EventStart(const char* eventName)
 {
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), "event;start;%s",eventName);
+	snprintf(buf,sizeof(buf), ";event;start;%s",eventName);
 	WriteItem(buf);
 }
 
 void Logger::EventStop(const char* eventName)
 {
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), "event;stop;%s",eventName);
+	snprintf(buf,sizeof(buf), ";event;stop;%s",eventName);
 	WriteItem(buf);
 }
 
 void Logger::EventStart(const char* eventName,const char* eventName2)
 {
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), "event;start;%s%s",eventName,eventName2);
+	snprintf(buf,sizeof(buf), ";event;start;%s%s",eventName,eventName2);
 	WriteItem(buf);
 }
 
 void Logger::EventStop(const char* eventName,const char* eventName2)
 {
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), "event;stop;%s%s",eventName,eventName2);
+	snprintf(buf,sizeof(buf), ";event;stop;%s%s",eventName,eventName2);
 	WriteItem(buf);
 }
 
@@ -110,13 +113,13 @@ void Logger::FreeText(const char* eventName)
 void Logger::StateMachine(const char* machineName, const char* stateName)
 {
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), "state;%s;%s",machineName,stateName);
+	snprintf(buf,sizeof(buf), ";state;%s;%s",machineName,stateName);
 	WriteItem(buf);
 }
 void Logger::ValueABS(const char* valueName,unsigned int value)
 {
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), "valueabs;%s;%u",valueName,value);
+	snprintf(buf,sizeof(buf), ";valueabs;%u;%s",value,valueName);
 	WriteItem(buf);
 }
 
@@ -133,7 +136,8 @@ void Logger::WriteItem(const char* item)
         printf(buf);
     }
 #else
-#error no file writing implemented
+	/* Use current native logger port */
+	LOGITIMETOPIC(item);
 #endif
 }
 

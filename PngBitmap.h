@@ -8,10 +8,38 @@
 #ifndef PNGBITMAP_H_
 #define PNGBITMAP_H_
 
-#include <string.h>
+#include <string>
+#include <map>
+#include <functional>
 #include "Bitmap.h"
 
 namespace Gain {
+
+class BitmapCacheData
+{
+public:
+	BitmapCacheData(){};
+	virtual ~BitmapCacheData(){}
+
+	uint8_t* bitmap;
+	int width;
+	int height;
+	int bitsPerPixel;
+};
+
+class PngBitmapCache
+{
+public:
+	PngBitmapCache(){};
+	virtual ~PngBitmapCache(){};
+
+	BitmapCacheData loadBitmap(std::string filename);
+	GLuint openglId(BitmapCacheData* data);
+//protected:
+	std::map<std::string, BitmapCacheData> pBitmapMap;
+	std::map<unsigned long, unsigned int> pOpenglCache;
+};
+
 
 class PngBitmap: public Gain::Bitmap
 {

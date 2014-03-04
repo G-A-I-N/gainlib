@@ -19,12 +19,13 @@
 #include <unistd.h>
 #include <vector>
 
+#include "mappings.h" // native log port implementation
 
 
 #define MAX_BUF 1024
 
-#define LOGISON // if this is defined, logging is on.
-#define LOGTOSOCKET // if this is defined, data is sent to socket instead of file
+// #define LOGISON // if this is defined, logging is on.  this define comes from "mappings.h"
+//#define LOGTOSOCKET // if this is defined, data is sent to socket. Other native logger interface is used
 #define LOGID //if this is enabled, id is generated to a matching object/integer
 //#define USESEQNUMBERS // if this is defined, instead of time, running sequence number is as timestamp
 
@@ -40,6 +41,11 @@
     #define LOGSTATE(x,y) Logger::Instance()->StateMachine(x,y);
     #define LOGVALUE(x,y) Logger::Instance()->ValueABS(x,y);
     #define LOGSCOPE TimeToPicEventObj myFuncScope(__PRETTY_FUNCTION__);
+	#define LOGSCOPEINFO(param) scopeTrace myScope(__FUNCTION__ + param);
+
+	#define LOGOBJECTSTART(x,y) LOGOBJECTFUNC(x,y,LOGEVENTSTART)
+	#define LOGOBJECTSTOP(x,y)  LOGOBJECTFUNC(x,y,LOGEVENTSTOP)
+
 
 	#ifdef LOGID
 		#define LOGFUNC(y)	snprintf(__temp,sizeof(__temp),"[%04i]",Logger::Instance()->id((int)y))
@@ -57,9 +63,6 @@
 			memcpy((___temp+sizex-1),__temp,sizeof(__temp));\
 			f(___temp);\
 		}
-
-	#define LOGOBJECTSTART(x,y) LOGOBJECTFUNC(x,y,LOGEVENTSTART)
-	#define LOGOBJECTSTOP(x,y)  LOGOBJECTFUNC(x,y,LOGEVENTSTOP)
 
 #else
     /* Empty macros when logging is disabled */
@@ -117,6 +120,18 @@ private:
 };
 
 /* Automatic object. Event starts in constructor and destructor it will be stopped. */
+class scopeTrace {
+public:
+	inline scopeTrace(const char *scopeName) :  scopeText(scopeName) {
+		LOGEVENTSTART(scopeText.c_str());
+	}
+	inline ~scopeTrace() {
+		LOGEVENTSTOP(scopeText.c_str());
+	}
+private:
+	std::string scopeText;
+};
+
 
 class TimeToPicEventObj
 {
