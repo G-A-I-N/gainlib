@@ -8,7 +8,7 @@
 #ifndef MAPPINGS_H_
 #define MAPPINGS_H_
 
-//#define STORE_RELEASE
+#define STORE_RELEASE
 
 // Undefine following if wanting disable logging
 #if 0
