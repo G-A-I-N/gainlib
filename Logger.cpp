@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include <sys/time.h>
-#include "logger.h"
+#include "Logger.h"
 
 /* Logger port should be defined in mappings.h */
 
@@ -126,10 +126,10 @@ void Logger::ValueABS(const char* valueName,unsigned int value)
 
 void Logger::WriteItem(const char* item)
 {
+#ifdef LOGTOSOCKET
 	char buf[MAX_BUF];
 	snprintf(buf,sizeof(buf), "%f;%s\n",Elapsed(),item);
 
-#ifdef LOGTOSOCKET
 	if(status == 0){
 		write(sockd, buf, strlen(buf));
 	} else {
