@@ -8,15 +8,16 @@
 #ifndef MAPPINGS_H_
 #define MAPPINGS_H_
 
+
 #include <stdio.h>
 #include <stdint.h>
 #include <string>
 
 
-//#define STORE_RELEASE
+#define STORE_RELEASE
 
 // Undefine following if wanting disable logging
-#if 1
+#if 0
 #define LOGISON
 #endif
 

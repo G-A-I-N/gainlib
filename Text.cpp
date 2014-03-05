@@ -50,7 +50,7 @@ Text::Text(float x,float y, float pixelSize, const char* text) :
 		return;
 	}
 
-#if 0
+#if 1
 	if(FT_New_Face(pFt, "/system/fonts/DroidSans.ttf", 0, &pFace)) {
 #else
 	if(FT_New_Face(pFt, "arial.ttf", 0, &pFace)) {
