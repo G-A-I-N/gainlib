@@ -106,7 +106,7 @@ void Logger::EventStop(const char* eventName,const char* eventName2)
 void Logger::FreeText(const char* eventName)
 {
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), "%s",eventName);
+	snprintf(buf,sizeof(buf), ";%s",eventName);
 	WriteItem(buf);
 }
 
