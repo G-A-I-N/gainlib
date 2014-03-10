@@ -10,7 +10,7 @@
 
 namespace Gain {
 
-
+static FT_Library gFt = NULL;
 
 static const char gVertexShader[] =
 		"attribute vec2 coord2d;\n"
@@ -39,32 +39,34 @@ static const char gFragmentShader[] =
 
 
 Text::Text(float x,float y, float pixelSize, const char* text) :
-		super(x,y,0.f,0.f, gVertexShader, gFragmentShader)
+		super(x,y,0.f,0.f, gVertexShader, gFragmentShader), pFace(0)
 {
 	pTextBuffer = new char[256];
 	pBitmap = NULL;
 	pPixelSize = GetCore()->screen_width*pixelSize;
 
-	if(FT_Init_FreeType(&pFt)) {
-		fprintf(stderr, "Could not init freetype library\n");
-		return;
-	}
+	if(!pFace)
+	{
+		if(!gFt) {
+			if(FT_Init_FreeType(&gFt)) {
+				fprintf(stderr, "Could not init freetype library\n");
+				return;
+			}
+		}
 
-#if 1
-	if(FT_New_Face(pFt, "/system/fonts/DroidSans.ttf", 0, &pFace)) {
-#else
-	if(FT_New_Face(pFt, "arial.ttf", 0, &pFace)) {
-#endif
-		fprintf(stderr, "Could not open font\n");
-		return;
-	}
-	FT_Set_Pixel_Sizes(pFace, 0, pPixelSize);
+		if(FT_New_Face(gFt, "Roboto-Regular.ttf", 0, &pFace)) {
 
-	if(FT_Load_Char(pFace, 'A', FT_LOAD_RENDER)) {
-		fprintf(stderr, "Could not load character 'A'\n");
-		return;
-	}
+			fprintf(stderr, "Could not open font\n");
+			return;
+		}
 
+		FT_Set_Pixel_Sizes(pFace, 0, pPixelSize);
+
+		if(FT_Load_Char(pFace, 'A', FT_LOAD_RENDER)) {
+			fprintf(stderr, "Could not load character 'A'\n");
+			return;
+		}
+	}
 	setText(text);
 }
 
@@ -75,12 +77,15 @@ Text::Text(int x,int y, int pixelSize, const char* text) :
 	pBitmap = NULL;
 	pPixelSize = pixelSize;
 
-	if(FT_Init_FreeType(&pFt)) {
-		fprintf(stderr, "Could not init freetype library\n");
-		return;
+	if(!gFt) {
+		if(FT_Init_FreeType(&gFt)) {
+
+			fprintf(stderr, "Could not init freetype library\n");
+			return;
+		}
 	}
 
-	if(FT_New_Face(pFt, "arial.ttf", 0, &pFace)) {
+	if(FT_New_Face(gFt, "arial.ttf", 0, &pFace)) {
 		fprintf(stderr, "Could not open font\n");
 		return;
 	}

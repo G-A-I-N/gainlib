@@ -41,7 +41,7 @@ protected:
 
 	char* pTextBuffer;
 	int pPixelSize;
-	FT_Library pFt;
+
 	FT_Face pFace;
 };
 
