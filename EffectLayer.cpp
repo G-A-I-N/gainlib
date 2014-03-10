@@ -7,7 +7,7 @@
 
 #include "EffectLayer.h"
 #include <gain.h>
-#include <core.h>
+#include <Core.h>
 
 using namespace Gain;
 
