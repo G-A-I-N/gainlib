@@ -71,7 +71,7 @@ Text::Text(float x,float y, float pixelSize, const char* text) :
 }
 
 Text::Text(int x,int y, int pixelSize, const char* text) :
-		super(x,y,0,0, gVertexShader, gFragmentShader)
+		super(x,y,0,0, gVertexShader, gFragmentShader), pFace(0)
 {
 	pTextBuffer = new char[256];
 	pBitmap = NULL;
@@ -85,7 +85,7 @@ Text::Text(int x,int y, int pixelSize, const char* text) :
 		}
 	}
 
-	if(FT_New_Face(gFt, "arial.ttf", 0, &pFace)) {
+	if(FT_New_Face(gFt, "Roboto-Regular.ttf", 0, &pFace)) {
 		fprintf(stderr, "Could not open font\n");
 		return;
 	}
