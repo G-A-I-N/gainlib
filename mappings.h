@@ -14,11 +14,13 @@
 #include <string>
 
 
-#define STORE_RELEASE
+//#define STORE_RELEASE
 
 // Undefine following if wanting disable logging
-#if 0
+#ifndef STORE_RELEASE
 #define LOGISON
+#else
+
 #endif
 
 
@@ -92,7 +94,7 @@ extern QGLFunctions* g_qglfunctions;
 #endif //STORE_RELEASE
 
 #ifdef ANDROID
-#define LOGITIMETOPIC(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__);
+#define LOGITIMETOPIC(LOGTEXT) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, "%s",LOGTEXT);
 #else
 #define  LOGITIMETOPIC(...) printf(__VA_ARGS__)
 #endif
