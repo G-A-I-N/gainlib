@@ -74,7 +74,7 @@ public:
      * aScene, deletion is bit faster. If aScene == -1, then base is looked up
      * from all layers.
      */
-    void removeRenderClient(Base* base, int aScene=-1) ;
+    void removeRenderClient(Base* base, unsigned int aScene=SCENE_ACTIVE) ;
 
     void addTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_DEFAULT_BACK) ;
     void removeTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_DEFAULT_BACK) ;

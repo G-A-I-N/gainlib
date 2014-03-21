@@ -64,7 +64,13 @@ Text::Text(float x,float y, float pixelSize, const char* text) :
 			}
 		}
 
-		if(FT_New_Face(gFt, "Roboto-Regular.ttf", 0, &pFace)) {
+#ifdef IOS
+        const char* font = get_asset_filepath( "Fresca-Regular.ttf" );
+#else
+        const char* font = "Roboto-Regular.ttf";
+#endif
+
+		if(FT_New_Face(gFt, font, 0, &pFace)) {
 
 			fprintf(stderr, "Could not open font\n");
 			return;
@@ -95,7 +101,13 @@ Text::Text(int x,int y, int pixelSize, const char* text) :
 		}
 	}
 
-	if(FT_New_Face(gFt, "Roboto-Regular.ttf", 0, &pFace)) {
+#ifdef IOS
+    const char* font = get_asset_filepath( "Fresca-Regular.ttf" );
+#else
+    const char* font = "Roboto-Regular.ttf";
+#endif
+    
+    if(FT_New_Face(gFt, font, 0, &pFace)) {
 		fprintf(stderr, "Could not open font\n");
 		return;
 	}
