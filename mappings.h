@@ -33,6 +33,11 @@
 #endif
 
 
+#ifdef __APPLE__ 
+#include "platform_utils.h"
+#define IOS
+#endif
+
 #ifdef ANDROID
 #include <android/log.h> // this is needed to make android logging working.
 #define PTHREAD
@@ -45,8 +50,13 @@
 
 #ifndef USE_OPENGL
 
+#ifdef IOS
+#include <OpenGLES/ES2/gl.h>
+#include <OpenGLES/ES2/glext.h>
+#else
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
+#endif
 
 #define INIT_GL
 #define GL_EXT_FUNC

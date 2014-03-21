@@ -42,7 +42,13 @@ void PngBitmap::readFile(const char* aFileName)
 		gBitmapCache = new PngBitmapCache();
 	}
 
+#ifdef IOS
+    const char* new_path = get_asset_filepath(aFileName);
+	BitmapCacheData data = gBitmapCache->loadBitmap(new_path);
+#else
 	BitmapCacheData data = gBitmapCache->loadBitmap(aFileName);
+#endif
+
 
     pBitmapWidth = data.width;
     pBitmapHeight = data.height;
@@ -149,7 +155,7 @@ BitmapCacheData PngBitmapCache::loadBitmap(std::string filename)
     /* open file and test for it being a png */
     FILE *fp = fopen(filename.c_str(), "rb");
     if (!fp)
-            printf("[read_png_file] File %s could not be opened for reading", filename.c_str());
+            printf("[read_png_file] File (%s) could not be opened for reading", filename.c_str());
     fread(header, 1, 8, fp);
 
     if (png_sig_cmp(header, 0, 8))
