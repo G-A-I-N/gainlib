@@ -18,6 +18,9 @@
 #ifndef CORE_H_
 #define CORE_H_
 
+#include <sys/time.h>
+#include <unistd.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -65,6 +68,9 @@ public:
 
 	bool setupGraphics(int w, int h);
 	void updateG(float time, float timeDelta);
+    
+    void backEndUpdateG();
+    
 	void update(float time, float timeDelta);
 	void renderFrame() const;
 
@@ -113,7 +119,15 @@ private:
 
 	int pFps;
 
-	/* PerformanceCounters. Initialized when name is set */
+    //timers
+    
+    struct timeval gStartTime,gNewTime,gOldTime;
+    
+    float gSecG, gDeltaSecG, gSecU, gDeltaSecU;
+    
+    int start_msec, old_msec;
+	
+    /* PerformanceCounters. Initialized when name is set */
 	Gain::PerfCounterItem myCoreUpdateLoopCallCounter;
 	Gain::PerfCounterItem myAppUpdateLoopCallCounter;
 	Gain::PerfCounterItem myRenderLoopCallCounter;

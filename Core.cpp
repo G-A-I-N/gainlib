@@ -53,6 +53,12 @@ Core::Core() :
 	myRenderLoopCallCounter.SetName("RenderLoop rate");
 	myRenderClientsCountCounter.SetName("Render clients count");
 	mlastPerforManceCounterUpdateTimeSec = 0;
+    
+    gettimeofday( &gNewTime , NULL);
+    memcpy(&gOldTime, &gNewTime, sizeof(gOldTime));
+    memcpy(&gStartTime, &gNewTime, sizeof(gStartTime));
+    start_msec = gNewTime.tv_sec*1000 + gNewTime.tv_usec/1000;
+    old_msec = start_msec;
 }
 
 Core::~Core() {
@@ -105,7 +111,22 @@ bool Core::setupGraphics(int w, int h) {
 
     return true;
 }
-
+    
+void Core::backEndUpdateG()
+{
+	gettimeofday( &gNewTime , NULL);
+    
+	int new_msec = (int)(gNewTime.tv_sec*1000 + gNewTime.tv_usec/1000);
+    
+	gSecG      = 0.001f*(float)(new_msec - start_msec);
+	gDeltaSecG = 0.001f*(float)(new_msec - old_msec);
+    
+	old_msec  = new_msec;
+	memcpy(&gOldTime, &gNewTime, sizeof(gOldTime));
+    
+	updateG(gSecG,gDeltaSecG);
+}
+    
 void Core::updateG(float time, float deltaTime)
 {
 
