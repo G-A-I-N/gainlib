@@ -111,22 +111,6 @@ void PngBitmap::updateG(float time, float timeDelta)
 void PngBitmap::enableAttributes() const
 {
 	super::enableAttributes();
-
-    GL_EXT_FUNC glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-    GL_EXT_FUNC glUniform1i(uniform_mytexture, 0);
-
-    GL_EXT_FUNC glEnableVertexAttribArray(attribute_texcoord);
-    GL_EXT_FUNC glBindBuffer(GL_ARRAY_BUFFER, vbo_square_texcoords);
-    GL_EXT_FUNC glVertexAttribPointer(
-			attribute_texcoord, // attribute
-			2,                  // number of elements per vertex, here (x,y)
-			GL_FLOAT,           // the type of each element
-			GL_FALSE,           // take our values as-is
-			0,                  // no extra data between each position
-			0                   // offset of first element
-	);
-
 }
 
 void PngBitmap::disableAttributes() const
@@ -140,12 +124,12 @@ void PngBitmap::disableAttributes() const
 
 BitmapCacheData PngBitmapCache::loadBitmap(std::string filename)
 {
-	std::map<std::string,BitmapCacheData>::iterator it = pBitmapMap.find(filename);
-
-	if(it != pBitmapMap.end())
-	{
-		return it->second;
-	}
+//	std::map<std::string,BitmapCacheData>::iterator it = pBitmapMap.find(filename);
+//
+//	if(it != pBitmapMap.end())
+//	{
+//		return it->second;
+//	}
 
 	BitmapCacheData data;
 
@@ -215,6 +199,7 @@ BitmapCacheData PngBitmapCache::loadBitmap(std::string filename)
     png_read_image(png_ptr, row_pointers);
 
     fclose(fp);
+    LOGI("cached %s", filename.c_str());
 
 	pBitmapMap[filename] = data;
 	return data;
@@ -235,11 +220,12 @@ static unsigned long sdbm(uint8_t* data, int len )
 GLuint PngBitmapCache::openglId(BitmapCacheData* data)
 {
 	unsigned long hash = sdbm(data->bitmap,data->height*data->width);
+
 	std::map<unsigned long,unsigned int>::iterator it = pOpenglCache.find(hash);
-	if(it != pOpenglCache.end())
-	{
-		return it->second;
-	}
+//	if(it != pOpenglCache.end())
+//	{
+//		return it->second;
+//	}
 
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);

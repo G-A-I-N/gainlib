@@ -46,16 +46,15 @@ void Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonIndex a
 {
 	LOCK_ACQUIRE(pButtonStateLock);
 	while (pButtonFaces.size() <= aIndex) {
-		pButtonFaces.push_back(std::vector<Rect*>());
+		pButtonFaces.resize(aIndex+1);
 	}
 	if(pButtonFaces[aIndex].size() < 2)
 	{
-		pButtonFaces[aIndex].push_back(NULL);
-		pButtonFaces[aIndex].push_back(NULL);
+		pButtonFaces[aIndex].resize(2);
 	}
 
 	pButtonFaces[aIndex][aState] = aRect;
-	if(pActiveIndex < 0) pActiveIndex = aIndex;
+	//if(pActiveIndex < 0) pActiveIndex = aIndex;
 	LOCK_RELEASE(pButtonStateLock);
 }
 
@@ -78,7 +77,13 @@ void Button::updateG(float time, float deltaTime)
 		super::updateG(time,deltaTime);
 
 		Rect* active = 	pButtonFaces[pActiveIndex][pActiveState];
+
+		if(!active) {
+			return;
+		}
+
 		if (active->getState() == NOT_INITIALIZED) {
+
 			active->setupGraphics();
 		}
 
@@ -144,6 +149,7 @@ TouchState Button::TouchUp(TouchPoint* aPoint)
     }
 	return TOUCH_NOT_CONSUMED;
 }
+
 
 Button* Button::setIndex(ButtonIndex aIndex)
 {
