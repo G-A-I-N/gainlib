@@ -20,7 +20,8 @@ namespace Gain {
 
 Base::Base() :
     pState(NOT_INITIALIZED),
-    program(0)
+    program(0),
+    pZOrder(0)
 {
 }
 

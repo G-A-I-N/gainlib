@@ -82,8 +82,8 @@ public:
      */
     void removeRenderClient(Base* base, unsigned int aScene=SCENE_ACTIVE) ;
 
-    void addTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_DEFAULT_BACK) ;
-    void removeTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_DEFAULT_BACK) ;
+    void addTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_ACTIVE) ;
+    void removeTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_ACTIVE) ;
 
     void setScene(unsigned int aScene) { pScene = aScene;}
 

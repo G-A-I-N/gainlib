@@ -43,7 +43,7 @@ public:
 	void removeRenderClient(Gain::Base* aBase);
 	void removeAllRenderClients();
 protected:
-	std::set<Gain::Base*> renderClients;
+	std::multiset<Gain::Base*, Gain::BaseCompare> renderClients;
 	std::queue<Gain::Base*> addClientsFifo;
 	std::queue<Gain::Base*> removeClientsFifo;
 

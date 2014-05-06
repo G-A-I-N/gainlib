@@ -384,6 +384,10 @@ void Core::invalidateAllRenderers(bool fullReset) {
 
 void Core::addTouchClient(TouchInterface* aInterface, unsigned int aScene)
 {
+    if(aScene >= SCENE_LAST_INDEX)
+	{
+		aScene = pScene;
+	}
 	TouchContainer* container = new TouchContainer();
 	container->touchInterface = aInterface;
     LOCK_ACQUIRE(touchClientsLock);
@@ -397,6 +401,10 @@ void Core::addTouchClient(TouchInterface* aInterface, unsigned int aScene)
 
 void Core::removeTouchClient(TouchInterface* aInterface, unsigned int aScene)
 {
+    if(aScene >= SCENE_LAST_INDEX)
+	{
+		aScene = pScene;
+	}
     LOCK_ACQUIRE(touchClientsLock);
 	LOGSCOPE;
 	if (aScene < touchClients.size()) {

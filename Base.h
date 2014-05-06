@@ -50,6 +50,8 @@ public:
 	virtual void addEventListener(EventListener* aListener);
 	virtual void triggerEvent(EventType type);
 
+    virtual void setZOrder(int aZOrder) {pZOrder = aZOrder;}
+    
 protected:
 	GLuint createProgram(const char* pVertexSource, const char* pFragmentSource);
 	GLuint loadShader(GLenum shaderType, const char* pSource);
@@ -62,8 +64,17 @@ protected:
 
 	std::map<EventListener*,EventListener*> pEventListener;
 
+    int pZOrder;
+    
 	BaseState pState;
 	GLuint program;
+    friend struct BaseCompare;
+};
+    
+struct BaseCompare {
+    bool operator()	(const Base* aLeft, const Base* aRigth) const {
+        return (aLeft->pZOrder < aRigth->pZOrder);
+    }
 };
 
 } /* namespace Gain */
