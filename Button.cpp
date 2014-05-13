@@ -54,7 +54,7 @@ void Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonIndex a
 	}
 
 	pButtonFaces[aIndex][aState] = aRect;
-	//if(pActiveIndex < 0) pActiveIndex = aIndex;
+	if(pActiveIndex < 0) pActiveIndex = aIndex;
 	LOCK_RELEASE(pButtonStateLock);
 }
 
