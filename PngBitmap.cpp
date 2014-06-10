@@ -63,6 +63,8 @@ void PngBitmap::readFile(const char* aFileName)
     pBitmapHeight = data.height;
     pBitmapSlotSize = data.bitsPerPixel;
     pBitmap = data.bitmap;
+    pPngLiteral = data.literal;
+
 }
 
 bool PngBitmap::initVariables() {
@@ -78,6 +80,7 @@ bool PngBitmap::initVariables() {
 	data.height = pBitmapHeight;
 	data.bitsPerPixel = pBitmapSlotSize;
 	data.bitmap = pBitmap;
+	data.literal = pPngLiteral;
 	texture_id = gBitmapCache->openglId(&data);
 
 	GLfloat square_texcoords[] = {
@@ -124,12 +127,12 @@ void PngBitmap::disableAttributes() const
 
 BitmapCacheData PngBitmapCache::loadBitmap(std::string filename)
 {
-//	std::map<std::string,BitmapCacheData>::iterator it = pBitmapMap.find(filename);
-//
-//	if(it != pBitmapMap.end())
-//	{
-//		return it->second;
-//	}
+	std::map<std::string,BitmapCacheData>::iterator it = pBitmapMap.find(filename);
+
+	if(it != pBitmapMap.end())
+	{
+		return it->second;
+	}
 
 	BitmapCacheData data;
 
@@ -199,9 +202,10 @@ BitmapCacheData PngBitmapCache::loadBitmap(std::string filename)
     png_read_image(png_ptr, row_pointers);
 
     fclose(fp);
-    LOGI("cached %s", filename.c_str());
+	data.literal = filename;
 
-	pBitmapMap[filename] = data;
+    pBitmapMap[filename] = data;
+
 	return data;
 
 }
@@ -219,13 +223,12 @@ static unsigned long sdbm(uint8_t* data, int len )
 
 GLuint PngBitmapCache::openglId(BitmapCacheData* data)
 {
-	unsigned long hash = sdbm(data->bitmap,data->height*data->width);
+	std::map<std::string,unsigned int>::iterator it = pOpenglCache.find(data->literal);
 
-	std::map<unsigned long,unsigned int>::iterator it = pOpenglCache.find(hash);
-//	if(it != pOpenglCache.end())
-//	{
-//		return it->second;
-//	}
+	if(it != pOpenglCache.end())
+	{
+		return it->second;
+	}
 
 	GLuint texture_id;
 	glGenTextures(1, &texture_id);
@@ -252,7 +255,7 @@ GLuint PngBitmapCache::openglId(BitmapCacheData* data)
 			GL_UNSIGNED_BYTE, // type
 			data->bitmap);
 
-	pOpenglCache.insert(std::pair<unsigned long, unsigned int>(hash,texture_id));
+	pOpenglCache.insert(std::pair<std::string, unsigned int>(data->literal,texture_id));
 	return texture_id;
 }
 

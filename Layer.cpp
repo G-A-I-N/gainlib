@@ -59,7 +59,7 @@ void Layer::renderPost() const
 void Layer::render() const
 {
     renderPre();
-    std::set<Base*>::iterator it;
+    std::multiset<Gain::Base*, Gain::BaseCompare>::iterator it;
 	for (it=renderClients.begin(); it!=renderClients.end(); ++it)
 	{
 		Base* child = *it;
@@ -73,27 +73,31 @@ void Layer::render() const
 void Layer::updateG(float time, float deltaTime)
 {
     LOCK_ACQUIRE(renderClientsLock);
-    while(addClientsFifo.empty()==false)
+    while( !addClientsFifo.empty() )
     {
 
     	Gain::Base* base = addClientsFifo.front();
     	addClientsFifo.pop();
     	renderClients.insert(base);
     }
-    while(removeClientsFifo.empty()==false)
+    while( !removeClientsFifo.empty() )
     {
     	Gain::Base* base = removeClientsFifo.front();
     	removeClientsFifo.pop();
-        std::set<Base*>::iterator it =
-        		renderClients.find(base);
-        if(it != renderClients.end())
+        std::multiset<Gain::Base*, Gain::BaseCompare>::iterator it =
+                renderClients.begin();
+        while(it != renderClients.end())
         {
-        	renderClients.erase(it);
+            std::multiset<Gain::Base*, Gain::BaseCompare>::iterator it_temp = it;
+            ++it;
+            if( base == *it_temp) {
+                renderClients.erase(it_temp);
+            }
         }
 	}
     LOCK_RELEASE(renderClientsLock);
 
-    std::set<Base*>::iterator it;
+    std::multiset<Gain::Base*, Gain::BaseCompare>::iterator it;
 	for (it=renderClients.begin(); it!=renderClients.end(); ++it)
 	{
 		Base* child = *it;

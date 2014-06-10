@@ -24,20 +24,11 @@
 #include <sys/time.h>
 #include "Logger.h"
 
-/* Logger port should be defined in mappings.h */
-
-#ifndef TARGET_LOGGER_ADDRESS
-#define TARGET_LOGGER_ADDRESS "localhost"
-#endif
-
-#ifndef TARGET_LOGGER_PORT
-#define TARGET_LOGGER_PORT 8888
-#endif
-
-
 Logger::Logger() :
 	running_number(0),seq_number(0)
 {
+
+#ifdef TARGET_LOGGER_ADDRESS
 
 	//socket
 	sockd = socket(AF_INET, SOCK_STREAM, 0);
@@ -68,6 +59,7 @@ Logger::Logger() :
 	LOGITIMETOPIC("connection ready\n");
 
 	gettimeofday(&start, NULL);
+#endif
 }
 
 Logger::~Logger() {

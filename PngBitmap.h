@@ -34,6 +34,7 @@ public:
 	int width;
 	int height;
 	int bitsPerPixel;
+	std::string literal;
 };
 
 class PngBitmapCache
@@ -46,7 +47,7 @@ public:
 	GLuint openglId(BitmapCacheData* data);
 //protected:
 	std::map<std::string, BitmapCacheData> pBitmapMap;
-	std::map<unsigned long, unsigned int> pOpenglCache;
+	std::map<std::string, unsigned int> pOpenglCache;
 };
 
 
@@ -67,6 +68,8 @@ public:
 	virtual void updateG(float time, float timeDelta);
 
 protected:
+
+	std::string pPngLiteral;
 
 	virtual bool initVariables();
 	virtual void enableAttributes() const;
