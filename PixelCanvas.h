@@ -108,6 +108,13 @@ public:
 	 */
 
 	virtual void updateG(float sec,float deltaSec);
+
+	/**
+	 * Clear Canvas
+	 **
+	 */
+
+	virtual void clear();
 protected:
 
 	virtual bool initVariables();
