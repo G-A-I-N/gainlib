@@ -85,14 +85,11 @@ void Layer::updateG(float time, float deltaTime)
     	Gain::Base* base = removeClientsFifo.front();
     	removeClientsFifo.pop();
         std::multiset<Gain::Base*, Gain::BaseCompare>::iterator it =
-                renderClients.begin();
+                renderClients.find(base);
         while(it != renderClients.end())
         {
-            std::multiset<Gain::Base*, Gain::BaseCompare>::iterator it_temp = it;
-            ++it;
-            if( base == *it_temp) {
-                renderClients.erase(it_temp);
-            }
+            renderClients.erase(it);
+            it = renderClients.find(base);
         }
 	}
     LOCK_RELEASE(renderClientsLock);

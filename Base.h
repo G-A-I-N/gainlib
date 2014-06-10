@@ -73,7 +73,8 @@ protected:
     
 struct BaseCompare {
     bool operator()(const Base* aLeft, const Base* aRigth) const {
-        return (aLeft->pZOrder < aRigth->pZOrder);
+        return (aLeft->pZOrder < aRigth->pZOrder) ||
+               ((aLeft->pZOrder == aRigth->pZOrder) && (aLeft < aRigth));
     }
 };
 
