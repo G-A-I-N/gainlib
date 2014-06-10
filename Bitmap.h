@@ -21,7 +21,7 @@
 
 namespace Gain {
 
-class Bitmap: public Gain::Rect
+class Bitmap: public Rect
 {
 private:
 	typedef Gain::Rect super;

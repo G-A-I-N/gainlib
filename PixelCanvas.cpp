@@ -178,6 +178,12 @@ void PixelCanvas::updateG(float sec,float deltaSec)
 	}
 }
 
+void PixelCanvas::clear()
+{
+	memset(pBitmap,0x80,pMaxPixelBufferSize);
+	updateBitmap = true;
+}
+
 void PixelCanvas::setPixel(int x, int y, unsigned int abgr)
 {
 	int width = pBitmapWidth;
@@ -187,6 +193,7 @@ void PixelCanvas::setPixel(int x, int y, unsigned int abgr)
     if(buffer && location < pMaxPixelBufferSize)
     {
 		buffer[location] = abgr;
+	    LOGI("pp");
     }
 	updateBitmap = true;
 }
