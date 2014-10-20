@@ -127,7 +127,7 @@ private:
     
     int start_msec, old_msec;
 	
-    /* PerformanceCounters. Initialized when name is set */
+    /* PerformanceCounters. Initialized when name is set. */
 	Gain::PerfCounterItem myCoreUpdateLoopCallCounter;
 	Gain::PerfCounterItem myAppUpdateLoopCallCounter;
 	Gain::PerfCounterItem myRenderLoopCallCounter;
