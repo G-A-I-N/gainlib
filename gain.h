@@ -28,6 +28,7 @@
 #include <Rect.h>
 #include <Button.h>
 #include <Bitmap.h>
+#include <ImageBitmap.h>
 #include <PngBitmap.h>
 #include <FboBitmap.h>
 #include <Text.h>
