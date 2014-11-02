@@ -14,48 +14,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
-#include <png.h>
-#include "PngBitmap.h"
+#define STB_IMAGE_IMPLEMENTATION
+#include <stb/stb_image.h>
+#include "ImageBitmap.h"
 
 
 namespace Gain {
 
-static PngBitmapCache* gBitmapCache = 0;
+static ImageBitmapCache* gBitmapCache = 0;
 
-PngBitmap::PngBitmap(float x,float y, float width, float height, const char* aPngFile) :
+ImageBitmap::ImageBitmap(float x,float y, float width, float height, const char* aImageFile) :
 Bitmap(x,y,width,height)
 {
-	readFile(aPngFile);
+	readFile(aImageFile);
 }
 
-PngBitmap::PngBitmap(int x,int y, int width, int height, const char* aPngFile) :
+ImageBitmap::ImageBitmap(int x,int y, int width, int height, const char* aImageFile) :
 Bitmap(x,y,width,height)
 {
-	readFile(aPngFile);
+	readFile(aImageFile);
 }
 
-PngBitmap::PngBitmap(const char* aPngFile) :
+ImageBitmap::ImageBitmap(const char* aImageFile) :
 Bitmap()
 {
-	readFile(aPngFile);
+	readFile(aImageFile);
 }
 
-PngBitmap::~PngBitmap() {
+ImageBitmap::~ImageBitmap() {
 }
 
-void PngBitmap::readFile(const char* aFileName)
+void ImageBitmap::readFile(const char* aFileName)
 {
 	if(!gBitmapCache)
 	{
-		gBitmapCache = new PngBitmapCache();
+		gBitmapCache = new ImageBitmapCache();
 	}
 
 #ifdef IOS
     const char* new_path = get_asset_filepath(aFileName);
-	BitmapCacheData data = gBitmapCache->loadBitmap(new_path);
+	ImageBitmapCacheData data = gBitmapCache->loadBitmap(new_path);
 #else
-	BitmapCacheData data = gBitmapCache->loadBitmap(aFileName);
+	ImageBitmapCacheData data = gBitmapCache->loadBitmap(aFileName);
 #endif
 
 
@@ -67,7 +67,7 @@ void PngBitmap::readFile(const char* aFileName)
 
 }
 
-bool PngBitmap::initVariables() {
+bool ImageBitmap::initVariables() {
 	if(!super::initVariables()) {
 		return false;
 	}
@@ -75,7 +75,7 @@ bool PngBitmap::initVariables() {
 	const char* attribute_name;
 	const char* uniform_name;
 
-	BitmapCacheData data;
+	ImageBitmapCacheData data;
 	data.width = pBitmapWidth;
 	data.height = pBitmapHeight;
 	data.bitsPerPixel = pBitmapSlotSize;
@@ -105,18 +105,18 @@ bool PngBitmap::initVariables() {
 
 
 
-void PngBitmap::updateG(float time, float timeDelta)
+void ImageBitmap::updateG(float time, float timeDelta)
 {
 	super::updateG( time,  timeDelta);
 }
 
 
-void PngBitmap::enableAttributes() const
+void ImageBitmap::enableAttributes() const
 {
 	super::enableAttributes();
 }
 
-void PngBitmap::disableAttributes() const
+void ImageBitmap::disableAttributes() const
 {
     GL_EXT_FUNC glDisableVertexAttribArray(attribute_texcoord);
 	super::disableAttributes();
@@ -125,83 +125,36 @@ void PngBitmap::disableAttributes() const
 
 
 
-BitmapCacheData PngBitmapCache::loadBitmap(std::string filename)
+ImageBitmapCacheData ImageBitmapCache::loadBitmap(std::string filename)
 {
-	std::map<std::string,BitmapCacheData>::iterator it = pBitmapMap.find(filename);
+	std::map<std::string,ImageBitmapCacheData>::iterator it = pBitmapMap.find(filename);
 
 	if(it != pBitmapMap.end())
 	{
 		return it->second;
 	}
 
-	BitmapCacheData data;
+	ImageBitmapCacheData data;
+
+	int width, height, comp;
+    unsigned char *image_data;
+
+	FILE *file = fopen(filename.c_str(), "rb");
+	if (!file) {
+	return data;
+	}
+
+	image_data = stbi_load_from_file(file, &width, &height, &comp, 0);
+
+	fclose(file);
 
     unsigned char header[8];    // 8 is the maximum size that can be checked
 
-    int x, y;
 
-    png_byte color_type;
-    png_byte bit_depth;
-
-    png_structp png_ptr;
-    png_infop info_ptr;
-    int number_of_passes;
-    png_bytep * row_pointers;
-
-    /* open file and test for it being a png */
-    FILE *fp = fopen(filename.c_str(), "rb");
-    if (!fp)
-            printf("[read_png_file] File (%s) could not be opened for reading", filename.c_str());
-    fread(header, 1, 8, fp);
-
-    if (png_sig_cmp(header, 0, 8))
-            printf("[read_png_file] File %s is not recognized as a PNG file",  filename.c_str());
-
-
-    /* initialize stuff */
-    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-
-    if (!png_ptr)
-            printf("[read_png_file] png_create_read_struct failed");
-
-    info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr)
-            printf("[read_png_file] png_create_info_struct failed");
-
-    if (setjmp(
-    		png_jmpbuf( png_ptr ) )
-        )
-            printf("[read_png_file] Error during init_io");
-
-    png_init_io(png_ptr, fp);
-    png_set_sig_bytes(png_ptr, 8);
-
-    png_read_info(png_ptr, info_ptr);
-
-    data.width = png_get_image_width(png_ptr, info_ptr);
-    data.height = png_get_image_height(png_ptr, info_ptr);
-    color_type = png_get_color_type(png_ptr, info_ptr);
-    bit_depth = png_get_bit_depth(png_ptr, info_ptr);
-
-    number_of_passes = png_set_interlace_handling(png_ptr);
-    png_read_update_info(png_ptr, info_ptr);
-
-
-    /* read file */
-    if (setjmp(png_jmpbuf(png_ptr)))
-            printf("[read_png_file] Error during read_image");
-
-    int row_bytes = png_get_rowbytes(png_ptr,info_ptr);
-    data.bitsPerPixel = row_bytes*8/data.width;
-    data.bitmap = (png_byte*) malloc(data.height*row_bytes);
-
-    row_pointers = (png_bytep*) malloc(sizeof(png_bytep) * data.height);
-    for (y=0; y<data.height; y++)
-            row_pointers[y] = (png_byte*) &data.bitmap[y*row_bytes];
-
-    png_read_image(png_ptr, row_pointers);
-
-    fclose(fp);
+    data.width = width;
+    data.height = height;
+    data.bitsPerPixel = comp*8;
+    data.bitmap = image_data;
 	data.literal = filename;
 
     pBitmapMap[filename] = data;
@@ -221,7 +174,7 @@ static unsigned long sdbm(uint8_t* data, int len )
 	return hash;
 }
 
-GLuint PngBitmapCache::openglId(BitmapCacheData* data)
+GLuint ImageBitmapCache::openglId(ImageBitmapCacheData* data)
 {
 	std::map<std::string,unsigned int>::iterator it = pOpenglCache.find(data->literal);
 
