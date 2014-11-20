@@ -180,7 +180,7 @@ void PixelCanvas::updateG(float sec,float deltaSec)
 
 void PixelCanvas::clear()
 {
-	memset(pBitmap,0x80,pMaxPixelBufferSize);
+	memset(pBitmap,0x00,pMaxPixelBufferSize*4);
 	updateBitmap = true;
 }
 
