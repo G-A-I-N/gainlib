@@ -193,7 +193,6 @@ void PixelCanvas::setPixel(int x, int y, unsigned int abgr)
     if(buffer && location < pMaxPixelBufferSize)
     {
 		buffer[location] = abgr;
-	    LOGI("pp");
     }
 	updateBitmap = true;
 }
