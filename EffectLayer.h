@@ -13,11 +13,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef PIECELAYER_H_
-#define PIECELAYER_H_
+#ifndef EFFECTLAYER_H_
+#define EFFECTLAYER_H_
 
 #include "Layer.h"
 #include "FboBitmap.h"
+
+namespace Gain {
 
 class EffectLayer : public Gain::Layer {
 private:
@@ -44,4 +46,6 @@ private:
 
 };
 
-#endif /* PIECELAYER_H_ */
+} //namespace Gain
+
+#endif /* EFFECTLAYER_H_ */

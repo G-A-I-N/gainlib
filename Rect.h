@@ -226,6 +226,8 @@ public:
 	 * \param nY as normalized y-coordinate.
 	 */
 	virtual bool isWithin(float nX, float nY);
+
+	virtual void cancelAllAnimations();
 protected:
 	virtual bool initVariables();
 	virtual void enableAttributes() const;
@@ -241,7 +243,6 @@ protected:
 	float pHalfWidth,pHalfHeight;
 	float pPositionX, pPositionY;
 
-	Placement pPlacement;
 
 	GLfloat pAngle;
 
@@ -272,6 +273,8 @@ protected:
 	const char* pFragmentShader;
 
 	std::set<AnimationContainer*> pAnimationList;
+
+	int pPlacement;
 };
 
 } /* namespace Gain */
