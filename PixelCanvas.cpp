@@ -70,9 +70,6 @@ bool PixelCanvas::initVariables()
 		return false;
 	}
 
-	const char* attribute_name;
-	const char* uniform_name;
-
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

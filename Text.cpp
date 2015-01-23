@@ -102,7 +102,7 @@ Text::Text(int x,int y, int pixelSize, const char* text) :
 	}
 
 #ifdef IOS
-    const char* font = get_asset_filepath( "Fresca-Regular.ttf" );
+    const char* font = get_asset_filepath( "Roboto-Regular.ttf" );
 #else
     const char* font = "Roboto-Regular.ttf";
 #endif
@@ -207,9 +207,6 @@ bool Text::initVariables()
 	if(!super::initVariables()) {
 		return false;
 	}
-
-	const char* attribute_name;
-	const char* uniform_name;
 
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
