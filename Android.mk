@@ -23,7 +23,7 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					Logger.cpp \
 					PerfomanceCounter.cpp \
 					PerfCounterItem.cpp \
-					Settings.cpp
+					Settings.cpp	
 					
 LOCAL_C_INCLUDES := gain/freetype/include \
                     gain/freetype/include/freetype2 \

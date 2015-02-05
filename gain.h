@@ -36,5 +36,6 @@
 #include <PerfCounterItem.h>
 #include <PerfomanceCounter.h>
 #include <Logger.h>
+#include <Settings.h>
 
 #endif /* GAIN_H_ */
