@@ -20,6 +20,7 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					Text.cpp\
 					TouchInterface.cpp \
 					EventListener.cpp \
+					Timer.cpp\
 					Logger.cpp \
 					PerfomanceCounter.cpp \
 					PerfCounterItem.cpp \

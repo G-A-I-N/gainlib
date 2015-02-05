@@ -72,9 +72,6 @@ bool ImageBitmap::initVariables() {
 		return false;
 	}
 
-	const char* attribute_name;
-	const char* uniform_name;
-
 	ImageBitmapCacheData data;
 	data.width = pBitmapWidth;
 	data.height = pBitmapHeight;
@@ -148,9 +145,6 @@ ImageBitmapCacheData ImageBitmapCache::loadBitmap(std::string filename)
 
 	fclose(file);
 
-    unsigned char header[8];    // 8 is the maximum size that can be checked
-
-
     data.width = width;
     data.height = height;
     data.bitsPerPixel = comp*8;
@@ -161,17 +155,6 @@ ImageBitmapCacheData ImageBitmapCache::loadBitmap(std::string filename)
 
 	return data;
 
-}
-
-static unsigned long sdbm(uint8_t* data, int len )
-{
-	unsigned long hash = 0;
-
-	//65599
-	while (--len)
-		hash = data[len] + (hash << 6) + (hash << 16) - hash;
-
-	return hash;
 }
 
 GLuint ImageBitmapCache::openglId(ImageBitmapCacheData* data)

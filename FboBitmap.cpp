@@ -57,9 +57,6 @@ bool FboBitmap::initVariables() {
 		return false;
 	}
 
-	const char* attribute_name;
-	const char* uniform_name;
-
 	glGenFramebuffers(1, &fbo);
     checkGlError("glGenFramebuffers");
 
@@ -115,7 +112,7 @@ bool FboBitmap::initVariables() {
     checkGlError("glFramebufferTexture2D");
 	GLenum status;
 	if ((status = glCheckFramebufferStatus(GL_FRAMEBUFFER)) != GL_FRAMEBUFFER_COMPLETE) {
-		fprintf(stderr, "glCheckFramebufferStatus: error %p", status);
+		fprintf(stderr, "glCheckFramebufferStatus: error 0x%x", status);
 		return 0;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);

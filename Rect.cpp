@@ -466,6 +466,19 @@ Rect* Rect::toSizeN(float aTargetWidth, float aTargetHeight, float sec)
 	return this;
 }
 
+void Rect::cancelAllAnimations()
+{
+	std::set<AnimationContainer*>::iterator it = pAnimationList.begin();
+	while(it!=pAnimationList.end())
+	{
+		AnimationContainer* anim = *it;
+		it++;
+	    triggerEvent(EVENT_ANIMATION_FINISHED_BY_CANCEL);
+    	delete anim;
+    	anim=0;
+    }
+	pAnimationList.clear();
+}
 
 void Rect::updateAnimation(float sec, float deltaSec)
 {
@@ -473,6 +486,9 @@ void Rect::updateAnimation(float sec, float deltaSec)
 	while(it!=pAnimationList.end())
 	{
 		AnimationContainer* anim = *it;
+	    std::set<AnimationContainer*>::iterator delete_it = it;
+	    it++;
+
 	    anim->elapsedTime += deltaSec;
 
 	    float currentPosition = std::min(1.f, anim->elapsedTime / anim->time);
@@ -509,8 +525,6 @@ void Rect::updateAnimation(float sec, float deltaSec)
 			}
 	    }
 
-	    std::set<AnimationContainer*>::iterator delete_it = it;
-	    it++;
 
 	    if(currentPosition == 1.f)
 	    {

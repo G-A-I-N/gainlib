@@ -24,6 +24,7 @@
 #include <Core.h>
 #include <TouchInterface.h>
 #include <Layer.h>
+#include <EffectLayer.h>
 #include <Menu.h>
 #include <Rect.h>
 #include <Button.h>
@@ -32,6 +33,7 @@
 #include <PngBitmap.h>
 #include <FboBitmap.h>
 #include <Text.h>
+#include <Timer.h>
 #include <PixelCanvas.h>
 #include <PerfCounterItem.h>
 #include <PerfomanceCounter.h>

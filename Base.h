@@ -42,7 +42,7 @@ public:
     virtual void update(float sec, float deltaSec) {};
 
     //EventListener
-    virtual void onEvent(Base* aListener, EventType aType) {};
+    virtual void onEvent(Base* aSource, EventType aType) {};
 
 	virtual void invalidate() {program=0;pState = NOT_INITIALIZED;};
 	virtual BaseState getState() { return pState; };
