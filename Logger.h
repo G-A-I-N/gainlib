@@ -108,7 +108,7 @@ public:
 	void EventStop(const char* eventName,const char* eventName2);
 	void FreeText(const char* eventName);
 	void StateMachine(const char* machineName, const char* stateName);
-	void ValueABS(const char* valueName, unsigned int value);
+	void ValueABS(const char* valueName, int value);
 	int id(int pointer);
 
 private:
