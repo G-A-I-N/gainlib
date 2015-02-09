@@ -100,6 +100,7 @@ int Settings::SetStringValue(string key, string value) {
 	else {
 		ret = ERROR_FILEACCESS; //
 	}
+    return ret;
 }
 
 int Settings::SetFloatValue(string key, float value) {
@@ -113,6 +114,7 @@ int Settings::SetFloatValue(string key, float value) {
 	else {
 		ret = ERROR_FILEACCESS; //
 	}
+    return ret;
 }
 
 int Settings::SetIntValue(string key, int value) {
@@ -128,6 +130,7 @@ int Settings::SetIntValue(string key, int value) {
 	else {
 		ret = ERROR_FILEACCESS; //
 	}
+    return ret;
 }
 
 string Settings::GetLastError() {
