@@ -118,10 +118,10 @@ void Logger::StateMachine(const char* machineName, const char* stateName)
 	snprintf(buf,sizeof(buf), ";state;%s;%s",machineName,stateName);
 	WriteItem(buf);
 }
-void Logger::ValueABS(const char* valueName,unsigned int value)
+void Logger::ValueABS(const char* valueName,int value)
 {
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), ";valueabs;%u;%s",value,valueName);
+	snprintf(buf,sizeof(buf), ";valueabs;%d;%s",value,valueName);
 	WriteItem(buf);
 }
 
