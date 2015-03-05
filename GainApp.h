@@ -23,7 +23,7 @@
 
 namespace Gain {
 
-class GainApp : public TouchInterface, EventListener {
+class GainApp : public TouchInterface, public EventListener {
 public:
 	GainApp();
 	virtual ~GainApp();
