@@ -28,6 +28,7 @@
 #include <Menu.h>
 #include <Rect.h>
 #include <Button.h>
+#include <Slider.h>
 #include <Bitmap.h>
 #include <ImageBitmap.h>
 #include <PngBitmap.h>

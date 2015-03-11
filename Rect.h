@@ -274,7 +274,7 @@ protected:
 
 	std::set<AnimationContainer*> pAnimationList;
 
-	int pPlacement;
+	Placement pPlacement;
 };
 
 } /* namespace Gain */
