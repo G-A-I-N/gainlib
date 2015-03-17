@@ -45,7 +45,6 @@ Core::Core() :
     ,scale_width(1)
     ,scale_height(1)
 {
-    LOCK_INIT(renderClientsLock);
     LOCK_INIT(touchClientsLock);
 
 	myCoreUpdateLoopCallCounter.SetName("updateGLoop rate");
@@ -59,6 +58,11 @@ Core::Core() :
     memcpy(&gStartTime, &gNewTime, sizeof(gStartTime));
     start_msec = gNewTime.tv_sec*1000 + gNewTime.tv_usec/1000;
     old_msec = start_msec;
+
+    for(int n=0;n<MAX_SCENES;n++)
+    {
+    	renderClients.push_back(new Layer());
+    }
 }
 
 Core::~Core() {
@@ -156,82 +160,30 @@ void Core::updateG(float time, float deltaTime)
     lastTime = time;
 #endif
 
-    while(addClientsMultimap.empty()==false)
-    {
-    	BaseQueueContainer container = addClientsMultimap.front();
-    	renderClients[container.scene].push_back(container.base);
-    	addClientsMultimap.pop();
-    }
-    while(removeClientsMultimap.empty()==false)
-    {
-
-    	BaseQueueContainer container = removeClientsMultimap.front();
-
-    	Base* forDelete = container.base;
-    	removeClientsMultimap.pop();
-
-    	//remove from all scenes
-    	for(size_t n = 0;n<renderClients.size();++n)
-    	{
-            std::deque<Base*>::iterator it =
-            		renderClients[n].begin();
-            while(it != renderClients[n].end())
-            {
-            	if(*it == forDelete)
-            	{
-            		renderClients[n].erase(it);
-            		it = renderClients[n].end();
-            	} else {
-            		++it;
-            	}
-            }
-    	}
-    	delete forDelete;
-    	forDelete = 0;
-
-	}
 //    LOCK_RELEASE(renderClientsLock);
 
     if (renderClients.size() > SCENE_DEFAULT_BACK) {
-		std::deque<Base*> current = renderClients[SCENE_DEFAULT_BACK];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			if (child->getState() == NOT_INITIALIZED) {
-				child->setupGraphics();
-			}
-			child->updateG(time, deltaTime);
-			renderClientItems++;
+		Gain::Layer* current = renderClients[SCENE_DEFAULT_BACK];
+		if (current->getState() == NOT_INITIALIZED) {
+			current->setupGraphics();
 		}
-
+		current->updateG(time, deltaTime);
 	}
 
 	if (pScene > SCENE_DEFAULT_FRONT && pScene < renderClients.size()) {
-		std::deque<Base*> current = renderClients[pScene];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			if (child->getState() == NOT_INITIALIZED) {
-				child->setupGraphics();
-			}
-			child->updateG(time, deltaTime);
-			renderClientItems++;
+		Gain::Layer* current = renderClients[pScene];
+		if (current->getState() == NOT_INITIALIZED) {
+			current->setupGraphics();
 		}
-
+		current->updateG(time, deltaTime);
 	}
 
 	if (renderClients.size() > SCENE_DEFAULT_FRONT) {
-		std::deque<Base*> current = renderClients[SCENE_DEFAULT_FRONT];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			if (child->getState() == NOT_INITIALIZED) {
-				child->setupGraphics();
-			}
-			child->updateG(time, deltaTime);
-			renderClientItems++;
+		Gain::Layer* current = renderClients[SCENE_DEFAULT_FRONT];
+		if (current->getState() == NOT_INITIALIZED) {
+			current->setupGraphics();
 		}
-
+		current->updateG(time, deltaTime);
 	}
 
     /* Update renderClients performance counter */
@@ -246,43 +198,27 @@ void Core::update(float time, float deltaTime)
 	if (pScene > renderClients.size()) {
 		return;
 	}
-    LOCK_ACQUIRE(renderClientsLock);
+
 	if (renderClients.size() > SCENE_DEFAULT_BACK) {
-		std::deque<Base*> current = renderClients[SCENE_DEFAULT_BACK];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			if (child && child->getState() == INITIALIZED) {
-				child->update(time, deltaTime);
-			}
+		Gain::Layer* current = renderClients[SCENE_DEFAULT_BACK];
+		if (current->getState() == INITIALIZED) {
+			current->update(time, deltaTime);
 		}
 	}
 
 	if (pScene > SCENE_DEFAULT_FRONT && pScene < renderClients.size()) {
-		std::deque<Base*> current = renderClients[pScene];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			if (child->getState() == INITIALIZED) {
-				child->update(time, deltaTime);
-			}
+		Gain::Layer* current = renderClients[pScene];
+		if (current->getState() == INITIALIZED) {
+			current->update(time, deltaTime);
 		}
-
 	}
 
 	if (renderClients.size() > SCENE_DEFAULT_FRONT) {
-		std::deque<Base*> current = renderClients[SCENE_DEFAULT_FRONT];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			if (child->getState() == INITIALIZED) {
-				child->update(time, deltaTime);
-			}
+		Gain::Layer* current = renderClients[SCENE_DEFAULT_FRONT];
+		if (current->getState() == INITIALIZED) {
+			current->update(time, deltaTime);
 		}
-
 	}
-
-    LOCK_RELEASE(renderClientsLock);
 
     /* Performance counters dump position */
     mlastPerforManceCounterUpdateTimeSec+=deltaTime;
@@ -304,82 +240,52 @@ void Core::renderFrame() const
 	checkGlError("glClear");
 
 	if (renderClients.size() > SCENE_DEFAULT_BACK) {
-		std::deque<Base*> current = renderClients[SCENE_DEFAULT_BACK];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			if (child->getState() == INITIALIZED) {
-				child->render();
-			}
+		Gain::Layer* current = renderClients[SCENE_DEFAULT_BACK];
+		if (current->getState() == INITIALIZED) {
+			current->render();
 		}
-
 	}
 
 	if (pScene > SCENE_DEFAULT_FRONT && pScene < renderClients.size()) {
-		std::deque<Base*> current = renderClients[pScene];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			if (child->getState() == INITIALIZED) {
-				child->render();
-			}
+		Gain::Layer* current = renderClients[pScene];
+		if (current->getState() == INITIALIZED) {
+			current->render();
 		}
-
 	}
 
 	if (renderClients.size() > SCENE_DEFAULT_FRONT) {
-		std::deque<Base*> current = renderClients[SCENE_DEFAULT_FRONT];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			if (child->getState() == INITIALIZED) {
-				child->render();
-			}
+		Gain::Layer* current = renderClients[SCENE_DEFAULT_FRONT];
+		if (current->getState() == INITIALIZED) {
+			current->render();
 		}
-
 	}
 }
 
 void Core::addRenderClient(Base* aBase, unsigned int aScene)
 {
-
 	if(aScene >= SCENE_LAST_INDEX)
 	{
 		aScene = pScene;
 	}
-    LOCK_ACQUIRE(renderClientsLock);
-	LOGSCOPE;
-	while (renderClients.size() <= aScene) {
-		renderClients.push_back(std::deque<Base*>());
-	}
-	addClientsMultimap.push((BaseQueueContainer){aBase,aScene});
-    LOCK_RELEASE(renderClientsLock);
+	renderClients[aScene]->addRenderClient(aBase);
 }
 
-void Core::removeRenderClient(Base* aBase, unsigned int aScene) {
+void Core::removeRenderClient(Base* aBase, unsigned int aScene)
+{
     if(aScene >= SCENE_LAST_INDEX)
 	{
 		aScene = pScene;
 	}
-	LOCK_ACQUIRE(renderClientsLock);
-	LOGSCOPE;
-	removeClientsMultimap.push((BaseQueueContainer){aBase,aScene});
-	LOCK_RELEASE(renderClientsLock);
+    renderClients[aScene]->removeRenderClient(aBase);
 }
 
-void Core::invalidateAllRenderers(bool fullReset) {
-    LOCK_ACQUIRE(renderClientsLock);
+void Core::invalidateAllRenderers(bool fullReset)
+{
 	LOGSCOPE;
 	for (size_t n = 0; n < renderClients.size(); ++n) {
-
-		std::deque<Base*> current = renderClients[n];
-		std::deque<Base*>::iterator it;
-		for (it = current.begin();it != current.end(); ++it) {
-			Base* child = *it;
-			child->invalidate();
-		}
+		Gain::Layer* current = renderClients[n];
+		current->invalidate();
 	}
-    LOCK_RELEASE(renderClientsLock);
 }
 
 void Core::addTouchClient(TouchInterface* aInterface, unsigned int aScene)

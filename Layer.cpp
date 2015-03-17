@@ -31,14 +31,12 @@ Layer::~Layer() {
 void Layer::addRenderClient(Gain::Base* aBase)
 {
     LOCK_ACQUIRE(renderClientsLock);
-	;
 	addClientsFifo.push(aBase);
 	LOCK_RELEASE(renderClientsLock);
 }
 void Layer::removeRenderClient(Gain::Base* aBase)
 {
     LOCK_ACQUIRE(renderClientsLock);
-	;
 	removeClientsFifo.push(aBase);
    	LOCK_RELEASE(renderClientsLock);
 }

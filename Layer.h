@@ -22,7 +22,7 @@
 
 namespace Gain {
 
-class Layer :public Gain::Base {
+class Layer : public virtual Gain::Base {
 private:
 	typedef Gain::Base super;
 public:
