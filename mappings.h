@@ -24,6 +24,10 @@
 #include <stdint.h>
 #include <string>
 
+#ifndef MAX_SCENES
+#define MAX_SCENES 9
+#endif
+
 #ifdef LOGISON
 #define logmessage  "now using logging"
 #else

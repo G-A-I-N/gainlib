@@ -42,24 +42,19 @@
 namespace Gain {
 
 class Base;
+class Layer;
 
 enum Scene {
 	SCENE_DEFAULT_BACK=0, //rendered each round first
 	SCENE_DEFAULT_FRONT, //rendered each round last
 	SCENE_FIRST_INDEX,
-	SCENE_LAST_INDEX=99, //98 scenes, should be enough for everyone ;)
+	SCENE_LAST_INDEX=MAX_SCENES, //use the value defined in mappings.h
 	SCENE_ACTIVE //points to currently set scene
 };
 
 typedef struct _TouchContainer{
 	TouchInterface* touchInterface;
 } TouchContainer;
-
-typedef struct _BaseQueueContainer
-{
-    Base* base;
-    unsigned int scene;
-} BaseQueueContainer;
 
 class Core {
 public:
@@ -105,16 +100,12 @@ public:
 	float normalised_screen_height;
 private:
     unsigned int pScene;
-    std::vector< std::deque<Base*> > renderClients;
+    std::vector< Gain::Layer* > renderClients;
     std::vector< std::vector<TouchContainer*> > touchClients;
-
-    std::queue< BaseQueueContainer > addClientsMultimap;
-    std::queue< BaseQueueContainer > removeClientsMultimap;
 
     std::set< std::string > pPurchasesOwned;
     std::set< std::string > pPurchasesToBeDone;
 
-    LOCK renderClientsLock;
     LOCK touchClientsLock;
 
 	int pFps;
