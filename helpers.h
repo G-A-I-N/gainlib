@@ -16,5 +16,10 @@
 #ifndef HELPERS_H_
 #define HELPERS_H_
 
+namespace Gain {
+
+#define CLAMP(min, value, max) (value < min ? min : (value > max ? max : value))
+
+}
 
 #endif /* HELPERS_H_ */

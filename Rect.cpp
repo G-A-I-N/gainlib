@@ -17,6 +17,13 @@
 #include <algorithm>
 #include "Rect.h"
 
+
+#define X_IND 0
+#define Y_IND 1
+
+
+
+
 namespace Gain {
 
 static const char gVertexShader[] =
@@ -60,6 +67,7 @@ void Rect::privateConstruct(const char* aVertexShader, const char* aFragmentShad
 	pVertexShader = aVertexShader?aVertexShader:gVertexShader;
 	pFragmentShader = aFragmentShader?aFragmentShader:gFragmentShader;
 	program = 0;
+	dirtyFlags = 0xFFFFFFFF;
     // set default to white
     setColor(1.0f,1.0f,1.0f,1.f);
 	pAngle=0.f;
@@ -93,6 +101,7 @@ Rect* Rect::setAlpha(GLfloat alpha)
 Rect* Rect::setRotation(GLfloat aAngle)
 {
 	pAngle = aAngle;
+	dirtyFlags |= DIRTY_FLAG_ROTATION;
 	return this;
 }
 
@@ -100,33 +109,6 @@ float Rect::getRotation()
 {
 	return pAngle;
 }
-
-//void Rect::mapToGraphics() {
-//	Core* core = CORE;
-//
-//	float half_width  = pWidth / core->screen_width;
-//	float half_height = pHeight / core->screen_width;
-//
-//
-//	//center the rectangle within the GL coordinates bound to be [-1,1] in vertical, and [reversed_screen_ratio,-reversed_screen_ratio] in horizontal
-//
-//	square_vertices[0] = -half_width;
-//	square_vertices[1] = -half_height;
-//
-//	square_vertices[2] =  half_width;
-//	square_vertices[3] = -half_height;
-//
-//	square_vertices[4] =  half_width;
-//	square_vertices[5] =  half_height;
-//
-//	square_vertices[6] = -half_width;
-//	square_vertices[7] =  half_height;
-//
-//	translate[0] = 2.f*(pX-core->screen_width/2.f)/core->screen_width + half_width;
-//
-//	translate[1] = -2.f*((pY+pHeight/2.f)-core->screen_height/2.f)/core->screen_height;
-//
-//}
 
 
 Rect* Rect::setX(int aX)
@@ -144,12 +126,14 @@ Rect* Rect::setY(int aY)
 Rect* Rect::setXN(float x)
 {
 	pPositionX = x;
+	dirtyFlags |= DIRTY_FLAG_TRANSLATION;
 	return this;
 }
 
 Rect* Rect::setYN(float y)
 {
 	pPositionY = -y*CORE->ratio;
+	dirtyFlags |= DIRTY_FLAG_TRANSLATION;
 	return this;
 }
 
@@ -165,12 +149,12 @@ float Rect::getYN()
 
 float Rect::getWidthN()
 {
-	return pHalfWidth*2;
+	return pWidth;
 }
 
 float Rect::getHeightN()
 {
-	return pHalfHeight*2;
+	return pHeight;
 }
 
 Rect* Rect::setWidth(int aWidth)
@@ -181,6 +165,14 @@ Rect* Rect::setWidth(int aWidth)
 Rect* Rect::setHeight(int aHeight)
 {
 	setHeightN(2.f*((float)aHeight)/CORE->screen_width);
+	return this;
+}
+
+Rect* Rect::setPivot(float x, float y)
+{
+	pPivot[X_IND] = x;
+	pPivot[Y_IND] = y;
+	dirtyFlags |= DIRTY_FLAG_PIVOT;
 	return this;
 }
 
@@ -206,24 +198,25 @@ Rect* Rect::setN(float aX, float aY, float aWidth, float aHeight)
 
 Rect* Rect::setWidthN(float width)
 {
-	pHalfWidth=width*0.5f;
-	square_vertices[0] = -pHalfWidth;
-	square_vertices[2] = pHalfWidth;
-	square_vertices[4] = pHalfWidth;
-	square_vertices[6] = -pHalfWidth;
-
+	pWidth=width;
+	if(pPlacement) {
+		setPlacement(pPlacement);
+	} else {
+		dirtyFlags |= DIRTY_FLAG_PIVOT;
+	}
 	return this;
 }
+
 Rect* Rect::setHeightN(float height)
 {
-	pHalfHeight=height*0.5f;
-	square_vertices[1] = -pHalfHeight;
-	square_vertices[3] = -pHalfHeight;
-	square_vertices[5] = pHalfHeight;
-	square_vertices[7] = pHalfHeight;
+	pHeight=height;
+	if(pPlacement) {
+		setPlacement(pPlacement);
+	} else {
+		dirtyFlags |= DIRTY_FLAG_PIVOT;
+	}
 	return this;
 }
-
 
 Rect* Rect::setSizeN(float width, float height)
 {
@@ -231,6 +224,7 @@ Rect* Rect::setSizeN(float width, float height)
 	setHeightN(height);
 	return this;
 }
+
 Rect* Rect::setPositionN(float x, float y, Placement aPlacement)
 {
 	setXN(x);
@@ -242,7 +236,23 @@ Rect* Rect::setPositionN(float x, float y, Placement aPlacement)
 Rect* Rect::setPlacement(Placement aPlacement)
 {
 	pPlacement = aPlacement;
-	return this;
+	float newX, newY;
+
+	if(pPlacement & PLACEMENT_RIGHT )
+		newX = pWidth;
+	if(pPlacement & PLACEMENT_CENTER )
+		newX = pWidth*0.5f;
+	if(pPlacement & PLACEMENT_LEFT )
+		newX = 0.f;
+
+	if(pPlacement & PLACEMENT_BOTTOM)
+		newY = pHeight;
+	if(pPlacement & PLACEMENT_MIDDLE)
+		newY = pHeight*0.5f;
+	if(pPlacement & PLACEMENT_TOP)
+		newY= 0.f;
+
+	return setPivot(newX, newY);
 }
 
 Rect* Rect::setCenterN(float x, float y)
@@ -256,17 +266,21 @@ Rect* Rect::setCenterN(float x, float y)
 Rect* Rect::setCornersN(float tl_x, float tl_y, float tr_x, float tr_y,
 		float bl_x, float bl_y, float br_x, float br_y)
 {
-	square_vertices[0] = tl_x;
-	square_vertices[1] = tl_y;
-	square_vertices[2] = tr_x;
-	square_vertices[3] = tr_y;
-	square_vertices[4] = br_x;
-	square_vertices[5] = br_y;
-	square_vertices[6] = bl_x;
-	square_vertices[7] = bl_y;
+	pSquareVertices[SV_TL_X] = tl_x;
+	pSquareVertices[SV_TL_Y] = tl_y;
+	pSquareVertices[SV_TR_X] = tr_x;
+	pSquareVertices[SV_TR_Y] = tr_y;
+	pSquareVertices[SV_BR_X] = br_x;
+	pSquareVertices[SV_BR_Y] = br_y;
+	pSquareVertices[SV_BL_X] = bl_x;
+	pSquareVertices[SV_BL_Y] = bl_y;
+
+	dirtyFlags |= DIRTY_FLAG_VERTICES;
 
 	pPositionX = 0;
 	pPositionY = 0;
+	pAngle = 0;
+	pPlacement = PLACEMENT_NONE;
 	return this;
 }
 
@@ -299,7 +313,7 @@ bool Rect::initVariables()
 
     GL_EXT_FUNC glGenBuffers(1, &vbo_square_vertices);
     GL_EXT_FUNC glBindBuffer(GL_ARRAY_BUFFER, vbo_square_vertices);
-    GL_EXT_FUNC glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
+    GL_EXT_FUNC glBufferData(GL_ARRAY_BUFFER, sizeof(pSquareVertices), pSquareVertices, GL_STATIC_DRAW);
 
 
 	GLushort square_elements[] = {
@@ -333,26 +347,36 @@ bool Rect::setupGraphics() {
 void Rect::updateG(float sec, float deltaSec)
 {
 	updateAnimation(sec,deltaSec);
-//	if(updateTranslationMat)
+
+	if(dirtyFlags & DIRTY_FLAG_PIVOT)
 	{
-		float translateX = pPositionX;
-		float translateY = pPositionY;
+		// calculate pivot, pos 0, width 1, pivot 0.5 -> tl_x = -0.5, tr_x = 0.5
+		pSquareVertices[SV_BL_X] =
+		pSquareVertices[SV_TL_X] = -pPivot[X_IND];
 
-		if(pPlacement & (PLACEMENT_LEFT | PLACEMENT_RIGHT))
-		{
-			translateX += pPlacement & PLACEMENT_RIGHT ? -pHalfWidth : pHalfWidth;
-		}
-		if(pPlacement & (PLACEMENT_TOP | PLACEMENT_BOTTOM))
-		{
-			translateY += (pPlacement & PLACEMENT_TOP ? -pHalfHeight : pHalfHeight)*CORE->ratio;
-		}
+		pSquareVertices[SV_TR_Y] =
+		pSquareVertices[SV_TL_Y] = -pPivot[Y_IND];
 
-		translate_mat = glm::translate(glm::mat4(1.0f), glm::vec3(translateX,translateY, 0.0));
+		pSquareVertices[SV_BR_X] =
+		pSquareVertices[SV_TR_X] = pWidth - pPivot[X_IND];
+
+		pSquareVertices[SV_BL_Y] =
+		pSquareVertices[SV_BR_Y] = pHeight - pPivot[Y_IND];
+
+		dirtyFlags ^= DIRTY_FLAG_PIVOT;
+		dirtyFlags |= DIRTY_FLAG_VERTICES;
 	}
-	scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.f,CORE->ratio, 1.0));
-	rotate = glm::rotate(glm::mat4(1.0f), pAngle, glm::vec3(0.0, 0.0, 1.0)) ;
+	if(dirtyFlags & (DIRTY_FLAG_VERTICES | DIRTY_FLAG_ROTATION | DIRTY_FLAG_TRANSLATION))
+	{
 
-	anim = translate_mat * scale * rotate;
+		glm::mat4 translate_mat = glm::translate(glm::mat4(1.0f), glm::vec3(pPositionX,pPositionY, 0.0));
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.f,CORE->ratio, 1.0));
+		glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), pAngle, glm::vec3(0.0, 0.0, 1.0)) ;
+
+		anim = translate_mat * scale * rotate;
+		dirtyFlags &= 0^(DIRTY_FLAG_VERTICES | DIRTY_FLAG_ROTATION | DIRTY_FLAG_TRANSLATION);
+		dirtyFlags |= DIRTY_FLAG_INVERSE;
+	}
 
     Base::updateG(sec,deltaSec);
 }
@@ -363,7 +387,7 @@ void Rect::enableAttributes() const
     GL_EXT_FUNC glEnableVertexAttribArray(attribute_coord2d);
 
     GL_EXT_FUNC glBindBuffer(GL_ARRAY_BUFFER, vbo_square_vertices);
-    GL_EXT_FUNC glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
+    GL_EXT_FUNC glBufferData(GL_ARRAY_BUFFER, sizeof(pSquareVertices), pSquareVertices, GL_STATIC_DRAW);
 
     GL_EXT_FUNC glVertexAttribPointer(
 			attribute_coord2d,   // attribute
@@ -536,14 +560,28 @@ void Rect::updateAnimation(float sec, float deltaSec)
 	}
 }
 
+
+
+
+
 bool Rect::isWithin(float Xn, float Yn)
 {
-	float yInGl = Yn*CORE->ratio;
-	//TODO: currently works only on centered rects
-	return (Xn < (pPositionX+pHalfWidth))  &&
-		   (Xn > (pPositionX-pHalfWidth))  &&
-		   (yInGl < (pPositionY+pHalfHeight)) &&
-		   (yInGl > (pPositionY-pHalfHeight));
+	glm::vec4 translated_pos = getTranslatedPos(Xn, Yn);
+	if(translated_pos.x <= pSquareVertices[SV_TR_X] &&
+	   translated_pos.x >= pSquareVertices[SV_TL_X] &&
+	   translated_pos.y <= pSquareVertices[SV_BL_Y] &&
+	   translated_pos.y >= pSquareVertices[SV_TL_Y]
+	   	  	   )
+	{
+//		LOGI("- %02.3f <= %02.3f <= %02.3f ... %02.3f <= %02.3f <= %02.3f",
+//				pSquareVertices[SV_TL_X], translated_pos.x, pSquareVertices[SV_TR_X],
+//				pSquareVertices[SV_TL_Y], translated_pos.y, pSquareVertices[SV_BL_Y]);
+		return true;
+	}
+// 	LOGI("E %02.3f <= %02.3f <= %02.3f ... %02.3f <= %02.3f <= %02.3f",
+//			pSquareVertices[SV_TL_X], translated_pos.x, pSquareVertices[SV_TR_X],
+//			pSquareVertices[SV_TL_Y], translated_pos.y, pSquareVertices[SV_BL_Y]);
+	return false;
 }
 
 } /* namespace Gain */

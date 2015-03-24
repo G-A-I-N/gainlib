@@ -23,27 +23,49 @@
 
 #include "Base.h"
 
+#define DIRTY_FLAG_ROTATION    0x01
+#define DIRTY_FLAG_TRANSLATION 0x02
+#define DIRTY_FLAG_INVERSE     0x04
+#define DIRTY_FLAG_PIVOT       0x08
+#define DIRTY_FLAG_VERTICES    0x10
+
+//Square vertices positions
+typedef enum _SV_POS
+{
+	SV_TL_X=0,
+	SV_TL_Y,
+	SV_TR_X,
+	SV_TR_Y,
+	SV_BR_X,
+	SV_BR_Y,
+	SV_BL_X,
+	SV_BL_Y,
+	SV_SIZE
+}SV_POS;
 
 namespace Gain {
 
 typedef enum _Placement
 {
-	PLACEMENT_LEFT   = 0x02,
-	PLACEMENT_RIGHT  = 0x01,
-	PLACEMENT_TOP    = 0x20,
-	PLACEMENT_BOTTOM = 0x10,
+	PLACEMENT_NONE    = 0x00,
+	PLACEMENT_LEFT    = 0x02,
+	PLACEMENT_RIGHT   = 0x01,
+	PLACEMENT_CENTER  = 0x04,
+	PLACEMENT_TOP     = 0x20,
+	PLACEMENT_BOTTOM  = 0x10,
+	PLACEMENT_MIDDLE  = 0x40,
 
-	TOP_LEFT      = 0x22,
-	TOP_CENTER    = 0x20,
-	TOP_RIGHT     = 0x21,
+	TOP_LEFT      = PLACEMENT_TOP | PLACEMENT_LEFT ,
+	TOP_CENTER    = PLACEMENT_TOP | PLACEMENT_CENTER,
+	TOP_RIGHT     = PLACEMENT_TOP | PLACEMENT_RIGHT,
 
-	MID_LEFT      = 0x02,
-	MID_CENTER    = 0x00,
-	MID_RIGHT     = 0x01,
+	MID_LEFT      = PLACEMENT_MIDDLE | PLACEMENT_LEFT,
+	MID_CENTER    = PLACEMENT_MIDDLE | PLACEMENT_CENTER,
+	MID_RIGHT     = PLACEMENT_MIDDLE | PLACEMENT_RIGHT,
 
-	BOT_LEFT      = 0x12,
-	BOT_CENTER    = 0x10,
-	BOT_RIGHT     = 0x11
+	BOT_LEFT      = PLACEMENT_BOTTOM | PLACEMENT_LEFT,
+	BOT_CENTER    = PLACEMENT_BOTTOM | PLACEMENT_CENTER,
+	BOT_RIGHT     = PLACEMENT_BOTTOM | PLACEMENT_RIGHT
 
 } Placement;
 
@@ -60,7 +82,8 @@ typedef enum _colorIndex {
 	COLOR_RED=0,
 	COLOR_GREEN,
 	COLOR_BLUE,
-	COLOR_APLHA
+	COLOR_APLHA,
+	COLOR_SIZE
 } ColorIndex;
 
 typedef struct _AnimationContainer
@@ -76,8 +99,8 @@ public:
 	float startWidth,startHeight;
 	float targetWidth, targetHeight;
 
-	float startColor[4];
-	float targetColor[4];
+	float startColor[COLOR_SIZE];
+	float targetColor[COLOR_SIZE];
 	//Animation
 	AnimationType type;
 } AnimationContainer;
@@ -122,6 +145,8 @@ public:
 	float getHeightN();
 
 
+	virtual Rect* setPivot(float x, float y);
+
 	/*
 	 * Returns current angle in degrees
 	 *
@@ -135,8 +160,8 @@ public:
 	virtual Rect* setWidthN(float width);
 	virtual Rect* setHeightN(float height);
 
-	Rect* setSizeN(float width, float height);
-	Rect* setPositionN(float x,float y,Placement placement);
+	virtual Rect* setSizeN(float width, float height);
+	virtual Rect* setPositionN(float x,float y,Placement placement);
 
 	virtual Rect* setPlacement(Placement aPlacement);
 
@@ -227,8 +252,30 @@ public:
 	 */
 	virtual bool isWithin(float nX, float nY);
 
+
 	virtual void cancelAllAnimations();
+
+
 protected:
+	inline glm::mat4 getInverseMat()
+	{
+		if(dirtyFlags & DIRTY_FLAG_INVERSE)
+		{
+			priInverse = glm::inverse(anim);
+			dirtyFlags ^= DIRTY_FLAG_INVERSE;
+		}
+		return priInverse;
+	}
+
+	inline glm::vec4 getTranslatedPos(float Xn, float Yn)
+	{
+		glm::vec4 pos = glm::vec4(Xn, -Yn/CORE->reversed_ratio, 0, 1);
+		glm::mat4 inverse = getInverseMat();
+		glm::vec4 translated_pos = inverse * pos;
+		translated_pos.y *=-1.f;
+		return translated_pos;
+	}
+
 	virtual bool initVariables();
 	virtual void enableAttributes() const;
 	virtual void disableAttributes() const;
@@ -236,11 +283,18 @@ protected:
 	virtual void updateAnimation(float sec, float deltaSec);
 
 
+private:
+	glm::mat4 priInverse;
 
+public:
+	glm::mat4 anim;
+	GLfloat color[COLOR_SIZE];
 
-//	float pXcenter,pYcenter,pWidth,pHeight;
+	int dirtyFlags;
+	GLfloat pSquareVertices[SV_SIZE];
 
-	float pHalfWidth,pHalfHeight;
+protected:
+	float pWidth,pHeight;
 	float pPositionX, pPositionY;
 
 
@@ -250,24 +304,15 @@ protected:
 	GLuint vbo_square_vertices;
 	GLuint ibo_square_elements;
 
-public:
-	glm::mat4 anim;
-	GLfloat square_vertices[8];
-	GLfloat color[4];
-protected:
-
 	GLint uniform_anim;
 	GLint uniform_color;
 
+
+
+	GLfloat pPivot[2];
 	GLfloat trunslate[2];
 
 	GLfloat TODO_fix_this_add_memoryleakage;
-
-
-	glm::mat4 translate_mat;
-	glm::mat4 translate_parent;
-	glm::mat4 scale;
-	glm::mat4 rotate;
 
 	const char* pVertexShader;
 	const char* pFragmentShader;
