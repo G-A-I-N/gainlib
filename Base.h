@@ -47,10 +47,10 @@ public:
 	virtual void invalidate() {program=0;pState = NOT_INITIALIZED;};
 	virtual BaseState getState() { return pState; };
 
-	virtual void addEventListener(EventListener* aListener);
+	virtual Base* addEventListener(EventListener* aListener);
 	virtual void triggerEvent(EventType type);
 
-    virtual void setZOrder(int aZOrder) {pZOrder = aZOrder;}
+    virtual Base* setZOrder(int aZOrder) {pZOrder = aZOrder; return this;}
     
 protected:
 	GLuint createProgram(const char* pVertexSource, const char* pFragmentSource);

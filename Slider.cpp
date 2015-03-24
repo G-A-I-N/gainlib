@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <math.h>
 #include "Slider.h"
 #include "Core.h"
+#include "helpers.h"
 
 namespace Gain {
 
@@ -26,7 +26,7 @@ Slider::Slider(float x, float y, float width, float height) :
 	pCurrentPosition(0.5f),
 	Rect(x,y,width,height)
 {
-	pSliderBackground->setColor(0,0,0,0.2f);
+	pSliderBackground->setColor(0,0,0,0.4f);
 	CORE->addTouchClient(this, SCENE_DEFAULT_FRONT);
 }
 
@@ -63,15 +63,14 @@ void Slider::updateG(float time, float deltaTime)
 		if( pSlider->getState() != INITIALIZED) {
 			pSlider->setupGraphics();
 		}
-		pSlider->setPositionN(pPositionX - pHalfWidth + pHalfWidth*2.f*pCurrentPosition, pPositionY, pPlacement);
 		pSlider->updateG(time,deltaTime);
 	}
 	if (pSliderBackground) {
 		if(pSliderBackground->getState() != INITIALIZED) {
 			pSliderBackground->setupGraphics();
 		}
-		pSliderBackground->setPositionN(pPositionX, pPositionY, pPlacement);;
 		pSliderBackground->updateG(time,deltaTime);
+		pSliderBackground->anim = anim;
 	}
 
 }
@@ -97,8 +96,11 @@ TouchState Slider::TouchDown(TouchPoint* aPoint)
 	if(isWithin(aPoint->Xn, aPoint->Yn) && pPointerId == -1)
 	{
 		pPointerId = aPoint->ID;
-		pCurrentPosition = (aPoint->Xn + pHalfWidth*0.1f- (pPositionX - pHalfWidth*0.9f))/(2.f*pHalfWidth*0.9f);
-		pCurrentPosition = std::min(1.f, std::max(0.f,pCurrentPosition));
+		glm::vec4 translated_pos = getTranslatedPos(aPoint->Xn, aPoint->Yn);
+		pCurrentPosition = (translated_pos.x - pSquareVertices[SV_TL_X])/pWidth;
+		pCurrentPosition = CLAMP(0.f,pCurrentPosition,1.f);
+		pSlider->setPositionN(aPoint->Xn, aPoint->Yn, MID_CENTER);
+
 		return TOUCH_CONSUMED;
 	}
 	return TOUCH_NOT_CONSUMED;
@@ -108,14 +110,12 @@ TouchState Slider::TouchMove(TouchPoint* aPoint)
 {
 	if(aPoint->ID == pPointerId)
 	{
-		if(isWithin(aPoint->Xn, aPoint->Yn))
-		{
-			pCurrentPosition = (aPoint->Xn + pHalfWidth*0.1f- (pPositionX - pHalfWidth*0.9f))/(2.f*pHalfWidth*0.9f);
-			pCurrentPosition = std::min(1.f, std::max(0.f,pCurrentPosition));
-	    	triggerEvent(EVENT_SLIDER_UPDATE_MOVE);
-			return TOUCH_CONSUMED;
-		}
-		pPointerId = -1;
+		glm::vec4 translated_pos = getTranslatedPos(aPoint->Xn, aPoint->Yn);
+		pCurrentPosition = (translated_pos.x - pSquareVertices[SV_TL_X])/pWidth;
+		pCurrentPosition = CLAMP(0.f,pCurrentPosition,1.f);
+		pSlider->setPositionN(aPoint->Xn, aPoint->Yn, MID_CENTER);
+		triggerEvent(EVENT_SLIDER_UPDATE_MOVE);
+		return TOUCH_CONSUMED;
 	}
 	return TOUCH_NOT_CONSUMED;
 }
@@ -125,13 +125,13 @@ TouchState Slider::TouchUp(TouchPoint* aPoint)
 	if(aPoint->ID == pPointerId)
 	{
 		pPointerId = -1;
-	    if(isWithin(aPoint->Xn, aPoint->Yn))
-		{
-			pCurrentPosition = (aPoint->Xn + pHalfWidth*0.1f- (pPositionX - pHalfWidth*0.9f))/(2.f*pHalfWidth*0.9f);
-			pCurrentPosition = std::min(1.f, std::max(0.f,pCurrentPosition));
-	    	triggerEvent(EVENT_SLIDER_UPDATE_END);
-	    	return TOUCH_CONSUMED;
-		}
+
+		glm::vec4 translated_pos = getTranslatedPos(aPoint->Xn, aPoint->Yn);
+		pCurrentPosition = (translated_pos.x - pSquareVertices[SV_TL_X])/pWidth;
+		pCurrentPosition = CLAMP(0.f,pCurrentPosition,1.f);
+		triggerEvent(EVENT_SLIDER_UPDATE_END);
+		pSlider->setPositionN(aPoint->Xn, aPoint->Yn, MID_CENTER);
+		return TOUCH_CONSUMED;
     }
 	return TOUCH_NOT_CONSUMED;
 }

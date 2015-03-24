@@ -34,7 +34,7 @@ Button::Button() :
 	Rect()
 {
 	LOCK_INIT(pButtonStateLock);
-	CORE->addTouchClient(this);
+	CORE->addTouchClient(this, SCENE_DEFAULT_FRONT);
 }
 
 
@@ -42,7 +42,7 @@ Button::~Button()
 {}
 
 
-void Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonIndex aIndex)
+Button* Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonIndex aIndex)
 {
 	LOCK_ACQUIRE(pButtonStateLock);
 	while (pButtonFaces.size() <= aIndex) {
@@ -56,6 +56,7 @@ void Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonIndex a
 	pButtonFaces[aIndex][aState] = aRect;
 	if(pActiveIndex < 0) pActiveIndex = aIndex;
 	LOCK_RELEASE(pButtonStateLock);
+	return this;
 }
 
 
@@ -88,7 +89,7 @@ void Button::updateG(float time, float deltaTime)
 		}
 
 		active->updateG(time,deltaTime);
-		memcpy(active->square_vertices, square_vertices, sizeof(square_vertices));
+		memcpy(active->pSquareVertices, pSquareVertices, sizeof(pSquareVertices));
 		memcpy(&active->anim,&anim,sizeof(anim));
 		memcpy(active->color,color,sizeof(color));
 	}

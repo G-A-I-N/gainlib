@@ -7,11 +7,11 @@ LOCAL_MODULE := libgain
 LOCAL_SRC_FILES :=  GainApp.cpp\
 					Core.cpp\
 					Base.cpp\
+					Rect.cpp\
 					Layer.cpp\
 					EffectLayer.cpp\
 					Menu.cpp\
 					Button.cpp\
-					Rect.cpp\
 					ShaderTest.cpp\
 					PixelCanvas.cpp\
 					Bitmap.cpp\
