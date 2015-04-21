@@ -23,11 +23,6 @@
 
 #include "Base.h"
 
-#define DIRTY_FLAG_ROTATION    0x01
-#define DIRTY_FLAG_TRANSLATION 0x02
-#define DIRTY_FLAG_INVERSE     0x04
-#define DIRTY_FLAG_PIVOT       0x08
-#define DIRTY_FLAG_VERTICES    0x10
 
 //Square vertices positions
 typedef enum _SV_POS
@@ -78,13 +73,7 @@ typedef enum _AnimationType
 	ANIM_SIZE
 } AnimationType;
 
-typedef enum _colorIndex {
-	COLOR_RED=0,
-	COLOR_GREEN,
-	COLOR_BLUE,
-	COLOR_APLHA,
-	COLOR_SIZE
-} ColorIndex;
+
 
 typedef struct _AnimationContainer
 {
@@ -106,6 +95,8 @@ public:
 } AnimationContainer;
 
 class Rect: public Gain::Base {
+private:
+	typedef Gain::Base super;
 public:
 
 	/**
@@ -135,17 +126,8 @@ public:
 	Rect* setX(int x);
 	Rect* setY(int y);
 
-	virtual Rect* setXN(float x);
-	virtual Rect* setYN(float y);
-
-	float getXN();
-	float getYN();
-
 	float getWidthN();
 	float getHeightN();
-
-
-	virtual Rect* setPivot(float x, float y);
 
 	/*
 	 * Returns current angle in degrees
@@ -157,10 +139,10 @@ public:
 
 	Rect* setWidth(int width);
 	Rect* setHeight(int height);
-	virtual Rect* setWidthN(float width);
-	virtual Rect* setHeightN(float height);
+	Rect* setWidthN(float width);
+	Rect* setHeightN(float height);
 
-	virtual Rect* setSizeN(float width, float height);
+	Rect* setSizeN(float width, float height);
 	virtual Rect* setPositionN(float x,float y,Placement placement);
 
 	virtual Rect* setPlacement(Placement aPlacement);
@@ -176,11 +158,7 @@ public:
 			);
 
 
-	Rect* setColor(GLfloat color[4]);
-	Rect* setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-	Rect* setAlpha(GLfloat alpha);
 
-	Rect* setRotation(GLfloat angle);
 
 	//Base
 	virtual bool setupGraphics();
@@ -257,24 +235,6 @@ public:
 
 
 protected:
-	inline glm::mat4 getInverseMat()
-	{
-		if(dirtyFlags & DIRTY_FLAG_INVERSE)
-		{
-			priInverse = glm::inverse(anim);
-			dirtyFlags ^= DIRTY_FLAG_INVERSE;
-		}
-		return priInverse;
-	}
-
-	inline glm::vec4 getTranslatedPos(float Xn, float Yn)
-	{
-		glm::vec4 pos = glm::vec4(Xn, -Yn/CORE->reversed_ratio, 0, 1);
-		glm::mat4 inverse = getInverseMat();
-		glm::vec4 translated_pos = inverse * pos;
-		translated_pos.y *=-1.f;
-		return translated_pos;
-	}
 
 	virtual bool initVariables();
 	virtual void enableAttributes() const;
@@ -283,22 +243,13 @@ protected:
 	virtual void updateAnimation(float sec, float deltaSec);
 
 
-private:
-	glm::mat4 priInverse;
 
 public:
-	glm::mat4 anim;
-	GLfloat color[COLOR_SIZE];
 
-	int dirtyFlags;
 	GLfloat pSquareVertices[SV_SIZE];
 
 protected:
 	float pWidth,pHeight;
-	float pPositionX, pPositionY;
-
-
-	GLfloat pAngle;
 
 	GLint attribute_coord2d;
 	GLuint vbo_square_vertices;
@@ -307,9 +258,6 @@ protected:
 	GLint uniform_anim;
 	GLint uniform_color;
 
-
-
-	GLfloat pPivot[2];
 	GLfloat trunslate[2];
 
 	GLfloat TODO_fix_this_add_memoryleakage;

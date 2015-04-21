@@ -18,8 +18,6 @@
 #include "Rect.h"
 
 
-#define X_IND 0
-#define Y_IND 1
 
 
 
@@ -67,7 +65,7 @@ void Rect::privateConstruct(const char* aVertexShader, const char* aFragmentShad
 	pVertexShader = aVertexShader?aVertexShader:gVertexShader;
 	pFragmentShader = aFragmentShader?aFragmentShader:gFragmentShader;
 	program = 0;
-	dirtyFlags = 0xFFFFFFFF;
+	flags = 0x0;
     // set default to white
     setColor(1.0f,1.0f,1.0f,1.f);
 	pAngle=0.f;
@@ -80,30 +78,6 @@ Rect::~Rect()
 }
 
 
-Rect* Rect::setColor(GLfloat aColor[4])
-{
-	memcpy(color,aColor, sizeof(color));
-	return this;
-}
-
-Rect* Rect::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
-{
-	GLfloat color[4] = {red, green, blue, alpha};
-	setColor(color);
-	return this;
-}
-
-Rect* Rect::setAlpha(GLfloat alpha)
-{
-	color[COLOR_APLHA] = alpha;
-	return this;
-}
-Rect* Rect::setRotation(GLfloat aAngle)
-{
-	pAngle = aAngle;
-	dirtyFlags |= DIRTY_FLAG_ROTATION;
-	return this;
-}
 
 float Rect::getRotation()
 {
@@ -121,30 +95,6 @@ Rect* Rect::setY(int aY)
 {
 	 setYN(-1.f*CORE->reversed_ratio + 2.f*((float)aY)/CORE->screen_width);
 	 return this;
-}
-
-Rect* Rect::setXN(float x)
-{
-	pPositionX = x;
-	dirtyFlags |= DIRTY_FLAG_TRANSLATION;
-	return this;
-}
-
-Rect* Rect::setYN(float y)
-{
-	pPositionY = -y*CORE->ratio;
-	dirtyFlags |= DIRTY_FLAG_TRANSLATION;
-	return this;
-}
-
-float Rect::getXN()
-{
-	return pPositionX;
-}
-
-float Rect::getYN()
-{
-	return -pPositionY*CORE->reversed_ratio;
 }
 
 float Rect::getWidthN()
@@ -165,14 +115,6 @@ Rect* Rect::setWidth(int aWidth)
 Rect* Rect::setHeight(int aHeight)
 {
 	setHeightN(2.f*((float)aHeight)/CORE->screen_width);
-	return this;
-}
-
-Rect* Rect::setPivot(float x, float y)
-{
-	pPivot[X_IND] = x;
-	pPivot[Y_IND] = y;
-	dirtyFlags |= DIRTY_FLAG_PIVOT;
 	return this;
 }
 
@@ -202,7 +144,7 @@ Rect* Rect::setWidthN(float width)
 	if(pPlacement) {
 		setPlacement(pPlacement);
 	} else {
-		dirtyFlags |= DIRTY_FLAG_PIVOT;
+		flags |= FLAG_DIRTY_PIVOT;
 	}
 	return this;
 }
@@ -213,7 +155,7 @@ Rect* Rect::setHeightN(float height)
 	if(pPlacement) {
 		setPlacement(pPlacement);
 	} else {
-		dirtyFlags |= DIRTY_FLAG_PIVOT;
+		flags |= FLAG_DIRTY_PIVOT;
 	}
 	return this;
 }
@@ -252,7 +194,9 @@ Rect* Rect::setPlacement(Placement aPlacement)
 	if(pPlacement & PLACEMENT_TOP)
 		newY= 0.f;
 
-	return setPivot(newX, newY);
+	setPivot(newX, newY);
+
+	return this;
 }
 
 Rect* Rect::setCenterN(float x, float y)
@@ -275,7 +219,7 @@ Rect* Rect::setCornersN(float tl_x, float tl_y, float tr_x, float tr_y,
 	pSquareVertices[SV_BL_X] = bl_x;
 	pSquareVertices[SV_BL_Y] = bl_y;
 
-	dirtyFlags |= DIRTY_FLAG_VERTICES;
+	flags |= FLAG_DIRTY_VERTICES;
 
 	pPositionX = 0;
 	pPositionY = 0;
@@ -348,37 +292,38 @@ void Rect::updateG(float sec, float deltaSec)
 {
 	updateAnimation(sec,deltaSec);
 
-	if(dirtyFlags & DIRTY_FLAG_PIVOT)
+
+
+	if(flags & FLAG_DIRTY_PIVOT)
 	{
 		// calculate pivot, pos 0, width 1, pivot 0.5 -> tl_x = -0.5, tr_x = 0.5
 		pSquareVertices[SV_BL_X] =
-		pSquareVertices[SV_TL_X] = -pPivot[X_IND];
+		pSquareVertices[SV_TL_X] = -pPivot[POS_X];
 
 		pSquareVertices[SV_TR_Y] =
-		pSquareVertices[SV_TL_Y] = -pPivot[Y_IND];
+		pSquareVertices[SV_TL_Y] = -pPivot[POS_Y];
 
 		pSquareVertices[SV_BR_X] =
-		pSquareVertices[SV_TR_X] = pWidth - pPivot[X_IND];
+		pSquareVertices[SV_TR_X] = pWidth - pPivot[POS_X];
 
 		pSquareVertices[SV_BL_Y] =
-		pSquareVertices[SV_BR_Y] = pHeight - pPivot[Y_IND];
+		pSquareVertices[SV_BR_Y] = pHeight - pPivot[POS_Y];
 
-		dirtyFlags ^= DIRTY_FLAG_PIVOT;
-		dirtyFlags |= DIRTY_FLAG_VERTICES;
+		flags ^= FLAG_DIRTY_PIVOT;
+		flags |= FLAG_DIRTY_VERTICES;
 	}
-	if(dirtyFlags & (DIRTY_FLAG_VERTICES | DIRTY_FLAG_ROTATION | DIRTY_FLAG_TRANSLATION))
+	if(flags & (FLAG_DIRTY_VERTICES | FLAG_DIRTY_ROTATION | FLAG_DIRTY_TRANSLATION))
 	{
-
 		glm::mat4 translate_mat = glm::translate(glm::mat4(1.0f), glm::vec3(pPositionX,pPositionY, 0.0));
 		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.f,CORE->ratio, 1.0));
 		glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), pAngle, glm::vec3(0.0, 0.0, 1.0)) ;
 
-		anim = translate_mat * scale * rotate;
-		dirtyFlags &= 0^(DIRTY_FLAG_VERTICES | DIRTY_FLAG_ROTATION | DIRTY_FLAG_TRANSLATION);
-		dirtyFlags |= DIRTY_FLAG_INVERSE;
+		pAnim = translate_mat * scale * rotate;
+		flags &= 0xffffffff^(FLAG_DIRTY_VERTICES | FLAG_DIRTY_ROTATION | FLAG_DIRTY_TRANSLATION);
+		flags |= FLAG_DIRTY_INVERSE;
 	}
 
-    Base::updateG(sec,deltaSec);
+    super::updateG(sec,deltaSec);
 }
 
 void Rect::enableAttributes() const
@@ -559,10 +504,6 @@ void Rect::updateAnimation(float sec, float deltaSec)
 	    }
 	}
 }
-
-
-
-
 
 bool Rect::isWithin(float Xn, float Yn)
 {

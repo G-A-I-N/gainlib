@@ -21,7 +21,11 @@ namespace Gain {
 Base::Base() :
     pState(NOT_INITIALIZED),
     program(0),
-    pZOrder(0)
+    pZOrder(0),
+	pAngle(0),
+	pPositionX(0),
+	pPositionY(0),
+	flags(0)
 {
 }
 
@@ -31,6 +35,13 @@ Base::~Base()
 
 void Base::updateG(float /*time*/, float /*deltaTime*/)
 {
+	if(flags & FLAG_FEATURE_GLOBAL_ANIM)
+	{
+		anim = globalAnim * pAnim;
+	} else
+	{
+		anim = pAnim;
+	}
 }
 
 
@@ -129,8 +140,77 @@ void Base::triggerEvent(EventType aEventType)
 	{
 		it->first->onEvent(this, aEventType);
 	}
-
 }
 
+Base* Base::setXN(float x)
+{
+	pPositionX = x;
+	flags |= FLAG_DIRTY_TRANSLATION;
+	return this;
+}
+
+Base* Base::setYN(float y)
+{
+	pPositionY = -y*CORE->ratio;
+	flags |= FLAG_DIRTY_TRANSLATION;
+	return this;
+}
+
+float Base::getXN()
+{
+	return pPositionX;
+}
+
+float Base::getYN()
+{
+	return -pPositionY*CORE->reversed_ratio;
+}
+
+Base* Base::setPositionN(float x, float y)
+{
+	setXN(x);
+	setYN(y);
+	return this;
+}
+
+Base* Base::setRotation(float aAngle)
+{
+	pAngle = aAngle;
+	flags |= FLAG_DIRTY_ROTATION;
+	return this;
+}
+
+Base* Base::setPivot(float x, float y)
+{
+	pPivot[POS_X] = x;
+	pPivot[POS_Y] = y;
+	flags |= FLAG_DIRTY_PIVOT;
+	return this;
+}
+
+Base* Base::setColor(GLfloat aColor[COLOR_SIZE])
+{
+	memcpy(color,aColor, sizeof(color));
+	return this;
+}
+
+Base* Base::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
+{
+	GLfloat color[COLOR_SIZE] = {red, green, blue, alpha};
+	setColor(color);
+	return this;
+}
+
+Base* Base::setAlpha(GLfloat alpha)
+{
+	color[COLOR_APLHA] = alpha;
+	return this;
+}
+
+void Base::setGlobalAnim(glm::mat4 &aGlobalAnim)
+{
+	flags |= FLAG_FEATURE_GLOBAL_ANIM;
+	globalAnim = aGlobalAnim;
+}
 
 } /* namespace Gain */

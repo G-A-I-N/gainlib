@@ -70,7 +70,25 @@ void Layer::render() const
 
 void Layer::updateG(float time, float deltaTime)
 {
-    LOCK_ACQUIRE(renderClientsLock);
+
+	int startFlags = flags;
+
+	if(flags & (FLAG_DIRTY_PIVOT | FLAG_DIRTY_ROTATION | FLAG_DIRTY_TRANSLATION))
+	{
+		glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(pPositionX,pPositionY, 0.0));
+		glm::mat4 rotate = glm::rotate(glm::mat4(1.0f), pAngle, glm::vec3(0.0, 0.0, 1.0)) ;
+		glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.f, CORE->ratio, 1.f));
+		glm::mat4 reverse_scale = glm::scale(glm::mat4(1.0f), glm::vec3(1.f, CORE->reversed_ratio, 1.f));
+		glm::mat4 pivot = glm::translate(glm::mat4(1.0f), glm::vec3(pPivot[POS_X],pPivot[POS_Y], 0.0));
+
+		pAnim =  translate * scale * pivot * rotate * glm::inverse(pivot) * reverse_scale;
+		flags &= 0xffffffff^(FLAG_DIRTY_PIVOT | FLAG_DIRTY_ROTATION | FLAG_DIRTY_TRANSLATION);
+		flags |= FLAG_DIRTY_INVERSE;
+	}
+
+	super::updateG(time, deltaTime);
+
+	LOCK_ACQUIRE(renderClientsLock);
     while( !addClientsFifo.empty() )
     {
 
@@ -98,6 +116,12 @@ void Layer::updateG(float time, float deltaTime)
 		Base* child = *it;
 		if (child->getState() == NOT_INITIALIZED) {
 			child->setupGraphics();
+			child->setGlobalAnim(anim);
+		}
+
+		if (startFlags & (FLAG_DIRTY_ROTATION | FLAG_DIRTY_PIVOT | FLAG_DIRTY_TRANSLATION))
+		{
+			child->setGlobalAnim(anim);
 		}
 		child->updateG(time, deltaTime);
 	}
@@ -113,10 +137,10 @@ bool Layer::initVariables()
 	return true;
 }
 void Layer::enableAttributes() const
-{
-}
+{}
 void Layer::disableAttributes() const
-{
-}
+{}
+
+
 
 } /* namespace Gain */

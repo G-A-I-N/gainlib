@@ -30,7 +30,7 @@ Menu::Menu()
 	pMenuBg->setColor(0,0,0.5,0.8);
 	addRenderClient( pMenuBg );
 	pMenuBg->addEventListener(this);
-	pMenuBg->setPositionN(100,0,MID_CENTER);
+	pMenuBg->Base::setPositionN(100,0);
 
 }
 
@@ -62,7 +62,7 @@ TouchState Menu::TouchDown(TouchPoint* point)
 			pXCorrection*=-1.f;
 		}
 		pMenuVisible = !pMenuVisible;
-		pMenuBg->setPositionN(point->Xn + pXCorrection,0,MID_CENTER);
+		pMenuBg->Base::setPositionN(point->Xn + pXCorrection,0.f);
 
 		return TOUCH_CONSUMED;
 	}
@@ -78,7 +78,7 @@ TouchState Menu::TouchMove(TouchPoint* point)
 {
 	if(point->ID == pPointerId && pMenuBg)
 	{
-		pMenuBg->setPositionN(point->Xn + pXCorrection,0,MID_CENTER);
+		pMenuBg->Base::setPositionN(point->Xn + pXCorrection,0.f);
 		return TOUCH_CONSUMED;
 	}
 	if(point->ID == pPointerIdMenu)
