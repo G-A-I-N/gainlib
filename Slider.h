@@ -19,7 +19,7 @@
 #include "Rect.h"
 
 namespace Gain {
-class Slider: public Gain::Rect, public Gain::TouchInterface {
+class Slider: public Gain::Rect {
 private:
 	typedef Gain::Rect super;
 public:

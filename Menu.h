@@ -22,7 +22,7 @@
 
 namespace Gain {
 
-class Menu : public Gain::Layer, TouchInterface {
+class Menu : public Gain::Layer {
 
 public:
 	Menu();

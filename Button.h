@@ -28,7 +28,7 @@ typedef enum _ButtonState {
 
 typedef unsigned int ButtonIndex;
 
-class Button: public Gain::Rect, Gain::TouchInterface {
+class Button: public Gain::Rect {
 private:
 	typedef Gain::Rect super;
 public:
