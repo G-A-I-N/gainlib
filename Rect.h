@@ -64,35 +64,11 @@ typedef enum _Placement
 
 } Placement;
 
-typedef enum _AnimationType
+typedef struct _AnimationContainerRect : public AnimationContainer
 {
-	ANIM_NONE=0,
-	ANIM_MOVE,
-	ANIM_COLOR,
-	ANIM_FADE,
-	ANIM_SIZE
-} AnimationType;
-
-
-
-typedef struct _AnimationContainer
-{
-public:
-
-
-	float elapsedTime, time;
-
-	float startX,startY;
-	float targetX, targetY;
-
 	float startWidth,startHeight;
 	float targetWidth, targetHeight;
-
-	float startColor[COLOR_SIZE];
-	float targetColor[COLOR_SIZE];
-	//Animation
-	AnimationType type;
-} AnimationContainer;
+} AnimationContainerRect;
 
 class Rect: public Gain::Base {
 private:
@@ -166,47 +142,6 @@ public:
 	virtual void updateG(float time, float deltaTime);
 
 	/**
-	 * Moves target to given coordinates in given time
-	 *
-	 * Uses Rect's animation framework to move item to specified position in given time.
-	 * Is parallel to all other animation that are running.
-	 *
-	 * Coordinates are given in normalized coordinates.
-	 *
-	 * \param targetX of target x-coordinate in normalized form.
-	 * \param targetY of target y-coordinate in normalized form.
-	 * \param sec time (seconds) to spend transition from current pos to new position.
-	 */
-	virtual Rect* toPositionN(float targetX, float targetY, float sec);
-
-	/**
-	 * Fades to target alpha in given time
-	 *
-	 * Uses Rect's animation framework to fade the alpha value to given level in given time.
-	 * Is parallel to all other animation that are running.
-	 *
-	 * \param aTargetAlpha to fade to
-	 * \param sec time (seconds) to spend fading
-	 * \return pointer to this object
-	 */
-	virtual Rect* toAlphaN(float aTargetAplha, float sec);
-
-	/**
-	 * Fades to target color in given time
-	 *
-	 * Uses Rect's animation framework to fade the color value to given level in given time.
-	 * Is parallel to all other animation that are running.
-	 *
-	 * \param r red value to fade to
-	 * \param g green value to fade to
-	 * \param b blue value to fade to
-	 * \param aTargetAlpha to fade to
-	 * \param sec time to spend fading
-	 * \return pointer to this object
-	 */
-	virtual Rect* toColorN(float r, float g, float b, float aTargetAplha, float sec);
-
-	/**
 	 * Animates to target width and height in given time
 	 *
 	 * Uses Rect's animation framework to animate current size to given size in given time.
@@ -230,20 +165,13 @@ public:
 	 */
 	virtual bool isWithin(float nX, float nY);
 
-
-	virtual void cancelAllAnimations();
-
-
 protected:
 
 	virtual bool initVariables();
 	virtual void enableAttributes() const;
 	virtual void disableAttributes() const;
 
-	virtual void updateAnimation(float sec, float deltaSec);
-
-
-
+	virtual void updateAnimationPart(float currentPosition, AnimationContainer* anim);
 public:
 
 	GLfloat pSquareVertices[SV_SIZE];
@@ -264,8 +192,6 @@ protected:
 
 	const char* pVertexShader;
 	const char* pFragmentShader;
-
-	std::set<AnimationContainer*> pAnimationList;
 
 	Placement pPlacement;
 };

@@ -371,63 +371,14 @@ void Rect::render() const
 
 }
 
-Rect* Rect::toPositionN(float aTargetX, float aTargetY, float sec)
-{
-
-	AnimationContainer* anim = new AnimationContainer();
-	anim->targetX = aTargetX;
-	anim->targetY = aTargetY;
-	anim->startX = getXN();
-	anim->startY = getYN();
-	anim->type = ANIM_MOVE;
-
-	anim->time = sec;
-
-	pAnimationList.insert(anim);
-	return this;
-}
-
-
-Rect* Rect::toAlphaN(float aTargetAplha, float sec)
-{
-
-	AnimationContainer* anim = new AnimationContainer();
-	memcpy(anim->startColor,color,sizeof(color));
-	memcpy(anim->targetColor,color,sizeof(color));
-	anim->targetColor[COLOR_APLHA] = aTargetAplha;
-	anim->type = ANIM_FADE;
-
-	anim->time = sec;
-
-	pAnimationList.insert(anim);
-	return this;
-}
-
-Rect* Rect::toColorN(float aRed, float aGreen, float aBlue, float aTargetAplha, float sec)
-{
-	AnimationContainer* anim = new AnimationContainer();
-	memcpy(anim->startColor,color,sizeof(color));
-	anim->targetColor[COLOR_APLHA] = aTargetAplha;
-	anim->targetColor[COLOR_RED] = aRed;
-	anim->targetColor[COLOR_GREEN] = aGreen;
-	anim->targetColor[COLOR_BLUE] = aBlue;
-	anim->type = ANIM_COLOR;
-
-	anim->time = sec;
-
-	pAnimationList.insert(anim);
-	return this;
-}
-
-
 Rect* Rect::toSizeN(float aTargetWidth, float aTargetHeight, float sec)
 {
-	AnimationContainer* anim = new AnimationContainer();
+	AnimationContainerRect* anim = new AnimationContainerRect();
 	anim->targetWidth = aTargetWidth;
 	anim->targetHeight = aTargetHeight;
 	anim->startWidth = getWidthN();
 	anim->startHeight = getHeightN();
-	anim->type = ANIM_SIZE;
+	anim->type = ANIM_RECT_SIZE;
 
 	anim->time = sec;
 
@@ -435,75 +386,21 @@ Rect* Rect::toSizeN(float aTargetWidth, float aTargetHeight, float sec)
 	return this;
 }
 
-void Rect::cancelAllAnimations()
-{
-	std::set<AnimationContainer*>::iterator it = pAnimationList.begin();
-	while(it!=pAnimationList.end())
-	{
-		AnimationContainer* anim = *it;
-		it++;
-	    triggerEvent(EVENT_ANIMATION_FINISHED_BY_CANCEL);
-    	delete anim;
-    	anim=0;
+void Rect::updateAnimationPart(float currentPosition, AnimationContainer* anim) {
+    if(ANIM_RECT_SIZE == anim->type)
+    {
+    	AnimationContainerRect* animRect = (AnimationContainerRect*)anim;
+		if(animRect->startWidth != animRect->targetWidth){
+			setWidthN(animRect->startWidth + (animRect->targetWidth - animRect->startWidth)*currentPosition);
+		}
+		if(animRect->startHeight != animRect->targetHeight){
+			setHeightN(animRect->startHeight + (animRect->targetHeight - animRect->startHeight)*currentPosition);
+		}
+		return;
     }
-	pAnimationList.clear();
+    super::updateAnimationPart(currentPosition, anim);
 }
 
-void Rect::updateAnimation(float sec, float deltaSec)
-{
-	std::set<AnimationContainer*>::iterator it = pAnimationList.begin();
-	while(it!=pAnimationList.end())
-	{
-		AnimationContainer* anim = *it;
-	    std::set<AnimationContainer*>::iterator delete_it = it;
-	    it++;
-
-	    anim->elapsedTime += deltaSec;
-
-	    float currentPosition = std::min(1.f, anim->elapsedTime / anim->time);
-
-	    if(ANIM_MOVE == anim->type)
-	    {
-			if(anim->startX != anim->targetX){
-				setXN(anim->startX + (anim->targetX - anim->startX)*currentPosition);
-			}
-			if(anim->startY != anim->targetY){
-				setYN(anim->startY + (anim->targetY - anim->startY)*currentPosition);
-			}
-	    }
-	    if(ANIM_COLOR == anim->type)
-	    {
-	    	for(unsigned int color_i=COLOR_RED;color_i<=COLOR_APLHA;++color_i)
-	    	{
-	    		color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
-	    	}
-	    }
-	    if(ANIM_FADE == anim->type)
-	    {
-	    	ColorIndex color_i=COLOR_APLHA;
-	    	color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
-	    }
-	    if(ANIM_SIZE == anim->type)
-	    {
-
-			if(anim->startWidth != anim->targetWidth){
-				setWidthN(anim->startWidth + (anim->targetWidth - anim->startWidth)*currentPosition);
-			}
-			if(anim->startHeight != anim->targetHeight){
-				setHeightN(anim->startHeight + (anim->targetHeight - anim->startHeight)*currentPosition);
-			}
-	    }
-
-
-	    if(currentPosition == 1.f)
-	    {
-		    triggerEvent(EVENT_ANIMATION_FINISHED);
-		    pAnimationList.erase(delete_it);
-	    	delete anim;
-	    	anim=0;
-	    }
-	}
-}
 
 bool Rect::isWithin(float Xn, float Yn)
 {

@@ -213,4 +213,124 @@ void Base::setGlobalAnim(glm::mat4 &aGlobalAnim)
 	globalAnim = aGlobalAnim;
 }
 
+Base* Base::toPositionN(float aTargetX, float aTargetY, float sec)
+{
+
+	AnimationContainer* anim = new AnimationContainer();
+	anim->targetX = aTargetX;
+	anim->targetY = aTargetY;
+	anim->startX = getXN();
+	anim->startY = getYN();
+	anim->type = ANIM_MOVE;
+
+	anim->time = sec;
+
+	pAnimationList.insert(anim);
+	return this;
+}
+
+
+Base* Base::toAlphaN(float aTargetAplha, float sec)
+{
+
+	AnimationContainer* anim = new AnimationContainer();
+	memcpy(anim->startColor,color,sizeof(color));
+	memcpy(anim->targetColor,color,sizeof(color));
+	anim->targetColor[COLOR_APLHA] = aTargetAplha;
+	anim->type = ANIM_FADE;
+
+	anim->time = sec;
+
+	pAnimationList.insert(anim);
+	return this;
+}
+
+Base* Base::toColorN(float aRed, float aGreen, float aBlue, float aTargetAplha, float sec)
+{
+	AnimationContainer* anim = new AnimationContainer();
+	memcpy(anim->startColor,color,sizeof(color));
+	anim->targetColor[COLOR_APLHA] = aTargetAplha;
+	anim->targetColor[COLOR_RED] = aRed;
+	anim->targetColor[COLOR_GREEN] = aGreen;
+	anim->targetColor[COLOR_BLUE] = aBlue;
+	anim->type = ANIM_COLOR;
+
+	anim->time = sec;
+
+	pAnimationList.insert(anim);
+	return this;
+}
+
+void Base::updateAnimationPart(float currentPosition, AnimationContainer* anim) {
+    switch(anim->type) {
+		case ANIM_MOVE:
+			{
+				if(anim->startX != anim->targetX){
+					setXN(anim->startX + (anim->targetX - anim->startX)*currentPosition);
+				}
+				if(anim->startY != anim->targetY){
+					setYN(anim->startY + (anim->targetY - anim->startY)*currentPosition);
+				}
+				break;
+			}
+		case ANIM_COLOR:
+			{
+				for(unsigned int color_i=COLOR_RED;color_i<=COLOR_APLHA;++color_i)
+				{
+					color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
+				}
+				break;
+			}
+		case ANIM_FADE:
+			{
+				ColorIndex color_i=COLOR_APLHA;
+				color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
+				break;
+			}
+		// no implementation here
+		case ANIM_NONE:
+		case ANIM_RECT_SIZE:
+			break;
+    }
+}
+
+void Base::updateAnimation(float sec, float deltaSec)
+{
+	std::set<AnimationContainer*>::iterator it = pAnimationList.begin();
+	while(it!=pAnimationList.end())
+	{
+		AnimationContainer* anim = *it;
+	    std::set<AnimationContainer*>::iterator delete_it = it;
+	    it++;
+
+	    anim->elapsedTime += deltaSec;
+
+	    float currentPosition = std::min(1.f, anim->elapsedTime / anim->time);
+
+	    updateAnimationPart(currentPosition, anim);
+
+	    if(currentPosition == 1.f)
+	    {
+		    triggerEvent(EVENT_ANIMATION_FINISHED);
+		    pAnimationList.erase(delete_it);
+	    	delete anim;
+	    	anim=0;
+	    }
+	}
+}
+
+void Base::cancelAllAnimations()
+{
+	std::set<AnimationContainer*>::iterator it = pAnimationList.begin();
+	while(it!=pAnimationList.end())
+	{
+		AnimationContainer* anim = *it;
+		it++;
+	    triggerEvent(EVENT_ANIMATION_FINISHED_BY_CANCEL);
+    	delete anim;
+    	anim=0;
+    }
+	pAnimationList.clear();
+}
+
 } /* namespace Gain */
