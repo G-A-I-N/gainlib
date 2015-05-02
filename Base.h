@@ -57,6 +57,30 @@ typedef enum _colorIndex {
 	COLOR_SIZE
 } ColorIndex;
 
+typedef enum _AnimationType
+{
+	ANIM_NONE=0,
+	ANIM_MOVE,
+	ANIM_COLOR,
+	ANIM_FADE,
+	ANIM_RECT_SIZE
+} AnimationType;
+
+typedef struct _AnimationContainer
+{
+public:
+	AnimationType type;
+
+	float elapsedTime, time;
+
+	float startX,startY;
+	float targetX, targetY;
+
+	float startColor[COLOR_SIZE];
+	float targetColor[COLOR_SIZE];
+	//Animation
+} AnimationContainer;
+
 class Base : public EventListener, public TouchInterface {
 public:
     Base();
@@ -98,7 +122,51 @@ public:
 	Base* setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
 	Base* setAlpha(GLfloat alpha);
 
+	/**
+	 * Moves target to given coordinates in given time
+	 *
+	 * Uses Base's animation framework to move item to specified position in given time.
+	 * Is parallel to all other animation that are running.
+	 *
+	 * Coordinates are given in normalized coordinates.
+	 *
+	 * \param targetX of target x-coordinate in normalized form.
+	 * \param targetY of target y-coordinate in normalized form.
+	 * \param sec time (seconds) to spend transition from current pos to new position.
+	 */
+	virtual Base* toPositionN(float targetX, float targetY, float sec);
+
+	/**
+	 * Fades to target alpha in given time
+	 *
+	 * Uses Base's animation framework to fade the alpha value to given level in given time.
+	 * Is parallel to all other animation that are running.
+	 *
+	 * \param aTargetAlpha to fade to
+	 * \param sec time (seconds) to spend fading
+	 * \return pointer to this object
+	 */
+	virtual Base* toAlphaN(float aTargetAplha, float sec);
+
+	/**
+	 * Fades to target color in given time
+	 *
+	 * Uses Base's animation framework to fade the color value to given level in given time.
+	 * Is parallel to all other animation that are running.
+	 *
+	 * \param r red value to fade to
+	 * \param g green value to fade to
+	 * \param b blue value to fade to
+	 * \param aTargetAlpha to fade to
+	 * \param sec time to spend fading
+	 * \return pointer to this object
+	 */
+	virtual Base* toColorN(float r, float g, float b, float aTargetAplha, float sec);
+
 	void setGlobalAnim(glm::mat4 &aGlobalAnim);
+
+	void cancelAllAnimations();
+
 protected:
 	GLuint createProgram(const char* pVertexSource, const char* pFragmentSource);
 	GLuint loadShader(GLenum shaderType, const char* pSource);
@@ -109,6 +177,10 @@ protected:
 
 	virtual void setReady() { pState = INITIALIZED; };
 
+	virtual void updateAnimationPart(float currentPosition, AnimationContainer* anim);
+	void updateAnimation(float sec, float deltaSec);
+
+protected:
 	std::map<EventListener*,EventListener*> pEventListener;
 
 
@@ -154,7 +226,10 @@ protected:
     
 	BaseState pState;
 	GLuint program;
-    friend struct BaseCompare;
+
+	std::set<AnimationContainer*> pAnimationList;
+
+	friend struct BaseCompare;
 };
     
 struct BaseCompare {
