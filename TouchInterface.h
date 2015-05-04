@@ -35,6 +35,12 @@ typedef struct _TouchPoint{
 
 } TouchPoint;
 
+typedef enum _TouchType{
+	TOUCH_DOWN=1,
+	TOUCH_MOVE,
+	TOUCH_UP
+} TouchType;
+
 class TouchInterface {
 public:
 	TouchInterface();

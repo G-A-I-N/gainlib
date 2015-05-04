@@ -22,6 +22,19 @@
 
 namespace Gain {
 
+inline TouchState callTouchFunction(TouchInterface* aInterface, TouchPoint* aTouchPoint, TouchType aType)
+{
+	switch (aType) {
+		case TOUCH_DOWN:
+			return aInterface->TouchDown(aTouchPoint);
+		case TOUCH_MOVE:
+			return aInterface->TouchMove(aTouchPoint);
+		case TOUCH_UP:
+			return aInterface->TouchUp(aTouchPoint);
+	}
+}
+
+
 class Layer : public virtual Gain::Base {
 private:
 	typedef Gain::Base super;
@@ -42,8 +55,10 @@ public:
 	void addRenderClient(Gain::Base* aBase);
 	void removeRenderClient(Gain::Base* aBase);
 	void removeAllRenderClients();
+
+	TouchState offerTouch(TouchPoint* aTouchPoint, TouchType aType);
 protected:
-	std::multiset<Gain::Base*, Gain::BaseCompare> renderClients;
+	std::set<Gain::Base*, Gain::BaseCompare> renderClients;
 	std::queue<Gain::Base*> addClientsFifo;
 	std::queue<Gain::Base*> removeClientsFifo;
 

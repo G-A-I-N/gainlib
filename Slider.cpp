@@ -27,7 +27,7 @@ Slider::Slider(float x, float y, float width, float height) :
 	Rect(x,y,width,height)
 {
 	pSliderBackground->setColor(0,0,0,0.4f);
-	CORE->addTouchClient(this, SCENE_DEFAULT_FRONT);
+	setTouchable();
 }
 
 Slider::Slider() :
@@ -37,7 +37,7 @@ Slider::Slider() :
 	pCurrentPosition(0.5f),
 	Rect()
 {
-	CORE->addTouchClient(this, SCENE_DEFAULT_FRONT);
+	setTouchable();
 }
 
 

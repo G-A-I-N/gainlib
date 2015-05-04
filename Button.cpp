@@ -24,7 +24,7 @@ Button::Button(float x, float y, float width, float height) :
 	Rect(x,y,width,height)
 {
 	LOCK_INIT(pButtonStateLock);
-	CORE->addTouchClient(this);
+	setTouchable();
 }
 
 Button::Button() :
@@ -34,7 +34,7 @@ Button::Button() :
 	Rect()
 {
 	LOCK_INIT(pButtonStateLock);
-	CORE->addTouchClient(this, SCENE_DEFAULT_FRONT);
+	setTouchable();
 }
 
 

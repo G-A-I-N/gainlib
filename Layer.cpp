@@ -57,7 +57,7 @@ void Layer::renderPost() const
 void Layer::render() const
 {
     renderPre();
-    std::multiset<Gain::Base*, Gain::BaseCompare>::iterator it;
+    std::set<Gain::Base*, Gain::BaseCompare>::iterator it;
 	for (it=renderClients.begin(); it!=renderClients.end(); ++it)
 	{
 		Base* child = *it;
@@ -100,7 +100,7 @@ void Layer::updateG(float time, float deltaTime)
     {
     	Gain::Base* base = removeClientsFifo.front();
     	removeClientsFifo.pop();
-        std::multiset<Gain::Base*, Gain::BaseCompare>::iterator it =
+        std::set<Gain::Base*, Gain::BaseCompare>::iterator it =
                 renderClients.find(base);
         while(it != renderClients.end())
         {
@@ -110,7 +110,7 @@ void Layer::updateG(float time, float deltaTime)
 	}
     LOCK_RELEASE(renderClientsLock);
 
-    std::multiset<Gain::Base*, Gain::BaseCompare>::iterator it;
+    std::set<Gain::Base*, Gain::BaseCompare>::iterator it;
 	for (it=renderClients.begin(); it!=renderClients.end(); ++it)
 	{
 		Base* child = *it;
@@ -141,6 +141,25 @@ void Layer::enableAttributes() const
 void Layer::disableAttributes() const
 {}
 
+TouchState Layer::offerTouch(TouchPoint* aTouchPoint, TouchType aType) {
+	TouchState touchState = TOUCH_NOT_CONSUMED;
+
+	std::set<Gain::Base*, Gain::BaseCompare>::reverse_iterator it;
+	for (it=renderClients.rbegin(); it!=renderClients.rend(); ++it)
+	{
+		Base* child = *it;
+		if(child->flags & FLAG_FEATURE_TOUCH_INTERFACE)
+		{
+			touchState = callTouchFunction(child,aTouchPoint,aType);
+			if(touchState == TOUCH_CONSUMED)
+			{
+				break;
+			}
+		}
+	}
+}
+
 
 
 } /* namespace Gain */
+

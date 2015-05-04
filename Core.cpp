@@ -21,6 +21,7 @@
 #include "Base.h"
 #include "TouchInterface.h"
 #include "PerfomanceCounter.h"
+#include "helpers.h"
 
 #undef CORE_INCLUDE
 
@@ -61,7 +62,7 @@ Core::Core() :
 
     for(int n=0;n<MAX_SCENES;n++)
     {
-    	renderClients.push_back(new Layer());
+    	pScenes.push_back(new Layer());
     }
 }
 
@@ -138,7 +139,7 @@ void Core::updateG(float time, float deltaTime)
 
 	int renderClientItems = 0;
 
-	if (pScene > renderClients.size()) {
+	if (pScene > pScenes.size()) {
 		return;
 	}
 
@@ -162,24 +163,24 @@ void Core::updateG(float time, float deltaTime)
 
 //    LOCK_RELEASE(renderClientsLock);
 
-    if (renderClients.size() > SCENE_DEFAULT_BACK) {
-		Gain::Layer* current = renderClients[SCENE_DEFAULT_BACK];
+    if (pScenes.size() > SCENE_DEFAULT_BACK) {
+		Gain::Layer* current = pScenes[SCENE_DEFAULT_BACK];
 		if (current->getState() == NOT_INITIALIZED) {
 			current->setupGraphics();
 		}
 		current->updateG(time, deltaTime);
 	}
 
-	if (pScene > SCENE_DEFAULT_FRONT && pScene < renderClients.size()) {
-		Gain::Layer* current = renderClients[pScene];
+	if (pScene > SCENE_DEFAULT_FRONT && pScene < pScenes.size()) {
+		Gain::Layer* current = pScenes[pScene];
 		if (current->getState() == NOT_INITIALIZED) {
 			current->setupGraphics();
 		}
 		current->updateG(time, deltaTime);
 	}
 
-	if (renderClients.size() > SCENE_DEFAULT_FRONT) {
-		Gain::Layer* current = renderClients[SCENE_DEFAULT_FRONT];
+	if (pScenes.size() > SCENE_DEFAULT_FRONT) {
+		Gain::Layer* current = pScenes[SCENE_DEFAULT_FRONT];
 		if (current->getState() == NOT_INITIALIZED) {
 			current->setupGraphics();
 		}
@@ -195,26 +196,26 @@ void Core::update(float time, float deltaTime)
 {
 	myAppUpdateLoopCallCounter.Increment(1);
 
-	if (pScene > renderClients.size()) {
+	if (pScene > pScenes.size()) {
 		return;
 	}
 
-	if (renderClients.size() > SCENE_DEFAULT_BACK) {
-		Gain::Layer* current = renderClients[SCENE_DEFAULT_BACK];
+	if (pScenes.size() > SCENE_DEFAULT_BACK) {
+		Gain::Layer* current = pScenes[SCENE_DEFAULT_BACK];
 		if (current->getState() == INITIALIZED) {
 			current->update(time, deltaTime);
 		}
 	}
 
-	if (pScene > SCENE_DEFAULT_FRONT && pScene < renderClients.size()) {
-		Gain::Layer* current = renderClients[pScene];
+	if (pScene > SCENE_DEFAULT_FRONT && pScene < pScenes.size()) {
+		Gain::Layer* current = pScenes[pScene];
 		if (current->getState() == INITIALIZED) {
 			current->update(time, deltaTime);
 		}
 	}
 
-	if (renderClients.size() > SCENE_DEFAULT_FRONT) {
-		Gain::Layer* current = renderClients[SCENE_DEFAULT_FRONT];
+	if (pScenes.size() > SCENE_DEFAULT_FRONT) {
+		Gain::Layer* current = pScenes[SCENE_DEFAULT_FRONT];
 		if (current->getState() == INITIALIZED) {
 			current->update(time, deltaTime);
 		}
@@ -239,22 +240,22 @@ void Core::renderFrame() const
 	glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 	checkGlError("glClear");
 
-	if (renderClients.size() > SCENE_DEFAULT_BACK) {
-		Gain::Layer* current = renderClients[SCENE_DEFAULT_BACK];
+	if (pScenes.size() > SCENE_DEFAULT_BACK) {
+		Gain::Layer* current = pScenes[SCENE_DEFAULT_BACK];
 		if (current->getState() == INITIALIZED) {
 			current->render();
 		}
 	}
 
-	if (pScene > SCENE_DEFAULT_FRONT && pScene < renderClients.size()) {
-		Gain::Layer* current = renderClients[pScene];
+	if (pScene > SCENE_DEFAULT_FRONT && pScene < pScenes.size()) {
+		Gain::Layer* current = pScenes[pScene];
 		if (current->getState() == INITIALIZED) {
 			current->render();
 		}
 	}
 
-	if (renderClients.size() > SCENE_DEFAULT_FRONT) {
-		Gain::Layer* current = renderClients[SCENE_DEFAULT_FRONT];
+	if (pScenes.size() > SCENE_DEFAULT_FRONT) {
+		Gain::Layer* current = pScenes[SCENE_DEFAULT_FRONT];
 		if (current->getState() == INITIALIZED) {
 			current->render();
 		}
@@ -267,7 +268,7 @@ void Core::addRenderClient(Base* aBase, unsigned int aScene)
 	{
 		aScene = pScene;
 	}
-	renderClients[aScene]->addRenderClient(aBase);
+	pScenes[aScene]->addRenderClient(aBase);
 }
 
 void Core::removeRenderClient(Base* aBase, unsigned int aScene)
@@ -276,140 +277,97 @@ void Core::removeRenderClient(Base* aBase, unsigned int aScene)
 	{
 		aScene = pScene;
 	}
-    renderClients[aScene]->removeRenderClient(aBase);
+    pScenes[aScene]->removeRenderClient(aBase);
 }
 
 void Core::invalidateAllRenderers(bool fullReset)
 {
 	LOGSCOPE;
-	for (size_t n = 0; n < renderClients.size(); ++n) {
-		Gain::Layer* current = renderClients[n];
+	for (size_t n = 0; n < pScenes.size(); ++n) {
+		Gain::Layer* current = pScenes[n];
 		current->invalidate();
 	}
 }
 
-void Core::addTouchClient(TouchInterface* aInterface, unsigned int aScene)
+void Core::addTouchClient(TouchInterface* aInterface)
 {
-    if(aScene >= SCENE_LAST_INDEX)
-	{
-		aScene = pScene;
-	}
-	TouchContainer* container = new TouchContainer();
-	container->touchInterface = aInterface;
     LOCK_ACQUIRE(touchClientsLock);
 	LOGSCOPE;
-	while (touchClients.size() <= aScene) {
-		touchClients.push_back(std::vector<TouchContainer*>(0));
-	}
-	touchClients[aScene].push_back(container);
+	pTouchClients.push_back(aInterface);
     LOCK_RELEASE(touchClientsLock);
 }
 
-void Core::removeTouchClient(TouchInterface* aInterface, unsigned int aScene)
+void Core::removeTouchClient(TouchInterface* aInterface)
 {
-    if(aScene >= SCENE_LAST_INDEX)
-	{
-		aScene = pScene;
-	}
     LOCK_ACQUIRE(touchClientsLock);
 	LOGSCOPE;
-	if (aScene < touchClients.size()) {
-		for (size_t n = 0; n < touchClients[aScene].size(); ++n)
-			if (aInterface == touchClients[aScene][n]->touchInterface) {
-				touchClients[aScene].erase(touchClients[aScene].begin() + n);
-				return;
-			}
+	std::vector<TouchInterface*>::iterator it = pTouchClients.begin();
+	while(it != pTouchClients.end())
+	{
+		if (aInterface == *it) {
+			std::vector<TouchInterface*>::iterator it_rem = it++;
+			pTouchClients.erase(it_rem);
+			return;
+		}
 	}
 
     LOCK_RELEASE(touchClientsLock);
 }
 
+
+void Core::offerTouch(TouchPoint* aTouchPoint, TouchType aType)
+{
+	TouchState touchState = TOUCH_NOT_CONSUMED;
+	TouchInterface* interface;
+	LOGSCOPE;
+	LOCK_ACQUIRE(touchClientsLock);
+
+	//offer to added touch clients first
+	if(touchState == TOUCH_NOT_CONSUMED) {
+		std::vector<TouchInterface*>::iterator it;
+
+		for(it = pTouchClients.begin();touchState == TOUCH_NOT_CONSUMED && it != pTouchClients.end();++it)
+		{
+			TouchInterface* current = *it;
+			touchState = callTouchFunction(current,aTouchPoint,aType);
+		}
+	}
+
+	//offer to front
+	if(touchState == TOUCH_NOT_CONSUMED)
+	{
+		touchState = pScenes[SCENE_DEFAULT_FRONT]->offerTouch(aTouchPoint, aType);
+	}
+	//current
+	if(touchState == TOUCH_NOT_CONSUMED)
+	{
+		touchState = pScenes[pScene]->offerTouch(aTouchPoint, aType);
+	}
+	//back
+	if(touchState == TOUCH_NOT_CONSUMED)
+	{
+		touchState = pScenes[SCENE_DEFAULT_BACK]->offerTouch(aTouchPoint, aType);
+	}
+
+    LOCK_RELEASE(touchClientsLock);
+}
 
 void Core::offerTouchDown(TouchPoint* aTouchPoint)
 {
 	LOGSCOPE;
-	TouchState touchState = TOUCH_NOT_CONSUMED;
-
-	if (touchClients.size() > SCENE_DEFAULT_FRONT) {
-		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_FRONT];
-		for (size_t n = 0; n < current.size() && touchState; ++n) {
-			TouchContainer* container = current[n];
-			touchState = container->touchInterface->TouchDown(aTouchPoint);
-		}
-	}
-
-	if (pScene > SCENE_DEFAULT_FRONT && pScene < touchClients.size()) {
-		std::vector<TouchContainer*> current = touchClients[pScene];
-		for (size_t n = 0; n < current.size() && touchState; ++n) {
-			TouchContainer* container = current[n];
-			touchState = container->touchInterface->TouchDown(aTouchPoint);
-		}
-	}
-
-	if (touchClients.size() > SCENE_DEFAULT_BACK) {
-		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_BACK];
-		for (size_t n = 0; n < current.size() && touchState; ++n) {
-			TouchContainer* container = current[n];
-			touchState = container->touchInterface->TouchDown(aTouchPoint);
-		}
-	}
+	offerTouch(aTouchPoint, TOUCH_DOWN);
 }
 
 void Core::offerTouchMove(TouchPoint* aTouchPoint)
 {
 	LOGSCOPE;
-	if (touchClients.size() > SCENE_DEFAULT_BACK) {
-		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_BACK];
-		for (size_t n = 0; n < current.size(); ++n) {
-			TouchContainer* container = current[n];
-			container->touchInterface->TouchMove(aTouchPoint);
-		}
-	}
-
-	if (pScene > SCENE_DEFAULT_FRONT && pScene < touchClients.size()) {
-		std::vector<TouchContainer*> current = touchClients[pScene];
-		for (size_t n = 0; n < current.size(); ++n) {
-			TouchContainer* container = current[n];
-			container->touchInterface->TouchMove(aTouchPoint);
-		}
-	}
-
-	if (touchClients.size() > SCENE_DEFAULT_FRONT) {
-		std::vector<TouchContainer*> current = touchClients[SCENE_DEFAULT_FRONT];
-		for (size_t n = 0; n < current.size(); ++n) {
-			TouchContainer* container = current[n];
-			container->touchInterface->TouchMove(aTouchPoint);
-		}
-	}
-
+	offerTouch(aTouchPoint, TOUCH_MOVE);
 }
 
 void Core::offerTouchUp(TouchPoint* aTouchPoint)
 {
 	LOGSCOPE;
-	if(touchClients.size() > SCENE_DEFAULT_BACK) {
-		std::vector< TouchContainer* > current = touchClients[SCENE_DEFAULT_BACK];
-		for(size_t n =0; n<current.size() ; ++n) {
-			TouchContainer* container = current[n];
-			container->touchInterface->TouchUp(aTouchPoint);
-		}
-	}
-
-	if(pScene > SCENE_DEFAULT_FRONT && pScene < touchClients.size()) {
-		std::vector< TouchContainer* > current = touchClients[pScene];
-		for(size_t n =0; n<current.size() ; ++n) {
-			TouchContainer* container = current[n];
-			container->touchInterface->TouchUp(aTouchPoint);
-		}
-	}
-
-	if(touchClients.size() > SCENE_DEFAULT_FRONT) {
-		std::vector< TouchContainer* > current = touchClients[SCENE_DEFAULT_FRONT];
-		for(size_t n =0; n<current.size() ; ++n) {
-			TouchContainer* container = current[n];
-			container->touchInterface->TouchUp(aTouchPoint);
-		}
-	}
+	offerTouch(aTouchPoint, TOUCH_UP);
 }
 
 void Core::initiatePurchase(std::string purchase)
