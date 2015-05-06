@@ -28,6 +28,7 @@
 #define FLAG_DIRTY_INVERSE     ( 1 << 3)
 #define FLAG_DIRTY_PIVOT       ( 1 << 4)
 #define FLAG_DIRTY_VERTICES    ( 1 << 5)
+#define FLAG_DIRTY_ZORDER      ( 1 << 6)
 
 #define FLAG_FEATURE_GLOBAL_ANIM     ( 1 << 16)
 #define FLAG_FEATURE_TOUCH_INTERFACE ( 1 << 17)
@@ -101,7 +102,7 @@ public:
 	virtual Base* addEventListener(EventListener* aListener);
 	virtual void triggerEvent(EventType type);
 
-    virtual Base* setZOrder(int aZOrder) {pZOrder = aZOrder; return this;}
+    inline virtual Base* setZOrder(int aZOrder) {pZOrder = aZOrder; flags |= FLAG_DIRTY_ZORDER; return this;}
     
 
 	inline virtual TouchState TouchDown(TouchPoint* point) { return TOUCH_NOT_CONSUMED; }

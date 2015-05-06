@@ -89,25 +89,30 @@ void Layer::updateG(float time, float deltaTime)
 	super::updateG(time, deltaTime);
 
 	LOCK_ACQUIRE(renderClientsLock);
-    while( !addClientsFifo.empty() )
-    {
-
-    	Gain::Base* base = addClientsFifo.front();
-    	addClientsFifo.pop();
-    	renderClients.insert(base);
-    }
     while( !removeClientsFifo.empty() )
     {
     	Gain::Base* base = removeClientsFifo.front();
     	removeClientsFifo.pop();
         std::set<Gain::Base*, Gain::BaseCompare>::iterator it =
                 renderClients.find(base);
-        while(it != renderClients.end())
+
+        if(it != renderClients.end())
         {
             renderClients.erase(it);
-            it = renderClients.find(base);
+            if(!(base->flags & FLAG_DIRTY_ZORDER))
+            {
+            	delete base;
+            }
         }
 	}
+    while( !addClientsFifo.empty() )
+    {
+
+    	Gain::Base* base = addClientsFifo.front();
+    	addClientsFifo.pop();
+    	renderClients.insert(base);
+    	base->flags &= 0xffffffff^FLAG_DIRTY_ZORDER;
+    }
     LOCK_RELEASE(renderClientsLock);
 
     std::set<Gain::Base*, Gain::BaseCompare>::iterator it;
@@ -123,6 +128,12 @@ void Layer::updateG(float time, float deltaTime)
 		if (startFlags & (FLAG_DIRTY_ROTATION | FLAG_DIRTY_PIVOT | FLAG_DIRTY_TRANSLATION))
 		{
 			child->setGlobalAnim(anim);
+		}
+		if (child->flags & FLAG_DIRTY_ZORDER)
+		{
+			//readd to correct the ZOrder;
+			removeRenderClient(child);
+			addRenderClient(child);
 		}
 		child->updateG(time, deltaTime);
 	}
