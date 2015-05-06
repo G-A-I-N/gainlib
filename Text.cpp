@@ -21,6 +21,7 @@
 namespace Gain {
 
 static FT_Library gFt = NULL;
+static LOCK gFtLock;
 
 static const char gVertexShader[] =
 		"attribute vec2 coord2d;\n"
@@ -51,7 +52,6 @@ static const char gFragmentShader[] =
 Text::Text(float x,float y, float pixelSize, const char* text) :
 		super(x,y,0.f,0.f, gVertexShader, gFragmentShader), pFace(0)
 {
-	pTextBuffer = new char[256];
 	pBitmap = NULL;
 	pPixelSize = GetCore()->screen_width*pixelSize;
 
@@ -62,6 +62,7 @@ Text::Text(float x,float y, float pixelSize, const char* text) :
 				fprintf(stderr, "Could not init freetype library\n");
 				return;
 			}
+			LOCK_INIT(gFtLock);
 		}
 
 #ifdef IOS
@@ -89,7 +90,6 @@ Text::Text(float x,float y, float pixelSize, const char* text) :
 Text::Text(int x,int y, int pixelSize, const char* text) :
 		super(x,y,0,0, gVertexShader, gFragmentShader), pFace(0)
 {
-	pTextBuffer = new char[256];
 	pBitmap = NULL;
 	pPixelSize = pixelSize;
 
@@ -137,6 +137,8 @@ void Text::setText(const char* text)
 
 	int width=0,height=0;
 	int x=0,y=0;
+
+	LOCK_ACQUIRE(gFtLock);
 
 	for(p = pTextBuffer; *p; p++) {
 		if(FT_Load_Char(pFace, *p, FT_LOAD_RENDER))
@@ -195,6 +197,8 @@ void Text::setText(const char* text)
 		x+=g->advance.x>>6;
 		y+=g->advance.y>>6;
 	}
+	LOCK_RELEASE(gFtLock);
+
 	updateBitmap = true;
 }
 

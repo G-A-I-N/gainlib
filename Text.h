@@ -49,7 +49,7 @@ protected:
 	virtual void enableAttributes() const;
 	virtual void disableAttributes() const;
 
-	char* pTextBuffer;
+	char pTextBuffer[256];
 	int pPixelSize;
 
 	FT_Face pFace;
