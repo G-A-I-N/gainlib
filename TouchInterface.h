@@ -49,6 +49,18 @@ public:
 	virtual TouchState TouchDown(TouchPoint* point)=0;
 	virtual TouchState TouchMove(TouchPoint* point)=0;
 	virtual TouchState TouchUp(TouchPoint* point)=0;
+
+	inline virtual TouchState offerTouch(TouchPoint* aTouchPoint, TouchType aType)
+	{
+		switch (aType) {
+			case TOUCH_DOWN:
+				return this->TouchDown(aTouchPoint);
+			case TOUCH_MOVE:
+				return TouchMove(aTouchPoint);
+			case TOUCH_UP:
+				return TouchUp(aTouchPoint);
+		}
+	}
 };
 
 } /* namespace Gain */

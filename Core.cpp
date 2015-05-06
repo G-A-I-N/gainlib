@@ -329,7 +329,7 @@ void Core::offerTouch(TouchPoint* aTouchPoint, TouchType aType)
 		for(it = pTouchClients.begin();touchState == TOUCH_NOT_CONSUMED && it != pTouchClients.end();++it)
 		{
 			TouchInterface* current = *it;
-			touchState = callTouchFunction(current,aTouchPoint,aType);
+			touchState = current->offerTouch(aTouchPoint,aType);
 		}
 	}
 

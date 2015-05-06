@@ -117,6 +117,7 @@ void Layer::updateG(float time, float deltaTime)
 		if (child->getState() == NOT_INITIALIZED) {
 			child->setupGraphics();
 			child->setGlobalAnim(anim);
+			flags |= child->flags & FLAG_FEATURE_TOUCH_INTERFACE;
 		}
 
 		if (startFlags & (FLAG_DIRTY_ROTATION | FLAG_DIRTY_PIVOT | FLAG_DIRTY_TRANSLATION))
@@ -150,13 +151,14 @@ TouchState Layer::offerTouch(TouchPoint* aTouchPoint, TouchType aType) {
 		Base* child = *it;
 		if(child->flags & FLAG_FEATURE_TOUCH_INTERFACE)
 		{
-			touchState = callTouchFunction(child,aTouchPoint,aType);
+			touchState = child->offerTouch(aTouchPoint,aType);
 			if(touchState == TOUCH_CONSUMED)
 			{
 				break;
 			}
 		}
 	}
+	return touchState;
 }
 
 
