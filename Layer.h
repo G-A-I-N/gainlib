@@ -22,6 +22,8 @@
 
 namespace Gain {
 
+
+
 class Layer : public virtual Gain::Base {
 private:
 	typedef Gain::Base super;
@@ -42,8 +44,10 @@ public:
 	void addRenderClient(Gain::Base* aBase);
 	void removeRenderClient(Gain::Base* aBase);
 	void removeAllRenderClients();
+
+	virtual TouchState offerTouch(TouchPoint* aTouchPoint, TouchType aType);
 protected:
-	std::multiset<Gain::Base*, Gain::BaseCompare> renderClients;
+	std::set<Gain::Base*, Gain::BaseCompare> renderClients;
 	std::queue<Gain::Base*> addClientsFifo;
 	std::queue<Gain::Base*> removeClientsFifo;
 

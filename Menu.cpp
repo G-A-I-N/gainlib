@@ -24,7 +24,7 @@ Menu::Menu()
 	// TODO Auto-generated constructor stub
 
 	CORE->addRenderClient( this , SCENE_DEFAULT_FRONT );
-	CORE->addTouchClient( this , SCENE_DEFAULT_FRONT );
+	setTouchable();
 
 	pMenuBg = new Rect(-0.95f,-1.3f,1.9f,2.6f);
 	pMenuBg->setColor(0,0,0.5,0.8);

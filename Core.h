@@ -36,6 +36,7 @@
 #include "mappings.h"
 #include "PerfCounterItem.h"
 #include "TouchInterface.h"
+#include "helpers.h"
 
 #define CORE GetCore()
 
@@ -51,10 +52,6 @@ enum Scene {
 	SCENE_LAST_INDEX=MAX_SCENES, //use the value defined in mappings.h
 	SCENE_ACTIVE //points to currently set scene
 };
-
-typedef struct _TouchContainer{
-	TouchInterface* touchInterface;
-} TouchContainer;
 
 class Core {
 public:
@@ -77,16 +74,19 @@ public:
      */
     void removeRenderClient(Base* base, unsigned int aScene=SCENE_ACTIVE) ;
 
-    void addTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_ACTIVE) ;
-    void removeTouchClient(TouchInterface* aInterface, unsigned int aScene=SCENE_ACTIVE) ;
+    void addTouchClient(TouchInterface* aInterface) ;
+    void removeTouchClient(TouchInterface* aInterface) ;
 
-    void setScene(unsigned int aScene) { pScene = aScene;}
+    void setScene(unsigned int aScene) { pScene = CLAMP(SCENE_DEFAULT_BACK, aScene, SCENE_LAST_INDEX);}
 
 	void invalidateAllRenderers(bool fullReset=false);
 
+	void offerTouch(TouchPoint* aTouchPoint, TouchType aType);
 	void offerTouchDown(TouchPoint* aTouchPoint);
 	void offerTouchMove(TouchPoint* aTouchPoint);
 	void offerTouchUp(TouchPoint* aTouchPoint);
+
+
 
 	void initiatePurchase(std::string purchase);
 	bool ownsPurchase(std::string purchase);
@@ -94,14 +94,16 @@ public:
 	std::string backEndGetPurchaseToBeDone();
 	void backEndSetPurchase(std::string purchase);
 
+
+
 	float screen_width, screen_height;
 	float scale_width, scale_height;
 	float ratio, reversed_ratio;
 	float normalised_screen_height;
 private:
     unsigned int pScene;
-    std::vector< Gain::Layer* > renderClients;
-    std::vector< std::vector<TouchContainer*> > touchClients;
+    std::vector< Gain::Layer* > pScenes;
+    std::vector<TouchInterface*> pTouchClients;
 
     std::set< std::string > pPurchasesOwned;
     std::set< std::string > pPurchasesToBeDone;

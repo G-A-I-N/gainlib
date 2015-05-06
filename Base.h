@@ -176,6 +176,7 @@ protected:
 	virtual void disableAttributes() const = 0;
 
 	virtual void setReady() { pState = INITIALIZED; };
+	void setTouchable() { flags |= FLAG_FEATURE_TOUCH_INTERFACE; }
 
 	virtual void updateAnimationPart(float currentPosition, AnimationContainer* anim);
 	void updateAnimation(float sec, float deltaSec);
