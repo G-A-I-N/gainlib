@@ -48,6 +48,7 @@
     #define LOGEVENT2START(x,y) Logger::Instance()->EventStart(x,y);
     #define LOGEVENT2STOP(x,y) Logger::Instance()->EventStop(x,y);
     #define LOGFREETEXT(x) Logger::Instance()->FreeText(x);
+	#define LOGFREETEXTWITHKEY(x,y) { string z = string(x) + string(":")+ string(y) ; Logger::Instance()->FreeText(z.c_str()); }
     #define LOGSTATE(x,y) Logger::Instance()->StateMachine(x,y);
     #define LOGVALUE(x,y) Logger::Instance()->ValueABS(x,y);
     #define LOGSCOPE TimeToPicEventObj myFuncScope(__PRETTY_FUNCTION__);
@@ -79,6 +80,7 @@
     #define LOGEVENTSTART(x)
     #define LOGEVENTSTOP(x)
     #define LOGFREETEXT(x)
+	#define LOGFREETEXTWITHKEY(x,y)
     #define LOGSTATE(x,y)
     #define LOGVALUE(x,y)
 	#define LOGSCOPE

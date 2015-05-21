@@ -53,6 +53,7 @@ public:
 	int SetStringValue(string key,string value);
 	int SetFloatValue(string key,float value);
 	int SetIntValue(string key,int value);
+	long long SetLongLongValue(string key,long long value);
 
 	/* In case setting failed, this can be used retriving the result */
 	string GetLastError();
@@ -62,6 +63,7 @@ public:
 	string GetStringValue(string key, string defaultValue = string("-") );
 	float GetFloatValue(string key, float defaultValue = 0);
 	int GetIntValue(string key, int defaultValue = 0);
+	long long GetLongLongValue(string key,long long defaultValue = 0);
 
 private:
 	bool OpenSettingsFile(string fileName, bool bOpenForRead);

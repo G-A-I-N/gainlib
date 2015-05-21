@@ -72,6 +72,8 @@ Settings::Settings() {
 
 Settings::~Settings() {
 
+	WriteDataFromMapToDisc();
+
 	mStoredValues.clear();
 	mfileStream.close();
 }
@@ -303,6 +305,44 @@ bool Settings::WriteDataFromMapToDisc() {
 	return ret;
 }
 
+
+
+long long Settings::SetLongLongValue(string key, long long value) {
+
+		int ret = ERROR_SUCCESS;
+		mStoredValues[key]=to_string(value);
+
+		LOGFREETEXT(mStoredValues[key].c_str());
+
+		if (WriteDataFromMapToDisc() == true ) {
+			ret = ERROR_SUCCESS;
+		}
+		else {
+			ret = ERROR_FILEACCESS; //
+		}
+	    return ret;
+}
+
+long long Settings::GetLongLongValue(string key, long long defaultValue) {
+
+		long long ret ;
+		string value;
+		if (mStoredValues.size()==0) {
+			/* import keys first */
+			LoadSettings();
+		}
+
+		/* Check if key is found from map. If not, return default value */
+		if ( mStoredValues.count(key) ==1 ) {
+			value = mStoredValues.at(key);
+		}
+		else {
+			mStoredValues.insert(TStrStrPair(key,to_string(defaultValue)));
+			value = mStoredValues.at(key);
+		}
+
+		ret = atoll (value.c_str());
+		return ret;
+}
+
 } /* namespace Gain */
-
-
