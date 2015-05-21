@@ -27,6 +27,12 @@ Base::Base() :
 	pPositionY(0),
 	flags(0)
 {
+	for(int n=0;n<COLOR_SIZE;++n)
+	{
+		pColor[n] = 1.f;
+		color[n] = 1.f;
+		globalColor[n] = 1.f;
+	}
 }
 
 Base::~Base()
@@ -35,12 +41,24 @@ Base::~Base()
 
 void Base::updateG(float /*time*/, float /*deltaTime*/)
 {
-	if(flags & FLAG_FEATURE_GLOBAL_ANIM)
+	if(flags & FLAG_DIRTY_ANIM)
 	{
-		anim = globalAnim * pAnim;
-	} else
+		flags ^= FLAG_DIRTY_ANIM;
+		if(flags & FLAG_GLOBAL_ANIM)
+		{
+			anim = globalAnim * pAnim;
+		} else	{
+			anim = pAnim;
+		}
+	}
+
+	if(flags & FLAG_DIRTY_COLOR)
 	{
-		anim = pAnim;
+		flags ^= FLAG_DIRTY_COLOR;
+		color[COLOR_RED]   = pColor[COLOR_RED] * globalColor[COLOR_RED];
+		color[COLOR_GREEN] = pColor[COLOR_GREEN] * globalColor[COLOR_GREEN];
+		color[COLOR_BLUE]  = pColor[COLOR_BLUE] * globalColor[COLOR_BLUE];
+		color[COLOR_APLHA] = pColor[COLOR_APLHA] * globalColor[COLOR_APLHA];
 	}
 }
 
@@ -190,7 +208,8 @@ Base* Base::setPivot(float x, float y)
 
 Base* Base::setColor(GLfloat aColor[COLOR_SIZE])
 {
-	memcpy(color,aColor, sizeof(color));
+	flags |= FLAG_DIRTY_COLOR;
+	memcpy(pColor,aColor, sizeof(color));
 	return this;
 }
 
@@ -203,14 +222,21 @@ Base* Base::setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha)
 
 Base* Base::setAlpha(GLfloat alpha)
 {
-	color[COLOR_APLHA] = alpha;
+	flags |= FLAG_DIRTY_COLOR;
+	pColor[COLOR_APLHA] = alpha;
 	return this;
 }
 
 void Base::setGlobalAnim(glm::mat4 &aGlobalAnim)
 {
-	flags |= FLAG_FEATURE_GLOBAL_ANIM;
+	flags |= (FLAG_GLOBAL_ANIM | FLAG_DIRTY_ANIM);
 	globalAnim = aGlobalAnim;
+}
+
+void Base::setGlobalColor(float aColor[COLOR_SIZE])
+{
+	flags |= FLAG_DIRTY_COLOR;
+	memcpy(globalColor,aColor, sizeof(globalColor));
 }
 
 Base* Base::toPositionN(float aTargetX, float aTargetY, float sec)
@@ -234,8 +260,8 @@ Base* Base::toAlphaN(float aTargetAplha, float sec)
 {
 
 	AnimationContainer* anim = new AnimationContainer();
-	memcpy(anim->startColor,color,sizeof(color));
-	memcpy(anim->targetColor,color,sizeof(color));
+	memcpy(anim->startColor,pColor,sizeof(pColor));
+	memcpy(anim->targetColor,pColor,sizeof(pColor));
 	anim->targetColor[COLOR_APLHA] = aTargetAplha;
 	anim->type = ANIM_FADE;
 
@@ -248,7 +274,7 @@ Base* Base::toAlphaN(float aTargetAplha, float sec)
 Base* Base::toColorN(float aRed, float aGreen, float aBlue, float aTargetAplha, float sec)
 {
 	AnimationContainer* anim = new AnimationContainer();
-	memcpy(anim->startColor,color,sizeof(color));
+	memcpy(anim->startColor,pColor,sizeof(pColor));
 	anim->targetColor[COLOR_APLHA] = aTargetAplha;
 	anim->targetColor[COLOR_RED] = aRed;
 	anim->targetColor[COLOR_GREEN] = aGreen;
@@ -275,16 +301,18 @@ void Base::updateAnimationPart(float currentPosition, AnimationContainer* anim) 
 			}
 		case ANIM_COLOR:
 			{
+				flags |= FLAG_DIRTY_COLOR;
 				for(unsigned int color_i=COLOR_RED;color_i<=COLOR_APLHA;++color_i)
 				{
-					color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
+					pColor[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
 				}
 				break;
 			}
 		case ANIM_FADE:
 			{
+				flags |= FLAG_DIRTY_COLOR;
 				ColorIndex color_i=COLOR_APLHA;
-				color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
+				pColor[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
 				break;
 			}
 		// no implementation here

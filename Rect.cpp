@@ -320,7 +320,7 @@ void Rect::updateG(float sec, float deltaSec)
 
 		pAnim = translate_mat * scale * rotate;
 		flags &= 0xffffffff^(FLAG_DIRTY_VERTICES | FLAG_DIRTY_ROTATION | FLAG_DIRTY_TRANSLATION);
-		flags |= FLAG_DIRTY_INVERSE;
+		flags |= FLAG_DIRTY_INVERSE | FLAG_DIRTY_ANIM;
 	}
 
     super::updateG(sec,deltaSec);

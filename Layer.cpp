@@ -83,7 +83,7 @@ void Layer::updateG(float time, float deltaTime)
 
 		pAnim =  translate * scale * pivot * rotate * glm::inverse(pivot) * reverse_scale;
 		flags &= 0xffffffff^(FLAG_DIRTY_PIVOT | FLAG_DIRTY_ROTATION | FLAG_DIRTY_TRANSLATION);
-		flags |= FLAG_DIRTY_INVERSE;
+		flags |= FLAG_DIRTY_INVERSE | FLAG_DIRTY_ANIM;
 	}
 
 	super::updateG(time, deltaTime);
@@ -122,12 +122,17 @@ void Layer::updateG(float time, float deltaTime)
 		if (child->getState() == NOT_INITIALIZED) {
 			child->setupGraphics();
 			child->setGlobalAnim(anim);
+			child->setGlobalColor(color);
 			flags |= child->flags & FLAG_FEATURE_TOUCH_INTERFACE;
 		}
 
 		if (startFlags & (FLAG_DIRTY_ROTATION | FLAG_DIRTY_PIVOT | FLAG_DIRTY_TRANSLATION))
 		{
 			child->setGlobalAnim(anim);
+		}
+		if (startFlags & FLAG_DIRTY_COLOR)
+		{
+			child->setGlobalColor(color);
 		}
 		if (child->flags & FLAG_DIRTY_ZORDER)
 		{

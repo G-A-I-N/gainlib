@@ -29,9 +29,12 @@
 #define FLAG_DIRTY_PIVOT       ( 1 << 4)
 #define FLAG_DIRTY_VERTICES    ( 1 << 5)
 #define FLAG_DIRTY_ZORDER      ( 1 << 6)
+#define FLAG_DIRTY_COLOR       ( 1 << 7)
+#define FLAG_DIRTY_ANIM        ( 1 << 8)
 
-#define FLAG_FEATURE_GLOBAL_ANIM     ( 1 << 16)
-#define FLAG_FEATURE_TOUCH_INTERFACE ( 1 << 17)
+#define FLAG_GLOBAL_ANIM     ( 1 << 16)
+
+#define FLAG_FEATURE_TOUCH_INTERFACE ( 1 << 24)
 
 namespace Gain {
 
@@ -165,7 +168,7 @@ public:
 	virtual Base* toColorN(float r, float g, float b, float aTargetAplha, float sec);
 
 	void setGlobalAnim(glm::mat4 &aGlobalAnim);
-
+	void setGlobalColor(float aColor[COLOR_SIZE]);
 	void cancelAllAnimations();
 
 protected:
@@ -213,11 +216,14 @@ private:
 public:
 	glm::mat4 anim;
 	glm::mat4 globalAnim;
-	glm::mat4 pAnim;
 	int flags;
 	GLfloat color[COLOR_SIZE];
+	GLfloat globalColor[COLOR_SIZE];
 
 protected:
+	glm::mat4 pAnim;
+	GLfloat pColor[COLOR_SIZE];
+
 	float pPivot[POS_SIZE];
 
 	float pPositionX, pPositionY;
