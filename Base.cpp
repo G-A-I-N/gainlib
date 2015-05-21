@@ -43,6 +43,7 @@ void Base::updateG(float /*time*/, float /*deltaTime*/)
 {
 	if(flags & FLAG_DIRTY_ANIM)
 	{
+		flags ^= FLAG_DIRTY_ANIM;
 		if(flags & FLAG_GLOBAL_ANIM)
 		{
 			anim = globalAnim * pAnim;
