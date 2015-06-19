@@ -186,7 +186,7 @@ protected:
 	void updateAnimation(float sec, float deltaSec);
 
 protected:
-	std::map<EventListener*,EventListener*> pEventListener;
+	std::set<EventListener*> pEventListener;
 
 
 
