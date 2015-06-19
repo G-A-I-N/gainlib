@@ -39,10 +39,10 @@
 #define LOGID //if this is enabled, id is generated to a matching object/integer
 //#define USESEQNUMBERS // if this is defined, instead of time, running sequence number is as timestamp
 
-#define LOGINIT Logger::Instance();
-#define LOGSTOP delete Logger::Instance();
 
 #ifdef LOGISON
+	#define LOGINIT Logger::Instance();
+	#define LOGSTOP delete Logger::Instance();
     #define LOGEVENTSTART(x) Logger::Instance()->EventStart(x);
     #define LOGEVENTSTOP(x) Logger::Instance()->EventStop(x);
     #define LOGEVENT2START(x,y) Logger::Instance()->EventStart(x,y);
@@ -76,6 +76,8 @@
 		}
 
 #else
+	#define LOGINIT
+	#define LOGSTOP
     /* Empty macros when logging is disabled */
     #define LOGEVENTSTART(x)
     #define LOGEVENTSTOP(x)
