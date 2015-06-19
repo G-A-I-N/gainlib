@@ -147,16 +147,16 @@ GLuint Base::loadShader(GLenum shaderType, const char* pSource) {
 
 Base* Base::addEventListener(EventListener* aListener)
 {
-	pEventListener.insert(std::pair<EventListener*,EventListener*>(aListener,aListener));
+	pEventListener.insert(aListener);
 	return this;
 }
 
 void Base::triggerEvent(EventType aEventType)
 {
-	std::map<EventListener*,EventListener*>::iterator it;
+	std::set<EventListener*>::iterator it;
 	for(it = pEventListener.begin();it != pEventListener.end();it++)
 	{
-		it->first->onEvent(this, aEventType);
+		(*it)->onEvent(this, aEventType);
 	}
 }
 
