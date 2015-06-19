@@ -163,6 +163,7 @@ void Core::updateG(float time, float deltaTime)
 
 //    LOCK_RELEASE(renderClientsLock);
 
+    LOCK_ACQUIRE(touchClientsLock);
     if (pScenes.size() > SCENE_DEFAULT_BACK) {
 		Gain::Layer* current = pScenes[SCENE_DEFAULT_BACK];
 		if (current->getState() == NOT_INITIALIZED) {
@@ -186,6 +187,7 @@ void Core::updateG(float time, float deltaTime)
 		}
 		current->updateG(time, deltaTime);
 	}
+    LOCK_RELEASE(touchClientsLock);
 
     /* Update renderClients performance counter */
     myRenderClientsCountCounter.SetCounterValue(renderClientItems);
