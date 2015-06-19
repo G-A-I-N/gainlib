@@ -301,18 +301,18 @@ void Base::updateAnimationPart(float currentPosition, AnimationContainer* anim) 
 			}
 		case ANIM_COLOR:
 			{
-				flags |= FLAG_DIRTY_COLOR;
-				for(unsigned int color_i=COLOR_RED;color_i<=COLOR_APLHA;++color_i)
+				float color[COLOR_SIZE];
+				for(unsigned int color_i=0;color_i<COLOR_SIZE;++color_i)
 				{
-					pColor[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
+					color[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
 				}
+				setColor(color);
 				break;
 			}
 		case ANIM_FADE:
 			{
-				flags |= FLAG_DIRTY_COLOR;
-				ColorIndex color_i=COLOR_APLHA;
-				pColor[color_i] = anim->startColor[color_i] + (anim->targetColor[color_i] - anim->startColor[color_i])*currentPosition;
+				float alpha = anim->startColor[COLOR_APLHA] + (anim->targetColor[COLOR_APLHA] - anim->startColor[COLOR_APLHA])*currentPosition;
+				setAlpha(alpha);
 				break;
 			}
 		// no implementation here
