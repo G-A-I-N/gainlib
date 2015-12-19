@@ -1,5 +1,6 @@
 // Copyright 2015
 //   erkki.salonen@tpnet.fi
+//   ville.kankainen@kangain.com
 //
 // Licensed under the Apache License, Version 2.0 (the License);
 // you may not use this file except in compliance with the License.
@@ -18,6 +19,7 @@
 
 #include <string>
 #include <map>
+#include <set>
 #include <iostream>
 #include <fstream>
 #include <gain.h>
@@ -41,6 +43,7 @@ public:
 	static Settings * GetSettings();
 
 	Settings();
+	Settings(string filename);
 
 	virtual ~Settings();
 
@@ -65,6 +68,8 @@ public:
 	int GetIntValue(string key, int defaultValue = 0);
 	long long GetLongLongValue(string key,long long defaultValue = 0);
 
+	set<string> GetKeys();
+
 private:
 	bool OpenSettingsFile(string fileName, bool bOpenForRead);
 	bool LoadSettings();
@@ -74,7 +79,7 @@ private:
 	std::map<string,string> 	mStoredValues;
 	std::fstream 		mfileStream;
 	string				mLastError;
-	string				mDefaultSettingsFilenName;
+	string				mSettingsFileName;
 };
 
 

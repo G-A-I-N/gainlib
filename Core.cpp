@@ -22,8 +22,11 @@
 #include "TouchInterface.h"
 #include "PerfomanceCounter.h"
 #include "helpers.h"
+#include <sstream>
 
 #undef CORE_INCLUDE
+
+#define CORE_PURCHASE "CP_"
 
 const float performanceCounterDumpTimeIntervalSec = 1.0;
 
@@ -64,6 +67,16 @@ Core::Core() :
     {
     	pScenes.push_back(new Layer());
     }
+
+    //initialize purchased item from local file cache
+    pPurchasedItems = new Settings("purchased.dat");
+    std::set<std::string> purchasedItems = pPurchasedItems->GetKeys();
+    std::set<std::string>::iterator it = purchasedItems.begin();
+    while(it != purchasedItems.end())
+    {
+		backEndSetPurchase(pPurchasedItems->GetStringValue(*it));
+		it++;
+	}
 }
 
 Core::~Core() {
@@ -402,8 +415,12 @@ std::string Core::backEndGetPurchaseToBeDone()
 
 void Core::backEndSetPurchase(std::string purchase)
 {
-	LOGI("purchase acquired: %s", purchase.c_str());
+	std::ostringstream ss;
+	LOGI(CORE_PURCHASE "purchase acquired: %s", purchase.c_str());
 	pPurchasesOwned.insert(purchase);
+    ss << CORE_PURCHASE;
+    ss << pPurchasesOwned.size();
+    pPurchasedItems->SetStringValue(ss.str(), purchase);
 }
 
 
