@@ -44,6 +44,7 @@ namespace Gain {
 
 class Base;
 class Layer;
+class Settings;
 
 enum Scene {
 	SCENE_DEFAULT_BACK=0, //rendered each round first
@@ -130,6 +131,8 @@ private:
 	/* Performance counters dump timer  */
 	float mlastPerforManceCounterUpdateTimeSec;
 
+	// settings to store purchaset items
+	Gain::Settings* pPurchasedItems;
 };
 
 Core* GetCore();

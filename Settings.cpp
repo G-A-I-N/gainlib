@@ -1,5 +1,6 @@
 // Copyright 2015
 //   erkki.salonen@tpnet.fi
+//   ville.kankainen@kangain.com
 //
 // Licensed under the Apache License, Version 2.0 (the License);
 // you may not use this file except in compliance with the License.
@@ -68,6 +69,12 @@ static Settings * gSettings = NULL;
 
 Settings::Settings() {
 	SetSettingsFileName(SETTINGS_FILE_NAME);
+	LoadSettings();
+}
+
+Settings::Settings(string filename) {
+	SetSettingsFileName(filename);
+	LoadSettings();
 }
 
 Settings::~Settings() {
@@ -89,7 +96,7 @@ Settings * Settings::GetSettings(void) {
 }
 
 void Settings::SetSettingsFileName(string fileName) {
-	mDefaultSettingsFilenName = fileName;
+	mSettingsFileName = fileName;
 }
 
 int Settings::SetStringValue(string key, string value) {
@@ -153,9 +160,7 @@ string Settings::GetStringValue(string key, string defaultValue) {
 		ret = mStoredValues.at(key);
 	}
 	else {
-
-		mStoredValues.insert(TStrStrPair(key,defaultValue));
-		ret = mStoredValues.at(key);
+		ret = defaultValue;
 	}
 
 	return ret;
@@ -173,14 +178,11 @@ float Settings::GetFloatValue(string key, float defaultValue) {
 	/* Check if key is found from map. If not, return default value */
 	if ( mStoredValues.find(key) != mStoredValues.end() ) {
 		value = mStoredValues.at(key);
-	}
-	else {
-		mStoredValues.insert(TStrStrPair(key,to_string(defaultValue)));
-		value = mStoredValues.at(key);
+		ret = atof (value.c_str());
+	} else {
+		ret = defaultValue;
 	}
 
-
-	ret = atof (value.c_str());
 	return ret;
 
 }
@@ -197,15 +199,27 @@ int Settings::GetIntValue(string key, int defaultValue) {
 	/* Check if key is found from map. If not, return default value */
 	if ( mStoredValues.count(key) ==1 ) {
 		value = mStoredValues.at(key);
-	}
-	else {
-		mStoredValues.insert(TStrStrPair(key,to_string(defaultValue)));
-		value = mStoredValues.at(key);
+		ret = atoi (value.c_str());
+	} else {
+		ret = defaultValue;
 	}
 
-	ret = atoi (value.c_str());
 	return ret;
 }
+
+std::set<std::string> Settings::GetKeys()
+{
+	set<string> keys;
+	map<string,string>::iterator it = mStoredValues.begin();
+	while(it != mStoredValues.end())
+	{
+		keys.insert(it->first);
+		it++;
+	}
+
+	return keys;
+}
+
 
 void Settings::ReadDataToMap() {
 	/* Read data into memory */
@@ -242,8 +256,7 @@ bool Settings::LoadSettings() {
 		mfileStream.close();
 	}
 
-	string fileNameWithPath = SETTINGS_FILE_NAME;
-	if (OpenSettingsFile(fileNameWithPath, true) == true) {
+	if (OpenSettingsFile(mSettingsFileName, true) == true) {
 		/* Read data into memory */
 		ReadDataToMap();
 		/* Close file */
@@ -281,9 +294,8 @@ bool Settings::OpenSettingsFile(string fileName, bool bOpenForRead) {
 bool Settings::WriteDataFromMapToDisc() {
 
 	bool ret = false;
-	string fileNameWithPath = SETTINGS_FILE_NAME;
 
-	if (OpenSettingsFile(fileNameWithPath,false)==true) {
+	if (OpenSettingsFile(mSettingsFileName,false)==true) {
 		/* File is open */
 
 		for(std::map<string,string>::iterator iter = mStoredValues.begin(); iter != mStoredValues.end(); ++iter)
