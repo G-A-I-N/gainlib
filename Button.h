@@ -54,8 +54,8 @@ public:
 	Button* addButtonState(Gain::Rect* aRect,  ButtonState aState, ButtonIndex aIndex = 0);
 protected:
 	int pActiveIndex;
-	int pPointerId;
 	ButtonState pActiveState;
+	int pPointerId;
 
 	glm::mat4 invert_anim;
 

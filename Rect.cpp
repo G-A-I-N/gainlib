@@ -64,7 +64,7 @@ void Rect::privateConstruct(const char* aVertexShader, const char* aFragmentShad
 {
 	pVertexShader = aVertexShader?aVertexShader:gVertexShader;
 	pFragmentShader = aFragmentShader?aFragmentShader:gFragmentShader;
-	program = 0;
+	pProgram = 0;
 	flags = 0x0;
     // set default to white
     setColor(1.0f,1.0f,1.0f,1.f);
@@ -235,21 +235,21 @@ bool Rect::initVariables()
 	const char* uniform_name;
 
 	attribute_name = "coord2d";
-    attribute_coord2d = GL_EXT_FUNC glGetAttribLocation(program, attribute_name);
+    attribute_coord2d = GL_EXT_FUNC glGetAttribLocation(pProgram, attribute_name);
 	if (attribute_coord2d == -1) {
 		fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
 		return 0;
 	}
 
 	uniform_name = "anim";
-    uniform_anim = GL_EXT_FUNC glGetUniformLocation(program, uniform_name);
+    uniform_anim = GL_EXT_FUNC glGetUniformLocation(pProgram, uniform_name);
 	if (uniform_anim == -1) {
 		fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
 		return 0;
 	}
 
 	uniform_name = "color";
-    uniform_color = GL_EXT_FUNC glGetUniformLocation(program, uniform_name);
+    uniform_color = GL_EXT_FUNC glGetUniformLocation(pProgram, uniform_name);
 	if (uniform_color == -1) {
 		fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
 		return 0;
@@ -274,10 +274,10 @@ bool Rect::initVariables()
 
 bool Rect::setupGraphics() {
 
-	if (!program) {
-		program = createProgram(pVertexShader,pFragmentShader);
+	if (!pProgram) {
+		pProgram = createProgram(pVertexShader,pFragmentShader);
 
-		if (!program) {
+		if (!pProgram) {
 			LOGE("Could not create program.");
 			return false;
 		}
@@ -356,7 +356,7 @@ void Rect::disableAttributes() const
 
 void Rect::render() const
 {
-    GL_EXT_FUNC glUseProgram(program);
+    GL_EXT_FUNC glUseProgram(pProgram);
 	checkGlError("glUseProgram");
 
 	enableAttributes();

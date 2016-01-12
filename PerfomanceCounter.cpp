@@ -69,7 +69,7 @@ bool PerfomanceCounter::VisualizeCounters(bool SetOn){
 			mPerfCounterInfoText->setPlacement(TOP_LEFT);
 			Gain::GetCore()->addRenderClient(mPerfCounterInfoText,SCENE_DEFAULT_FRONT);
 
-			for (int k=0;k<mPerformanceCounters.size();k++) {
+			for (unsigned int k=0;k<mPerformanceCounters.size();k++) {
 
 				assert( mPerformanceCounters[k].VisualizeTextNameRect==NULL);
 				assert( mPerformanceCounters[k].VisualizeTextValueRect==NULL);
@@ -107,7 +107,7 @@ bool PerfomanceCounter::VisualizeCounters(bool SetOn){
 				mPerfCounterInfoText = NULL; // deleted by render client
 			}
 
-			for (int k=0;k<mPerformanceCounters.size();k++) {
+			for (unsigned int k=0;k<mPerformanceCounters.size();k++) {
 
 				if(mPerformanceCounters[k].VisualizeTextNameRect!=NULL) {
 				mPerformanceCounters[k].VisualizeTextNameRect->setColor(1,1,1,0);
@@ -133,7 +133,7 @@ void PerfomanceCounter::DumpCounters() {
 
 	UpdateCounterValuesToCanvas();
 
-	for (int k=0;k<mPerformanceCounters.size();k++) {
+	for (unsigned int k=0;k<mPerformanceCounters.size();k++) {
 
 		/* Use TimeToPic format */
 		LOGVALUE(mPerformanceCounters[k].PerformanceCounterName.c_str(),mPerformanceCounters[k].PerformanceCounterValue);
@@ -149,7 +149,7 @@ void PerfomanceCounter::DumpCounters() {
 
 void PerfomanceCounter::UpdateCounterValuesToCanvas() {
 
-	for (int k=0;k<mPerformanceCounters.size();k++) {
+	for (unsigned int k=0;k<mPerformanceCounters.size();k++) {
 
 		if (mPerformanceCounters[k].VisualizeTextValueRect!=NULL) {
 
@@ -167,7 +167,7 @@ int PerfomanceCounter::FindPerformanceCounter(const char *name) {
 
 	int ret = -1;
 	/* Slow linear search */
-	for (int k=0;k<mPerformanceCounters.size();k++) {
+	for (unsigned int k=0;k<mPerformanceCounters.size();k++) {
 		if (mPerformanceCounters[k].PerformanceCounterName==name) {
 			ret = k;
 			break;
@@ -221,8 +221,9 @@ bool PerfomanceCounter::IncrementPerformanceCounter(const char *performanceCount
 bool PerfomanceCounter::IncrementPerformanceCounter(int PerformanceCounterId,int increment) {
 
 	bool ret = false;
-	if (PerformanceCounterId>=0 && PerformanceCounterId<mPerformanceCounters.size()) {
-		mPerformanceCounters[PerformanceCounterId].PerformanceCounterValue+= increment;
+	unsigned int counterId = PerformanceCounterId;
+	if (counterId<mPerformanceCounters.size()) {
+		mPerformanceCounters[counterId].PerformanceCounterValue+= increment;
 		ret = true;
 	}
 

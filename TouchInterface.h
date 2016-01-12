@@ -60,6 +60,7 @@ public:
 			case TOUCH_UP:
 				return TouchUp(aTouchPoint);
 		}
+		return TOUCH_NOT_CONSUMED;
 	}
 };
 

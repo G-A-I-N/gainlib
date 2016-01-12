@@ -19,13 +19,13 @@
 namespace Gain {
 
 Base::Base() :
-    pState(NOT_INITIALIZED),
-    program(0),
-    pZOrder(0),
+	flags(0),
 	pAngle(0),
 	pPositionX(0),
 	pPositionY(0),
-	flags(0)
+    pProgram(0),
+    pState(NOT_INITIALIZED),
+    pZOrder(0)
 {
 	for(int n=0;n<COLOR_SIZE;++n)
 	{
@@ -322,7 +322,7 @@ void Base::updateAnimationPart(float currentPosition, AnimationContainer* anim) 
     }
 }
 
-void Base::updateAnimation(float sec, float deltaSec)
+void Base::updateAnimation(float /*sec*/, float deltaSec)
 {
 	std::set<AnimationContainer*>::iterator it = pAnimationList.begin();
 	while(it!=pAnimationList.end())

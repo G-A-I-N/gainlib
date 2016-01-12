@@ -87,14 +87,14 @@ bool ShaderTest::initVariables() {
 	const char* uniform_name;
 
 	attribute_name = "texcoord";
-    attribute_texcoord = GL_EXT_FUNC glGetAttribLocation(program, attribute_name);
+    attribute_texcoord = GL_EXT_FUNC glGetAttribLocation(pProgram, attribute_name);
 	if (attribute_texcoord == -1) {
 		fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
 		return 0;
 	}
 
 	uniform_name = "dist";
-    uniform_dist = GL_EXT_FUNC glGetUniformLocation(program, uniform_name);
+    uniform_dist = GL_EXT_FUNC glGetUniformLocation(pProgram, uniform_name);
 	if (uniform_dist == -1) {
 		fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
 		return 0;

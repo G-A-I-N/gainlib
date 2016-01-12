@@ -18,20 +18,20 @@
 namespace Gain {
 
 Button::Button(float x, float y, float width, float height) :
-	pActiveState(ButtonUp),
+	super(x,y,width,height),
 	pActiveIndex(-1),
-	pPointerId(-1),
-	Rect(x,y,width,height)
+	pActiveState(ButtonUp),
+	pPointerId(-1)
 {
 	LOCK_INIT(pButtonStateLock);
 	setTouchable();
 }
 
 Button::Button() :
-	pActiveState(ButtonUp),
+	super(),
 	pActiveIndex(-1),
-	pPointerId(-1),
-	Rect()
+	pActiveState(ButtonUp),
+	pPointerId(-1)
 {
 	LOCK_INIT(pButtonStateLock);
 	setTouchable();
@@ -62,7 +62,7 @@ Button* Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonInde
 
 void Button::render() const
 {
-	if(pActiveIndex >= 0 && pActiveIndex < pButtonFaces.size())
+	if(pActiveIndex >= 0 && (pActiveIndex < pButtonFaces.size()))
 	{
 		Rect* active = 	pButtonFaces[pActiveIndex][pActiveState];
 		if (active && active->getState() == INITIALIZED) {

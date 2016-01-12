@@ -19,10 +19,12 @@
 namespace Gain {
 
 Menu::Menu()
-: pMenuBg(0), pPointerId(-1),pMenuVisible(false)
+:
+  pMenuVisible(false),
+  pPointerId(-1),
+  pPointerIdMenu(-1),
+  pXCorrection(0)
 {
-	// TODO Auto-generated constructor stub
-
 	CORE->addRenderClient( this , SCENE_DEFAULT_FRONT );
 	setTouchable();
 
@@ -35,11 +37,9 @@ Menu::Menu()
 }
 
 Menu::~Menu()
-{
-	// TODO Auto-generated destructor stub
-}
+{}
 
-void Menu::update(float sec, float deltaSec)
+void Menu::update(float /*sec*/, float /*deltaSec*/)
 {
 
 }

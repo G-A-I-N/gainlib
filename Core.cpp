@@ -48,6 +48,9 @@ Core::Core() :
     ,ratio(1)
     ,scale_width(1)
     ,scale_height(1)
+	,gSecG(0)
+	,gDeltaSecG(0)
+	,normalised_screen_height(1)
 {
     LOCK_INIT(touchClientsLock);
 
@@ -295,7 +298,7 @@ void Core::removeRenderClient(Base* aBase, unsigned int aScene)
     pScenes[aScene]->removeRenderClient(aBase);
 }
 
-void Core::invalidateAllRenderers(bool fullReset)
+void Core::invalidateAllRenderers(bool /*fullReset*/)
 {
 	LOGSCOPE;
 	for (size_t n = 0; n < pScenes.size(); ++n) {
@@ -333,7 +336,6 @@ void Core::removeTouchClient(TouchInterface* aInterface)
 void Core::offerTouch(TouchPoint* aTouchPoint, TouchType aType)
 {
 	TouchState touchState = TOUCH_NOT_CONSUMED;
-	TouchInterface* interface;
 	LOGSCOPE;
 	LOCK_ACQUIRE(touchClientsLock);
 

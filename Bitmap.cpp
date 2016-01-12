@@ -74,14 +74,14 @@ bool Bitmap::initVariables() {
 	const char* uniform_name;
 
 	attribute_name = "texcoord";
-    attribute_texcoord = GL_EXT_FUNC glGetAttribLocation(program, attribute_name);
+    attribute_texcoord = GL_EXT_FUNC glGetAttribLocation(pProgram, attribute_name);
 	if (attribute_texcoord == -1) {
 		fprintf(stderr, "Could not bind attribute %s\n", attribute_name);
 		return 0;
 	}
 
 	uniform_name = "mytexture";
-    uniform_mytexture = GL_EXT_FUNC glGetUniformLocation(program, uniform_name);
+    uniform_mytexture = GL_EXT_FUNC glGetUniformLocation(pProgram, uniform_name);
 	if (uniform_mytexture == -1) {
 		fprintf(stderr, "Could not bind uniform %s\n", uniform_name);
 		return 0;

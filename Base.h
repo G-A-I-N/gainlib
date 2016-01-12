@@ -94,12 +94,12 @@ public:
 	virtual bool setupGraphics() = 0;
 	virtual void render() const = 0;
     virtual void updateG(float sec, float deltaSec) ;
-    virtual void update(float sec, float deltaSec) {};
+    virtual void update(float /*sec*/, float /*deltaSec*/) {};
 
     //EventListener
-    virtual void onEvent(Base* aSource, EventType aType) {};
+    virtual void onEvent(Base* /*aSource*/, EventType /*aType*/) {};
 
-	virtual void invalidate() {program=0;pState = NOT_INITIALIZED;};
+	virtual void invalidate() {pProgram=0;pState = NOT_INITIALIZED;};
 	inline BaseState getState() const { return pState; } ;
 
 	virtual Base* addEventListener(EventListener* aListener);
@@ -108,9 +108,9 @@ public:
     inline virtual Base* setZOrder(int aZOrder) {pZOrder = aZOrder; flags |= FLAG_DIRTY_ZORDER; return this;}
     
 
-	inline virtual TouchState TouchDown(TouchPoint* point) { return TOUCH_NOT_CONSUMED; }
-	inline virtual TouchState TouchMove(TouchPoint* point) { return TOUCH_NOT_CONSUMED; }
-	inline virtual TouchState TouchUp(TouchPoint* point) { return TOUCH_NOT_CONSUMED; }
+	inline virtual TouchState TouchDown(TouchPoint* /*point*/) { return TOUCH_NOT_CONSUMED; }
+	inline virtual TouchState TouchMove(TouchPoint* /*point*/) { return TOUCH_NOT_CONSUMED; }
+	inline virtual TouchState TouchUp(TouchPoint* /*point*/) { return TOUCH_NOT_CONSUMED; }
 
 	Base* setXN(float x);
 	Base* setYN(float y);
@@ -119,12 +119,12 @@ public:
 	float getYN();
 
 	Base* setPositionN(float x,float y);
-	Base* setRotation(GLfloat angle);
+	Base* setRotation(float angle);
 	Base* setPivot(float x, float y);
 
-	Base* setColor(GLfloat color[4]);
-	Base* setColor(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-	Base* setAlpha(GLfloat alpha);
+	Base* setColor(float color[4]);
+	Base* setColor(float red, float green, float blue, float alpha);
+	Base* setAlpha(float alpha);
 
 	/**
 	 * Moves target to given coordinates in given time
@@ -224,16 +224,19 @@ protected:
 	glm::mat4 pAnim;
 	GLfloat pColor[COLOR_SIZE];
 
+
+	float pAngle;
+
 	float pPivot[POS_SIZE];
 
 	float pPositionX, pPositionY;
 
-	float pAngle;
+	GLuint pProgram;
+
+	BaseState pState;
 
 	int pZOrder;
     
-	BaseState pState;
-	GLuint program;
 
 	std::set<AnimationContainer*> pAnimationList;
 

@@ -28,6 +28,7 @@
 #include <deque>
 #include <queue>
 #include <set>
+#include <string>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
@@ -46,13 +47,13 @@ class Base;
 class Layer;
 class Settings;
 
-enum Scene {
+typedef enum _Scene {
 	SCENE_DEFAULT_BACK=0, //rendered each round first
 	SCENE_DEFAULT_FRONT, //rendered each round last
 	SCENE_FIRST_INDEX,
 	SCENE_LAST_INDEX=MAX_SCENES, //use the value defined in mappings.h
 	SCENE_ACTIVE //points to currently set scene
-};
+} Scene;
 
 class Core {
 public:
@@ -78,7 +79,7 @@ public:
     void addTouchClient(TouchInterface* aInterface) ;
     void removeTouchClient(TouchInterface* aInterface) ;
 
-    void setScene(unsigned int aScene) { pScene = CLAMP(SCENE_DEFAULT_BACK, aScene, SCENE_LAST_INDEX);}
+    void setScene(unsigned int aScene) { pScene = CLAMP(SCENE_FIRST_INDEX, (Scene)aScene, SCENE_LAST_INDEX); }
 
 	void invalidateAllRenderers(bool fullReset=false);
 
@@ -117,7 +118,7 @@ private:
     
     struct timeval gStartTime,gNewTime,gOldTime;
     
-    float gSecG, gDeltaSecG, gSecU, gDeltaSecU;
+    float gSecG, gDeltaSecG;
     
     int start_msec, old_msec;
 	

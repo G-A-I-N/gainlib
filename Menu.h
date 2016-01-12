@@ -37,10 +37,10 @@ public:
 
 	virtual void onEvent(Base*, EventType);
 protected:
-	int pPointerId,pPointerIdMenu;
-	Rect* pMenuBg;
-	float pXCorrection;
 	bool pMenuVisible;
+	int pPointerId,pPointerIdMenu;
+	float pXCorrection;
+	Rect* pMenuBg;
 };
 
 } /* namespace Gain */

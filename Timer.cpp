@@ -6,7 +6,7 @@
  */
 
 #include "Timer.h"
-#include "logger.h"
+#include "Logger.h"
 
 namespace Gain {
 

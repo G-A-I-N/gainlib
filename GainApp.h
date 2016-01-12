@@ -65,7 +65,7 @@ public:
 	 */
 	virtual TouchState TouchUp(TouchPoint* point);
 
-	virtual void onEvent(Base* caller, EventType type) {};
+	virtual void onEvent(Base* /*caller*/, EventType /*type*/) {};
 
 	virtual void Suspend();
 	virtual void Resume();
