@@ -20,22 +20,26 @@
 namespace Gain {
 
 Slider::Slider(float x, float y, float width, float height) :
-	pSlider(new Gain::Rect(0.f,0.f,height*0.5f,height*0.5f)),
-	pSliderBackground(new Gain::Rect(x,y,width,height)),
+	super(x,y,width,height),
 	pPointerId(-1),
 	pCurrentPosition(0.5f),
-	Rect(x,y,width,height)
+	pMin(0),
+	pMax(0),
+	pSlider(new Gain::Rect(0.f,0.f,height*0.5f,height*0.5f)),
+	pSliderBackground(new Gain::Rect(x,y,width,height))
 {
 	pSliderBackground->setColor(0,0,0,0.4f);
 	setTouchable();
 }
 
 Slider::Slider() :
-	pSlider(NULL),
-	pSliderBackground(NULL),
+	super(),
 	pPointerId(-1),
 	pCurrentPosition(0.5f),
-	Rect()
+	pMin(0),
+	pMax(0),
+	pSlider(NULL),
+	pSliderBackground(NULL)
 {
 	setTouchable();
 }

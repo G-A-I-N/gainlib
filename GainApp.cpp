@@ -25,7 +25,7 @@ namespace Gain {
 
 
 GainApp::GainApp()
-: EventListener(), TouchInterface()
+: TouchInterface(), EventListener()
 {}
 
 GainApp::~GainApp()
@@ -35,17 +35,17 @@ void GainApp::Initialize()
 {}
 
 
-TouchState GainApp::TouchDown(TouchPoint* point)
+TouchState GainApp::TouchDown(TouchPoint* /*point*/)
 {
 	return TOUCH_NOT_CONSUMED;
 }
 
-TouchState GainApp::TouchMove(TouchPoint* point)
+TouchState GainApp::TouchMove(TouchPoint* /*point*/)
 {
 	return TOUCH_NOT_CONSUMED;
 }
 
-TouchState GainApp::TouchUp(TouchPoint* point)
+TouchState GainApp::TouchUp(TouchPoint* /*point*/)
 {
 	return TOUCH_NOT_CONSUMED;
 }
@@ -71,7 +71,7 @@ void GainApp::AboutToExit()
 	LOGEVENTSTOP("GainApp:AboutToExit");
 }
 
-void GainApp::Update(float sec, float deltaSec)
+void GainApp::Update(float /*sec*/, float /*deltaSec*/)
 {}
 
 } /* namespace Gain */

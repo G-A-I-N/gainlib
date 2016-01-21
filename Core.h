@@ -97,7 +97,7 @@ public:
 	void backEndSetPurchase(std::string purchase);
 
 
-
+public:
 	float screen_width, screen_height;
 	float scale_width, scale_height;
 	float ratio, reversed_ratio;

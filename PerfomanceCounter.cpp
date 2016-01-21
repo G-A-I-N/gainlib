@@ -241,9 +241,10 @@ bool PerfomanceCounter::SetPerformanceCounter(const char *performanceCounterName
 	return ret;
 }
 
-bool  PerfomanceCounter::SetPerformanceCounter(int PerformanceCounterId,int newValue) {
+bool  PerfomanceCounter::SetPerformanceCounter(unsigned int PerformanceCounterId,int newValue) {
 	bool ret = false;
-	if (PerformanceCounterId>=0 && PerformanceCounterId<mPerformanceCounters.size()) {
+	if (PerformanceCounterId<mPerformanceCounters.size())
+	{
 		mPerformanceCounters[PerformanceCounterId].PerformanceCounterValue= newValue;
 		ret = true;
 	}

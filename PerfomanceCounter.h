@@ -116,7 +116,7 @@ public:
 	 * \param newValue The new value of counter.
 	 * \return status of operation. True is ok.
 	 */
-	bool SetPerformanceCounter(int PerformanceCounterId,int newValue);
+	bool SetPerformanceCounter(unsigned int PerformanceCounterId,int newValue);
 
 private:
 

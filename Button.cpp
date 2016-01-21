@@ -54,7 +54,7 @@ Button* Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonInde
 	}
 
 	pButtonFaces[aIndex][aState] = aRect;
-	if(pActiveIndex < 0) pActiveIndex = aIndex;
+	pActiveIndex = aIndex;
 	LOCK_RELEASE(pButtonStateLock);
 	return this;
 }
@@ -62,7 +62,7 @@ Button* Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonInde
 
 void Button::render() const
 {
-	if(pActiveIndex >= 0 && (pActiveIndex < pButtonFaces.size()))
+	if(pActiveIndex < pButtonFaces.size())
 	{
 		Rect* active = 	pButtonFaces[pActiveIndex][pActiveState];
 		if (active && active->getState() == INITIALIZED) {
@@ -73,7 +73,7 @@ void Button::render() const
 
 void Button::updateG(float time, float deltaTime)
 {
-	if(pActiveIndex >= 0 && pActiveIndex < pButtonFaces.size())
+	if(pActiveIndex < pButtonFaces.size())
 	{
 		super::updateG(time,deltaTime);
 

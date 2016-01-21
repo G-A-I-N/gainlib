@@ -53,7 +53,7 @@ public:
 	virtual ButtonIndex getIndex() ;
 	Button* addButtonState(Gain::Rect* aRect,  ButtonState aState, ButtonIndex aIndex = 0);
 protected:
-	int pActiveIndex;
+	unsigned int pActiveIndex;
 	ButtonState pActiveState;
 	int pPointerId;
 

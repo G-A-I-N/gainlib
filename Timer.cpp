@@ -10,8 +10,12 @@
 
 namespace Gain {
 
-Timer::Timer()
-: super(), pRunning(0), pTimerOriginal(), pTimerLeft(0), pRunningCount(0)
+Timer::Timer():
+	super(),
+	pTimerOriginal(),
+	pTimerLeft(0),
+	pRunning(0),
+	pRunningCount(0)
 {
 	//add to current scene, and its graphical time
 	CORE->addRenderClient(this, 0);
@@ -51,7 +55,7 @@ void Timer::stop()
 }
 
 
-void Timer::updateG(float time, float deltaTime)
+void Timer::updateG(float /*time*/, float deltaTime)
 {
 	if(pRunning >0 && pRunningCount>0)
 	{

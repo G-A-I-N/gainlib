@@ -40,17 +40,17 @@ namespace Gain {
 //#define CORE_PERF
 
 Core::Core() :
-     pScene(SCENE_DEFAULT_BACK)
-    ,pFps(0)
+	 screen_width(0)
     ,screen_height(0)
-    ,screen_width(0)
-    ,reversed_ratio(1)
+	,scale_width(1)
+	,scale_height(1)
     ,ratio(1)
-    ,scale_width(1)
-    ,scale_height(1)
+    ,reversed_ratio(1)
+	,normalised_screen_height(1)
+	,pScene(SCENE_DEFAULT_BACK)
+	,pFps(0)
 	,gSecG(0)
 	,gDeltaSecG(0)
-	,normalised_screen_height(1)
 {
     LOCK_INIT(touchClientsLock);
 
