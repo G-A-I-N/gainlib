@@ -17,11 +17,13 @@
 
 #include "Text.h"
 
+#define STB_TRUETYPE_IMPLEMENTATION
+#include <stb/stb_truetype.h>
 
 namespace Gain {
 
-static FT_Library gFt = NULL;
-static LOCK gFtLock;
+stbtt_fontinfo *gFontInfo = NULL;
+
 
 static const char gVertexShader[] =
 		"attribute vec2 coord2d;\n"
@@ -50,79 +52,71 @@ static const char gFragmentShader[] =
 
 
 Text::Text(float x,float y, float pixelSize, const char* text) :
-		super(x,y,0.f,0.f, gVertexShader, gFragmentShader), pFace(0)
+		super(x,y,0.f,0.f, gVertexShader, gFragmentShader)
 {
-	pBitmap = NULL;
-	pPixelSize = GetCore()->screen_width*pixelSize;
-
-	if(!pFace)
-	{
-		if(!gFt) {
-			if(FT_Init_FreeType(&gFt)) {
-				fprintf(stderr, "Could not init freetype library\n");
-				return;
-			}
-			LOCK_INIT(gFtLock);
-		}
-
-#ifdef IOS
-        const char* font = get_asset_filepath( "Fresca-Regular.ttf" );
-#else
-        const char* font = "Roboto-Regular.ttf";
-#endif
-
-		if(FT_New_Face(gFt, font, 0, &pFace)) {
-
-			fprintf(stderr, "Could not open font\n");
-			return;
-		}
-
-		FT_Set_Pixel_Sizes(pFace, 0, pPixelSize);
-
-		if(FT_Load_Char(pFace, 'A', FT_LOAD_RENDER)) {
-			fprintf(stderr, "Could not load character 'A'\n");
-			return;
-		}
-	}
+	internalInit(pixelSize);
 	setText(text);
+
 }
 
 Text::Text(int x,int y, int pixelSize, const char* text) :
-		super(x,y,0,0, gVertexShader, gFragmentShader), pFace(0)
+		super(x,y,0,0, gVertexShader, gFragmentShader)
+{
+	internalInit(pixelSize);
+	setText(text);
+}
+
+Text::~Text() {
+	// TODO Auto-generated destructor stub
+}
+
+void Text::internalInit(int pixelSize)
 {
 	pBitmap = NULL;
 	pPixelSize = pixelSize;
 
-	if(!gFt) {
-		if(FT_Init_FreeType(&gFt)) {
-
-			fprintf(stderr, "Could not init freetype library\n");
-			return;
-		}
-	}
+	if(gFontInfo)
+		return;
 
 #ifdef IOS
     const char* font = get_asset_filepath( "Roboto-Regular.ttf" );
 #else
     const char* font = "Roboto-Regular.ttf";
 #endif
-    
-    if(FT_New_Face(gFt, font, 0, &pFace)) {
-		fprintf(stderr, "Could not open font\n");
-		return;
+
+	/* load font file */
+	long size;
+	long readed_size;
+	unsigned char* fontBuffer;
+
+	FILE* fontFile = fopen(font, "rb");
+	fseek(fontFile, 0, SEEK_END);
+	size = ftell(fontFile); /* how long is the file ? */
+	fseek(fontFile, 0, SEEK_SET); /* reset */
+
+	fontBuffer = (unsigned char*)malloc(size);
+	gFontInfo = (stbtt_fontinfo*)calloc(1,sizeof(stbtt_fontinfo));
+
+	readed_size = fread(fontBuffer, 1, size, fontFile);
+	fclose(fontFile);
+
+	if(readed_size == size)
+	/* prepare font */
+	if (!stbtt_InitFont(gFontInfo, fontBuffer, 0))
+	{
+		LOGI("failed to create font\n");
+		if(gFontInfo) {
+			free(gFontInfo);
+			gFontInfo = 0;
+		}
+
+		if(fontBuffer) {
+			free(fontBuffer);
+			fontBuffer = 0;
+		}
+
 	}
-	FT_Set_Pixel_Sizes(pFace, 0, pPixelSize);
 
-	if(FT_Load_Char(pFace, 'A', FT_LOAD_RENDER)) {
-		fprintf(stderr, "Could not load character 'A'\n");
-		return;
-	}
-
-	setText(text);
-}
-
-Text::~Text() {
-	// TODO Auto-generated destructor stub
 }
 
 void Text::setText(const char* text)
@@ -136,68 +130,86 @@ void Text::setText(const char* text)
 	const char* p;
 
 	int width=0,height=0;
-	int x=0,y=0;
 
-	LOCK_ACQUIRE(gFtLock);
+    /* calculate font scaling */
+    float scale = stbtt_ScaleForPixelHeight(gFontInfo, pPixelSize);
 
-	for(p = pTextBuffer; *p; p++) {
-		if(FT_Load_Char(pFace, *p, FT_LOAD_RENDER))
-			continue;
+    int ascent, descent, lineGap;
+    stbtt_GetFontVMetrics(gFontInfo, &ascent, &descent, &lineGap);
 
-		int temp_height = y+pFace->glyph->bitmap.rows;
-		if(temp_height > height)
-		{
-			height = temp_height;
-		}
+    ascent *= scale;
+    descent *= scale;
 
-		int temp_width = x+pFace->glyph->bitmap.width;
-		if(temp_width > width)
-		{
-			width=temp_width;
-		}
+    // calculate bitmap size
+    for (p = pTextBuffer; *p; p++)
+    {
+        /* get bounding box for character (may be offset to account for chars that dip above or below the line */
+        int c_x1, c_y1, c_x2, c_y2;
+        stbtt_GetCodepointBitmapBox(gFontInfo, p[0], scale, scale, &c_x1, &c_y1, &c_x2, &c_y2);
 
-		x += (pFace->glyph->advance.x >> 6);
-		y += (pFace->glyph->advance.y >> 6);
-	}
+        /* compute y (different characters have different heights */
+        int y_temp = ascent + c_y1;
 
+        if(y_temp > height)
+        {
+        	height = y_temp;
+        }
+
+        /* how wide is this character */
+        int ax;
+        stbtt_GetCodepointHMetrics(gFontInfo, p[0], &ax, 0);
+        width += ax * scale;
+
+        /* add kerning */
+        int kern;
+        kern = stbtt_GetCodepointKernAdvance(gFontInfo, p[0], p[1]);
+        width += kern * scale;
+    }
 
 	uint8_t* oldBitmap = pBitmap;
-	pBitmap = (uint8_t*)malloc(width*pPixelSize);
+	pBitmap = (uint8_t*)malloc(width*height);
 	if(oldBitmap)
 	{
 		free(oldBitmap);
 	}
 
 
-	memset(pBitmap,0,width*pPixelSize);
+	memset(pBitmap,0,width*height);
 
 	pBitmapWidth = width;
-	pBitmapHeight = pPixelSize;
+	pBitmapHeight = height;
 
 	setSizeN(
 			2.f*((float)pBitmapWidth)/GetCore()->screen_width,
 			2.f*((float)pBitmapHeight)/GetCore()->screen_width
 	);
 
-	x=0;
-	y=0;
+	int x=0,y=0;
 
-	for(p = pTextBuffer; *p; p++)
-	{
-		if(FT_Load_Char(pFace, *p, FT_LOAD_RENDER))
-			continue;
+	// render text to buffer
+	for (p = pTextBuffer; *p; p++)
+    {
+        /* get bounding box for character (may be offset to account for chars that dip above or below the line */
+        int c_x1, c_y1, c_x2, c_y2;
+        stbtt_GetCodepointBitmapBox(gFontInfo, p[0], scale, scale, &c_x1, &c_y1, &c_x2, &c_y2);
 
-		FT_GlyphSlot g = pFace->glyph;
-		int z = height - g->bitmap_top ;
+        /* compute y (different characters have different heights */
+        y = ascent + c_y1;
 
-		for(int w=0;w<g->bitmap.rows;w++)
-		{
-			memcpy(&pBitmap[(y+w+z)*width + x],&g->bitmap.buffer[w*g->bitmap.width],g->bitmap.width);
-		}
-		x+=g->advance.x>>6;
-		y+=g->advance.y>>6;
-	}
-	LOCK_RELEASE(gFtLock);
+        /* render character (stride and offset is important here) */
+        int byteOffset = x + (y  * width);
+        stbtt_MakeCodepointBitmap(gFontInfo, pBitmap + byteOffset, c_x2 - c_x1, c_y2 - c_y1, width, scale, scale, p[0]);
+
+        /* how wide is this character */
+        int ax;
+        stbtt_GetCodepointHMetrics(gFontInfo, p[0], &ax, 0);
+        x += ax * scale;
+
+        /* add kerning */
+        int kern;
+        kern = stbtt_GetCodepointKernAdvance(gFontInfo, p[0], p[1]);
+        x += kern * scale;
+    }
 
 	updateBitmap = true;
 }

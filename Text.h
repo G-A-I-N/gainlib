@@ -20,10 +20,6 @@
 
 #include "Bitmap.h"
 
-
-#include <ft2build.h>
-#include FT_FREETYPE_H
-
 namespace Gain {
 
 class Text :
@@ -43,6 +39,10 @@ public:
 	//Base
 	virtual void updateG(float time, float timeDelta);
 
+
+private:
+	void internalInit(int pixelSize);
+
 protected:
 
 	virtual bool initVariables();
@@ -51,8 +51,6 @@ protected:
 
 	char pTextBuffer[256];
 	int pPixelSize;
-
-	FT_Face pFace;
 };
 
 } /* namespace Gain */

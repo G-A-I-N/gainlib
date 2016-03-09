@@ -27,16 +27,12 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					Settings.cpp \
 					Slider.cpp
 					
-LOCAL_C_INCLUDES := gain/freetype/include \
-                    gain/freetype/include/freetype2 \
+LOCAL_C_INCLUDES := \
                     gain
 
-LOCAL_LDLIBS    := -llog -lGLESv2 -landroid -lEGL -lz  
-
-LOCAL_STATIC_LIBRARIES := freetype
+LOCAL_LDLIBS    := -llog -lGLESv2 -landroid -lEGL
 
 include $(BUILD_SHARED_LIBRARY)
  
 $(call import-add-path, gain ) 
-$(call import-module , freetype )
  
