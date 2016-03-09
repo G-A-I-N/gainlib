@@ -12,7 +12,6 @@ LOCAL_SRC_FILES :=  GainApp.cpp\
 					EffectLayer.cpp\
 					Menu.cpp\
 					Button.cpp\
-					ShaderTest.cpp\
 					PixelCanvas.cpp\
 					Bitmap.cpp\
 					ImageBitmap.cpp\
