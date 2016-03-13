@@ -22,8 +22,8 @@
 
 namespace Gain {
 
-stbtt_fontinfo *gFontInfo = NULL;
-
+static stbtt_fontinfo *gFontInfo = NULL;
+static LOCK gFtLock;
 
 static const char gVertexShader[] =
 		"attribute vec2 coord2d;\n"
@@ -54,7 +54,7 @@ static const char gFragmentShader[] =
 Text::Text(float x,float y, float pixelSize, const char* text) :
 		super(x,y,0.f,0.f, gVertexShader, gFragmentShader)
 {
-	internalInit(pixelSize);
+	internalInit(CORE->screen_width * pixelSize);
 	setText(text);
 
 }
@@ -78,6 +78,8 @@ void Text::internalInit(int pixelSize)
 	if(gFontInfo)
 		return;
 
+	LOCK_INIT(gFtLock);
+
 #ifdef IOS
     const char* font = get_asset_filepath( "Roboto-Regular.ttf" );
 #else
@@ -95,14 +97,14 @@ void Text::internalInit(int pixelSize)
 	fseek(fontFile, 0, SEEK_SET); /* reset */
 
 	fontBuffer = (unsigned char*)malloc(size);
-	gFontInfo = (stbtt_fontinfo*)calloc(1,sizeof(stbtt_fontinfo));
+	gFontInfo = (stbtt_fontinfo*)malloc(sizeof(stbtt_fontinfo));
 
 	readed_size = fread(fontBuffer, 1, size, fontFile);
 	fclose(fontFile);
 
-	if(readed_size == size)
-	/* prepare font */
-	if (!stbtt_InitFont(gFontInfo, fontBuffer, 0))
+	// prepare font
+	if (readed_size != size ||
+		!stbtt_InitFont(gFontInfo, fontBuffer, 0))
 	{
 		LOGI("failed to create font\n");
 		if(gFontInfo) {
@@ -132,7 +134,9 @@ void Text::setText(const char* text)
 	int width=0,height=0;
 
     /* calculate font scaling */
-    float scale = stbtt_ScaleForPixelHeight(gFontInfo, pPixelSize);
+	LOCK_ACQUIRE(gFtLock);
+    //float scale = stbtt_ScaleForPixelHeight(gFontInfo, pPixelSize);
+    float scale = stbtt_ScaleForMappingEmToPixels(gFontInfo, pPixelSize);
 
     int ascent, descent, lineGap;
     stbtt_GetFontVMetrics(gFontInfo, &ascent, &descent, &lineGap);
@@ -140,21 +144,10 @@ void Text::setText(const char* text)
     ascent *= scale;
     descent *= scale;
 
+    height = ascent;
     // calculate bitmap size
     for (p = pTextBuffer; *p; p++)
     {
-        /* get bounding box for character (may be offset to account for chars that dip above or below the line */
-        int c_x1, c_y1, c_x2, c_y2;
-        stbtt_GetCodepointBitmapBox(gFontInfo, p[0], scale, scale, &c_x1, &c_y1, &c_x2, &c_y2);
-
-        /* compute y (different characters have different heights */
-        int y_temp = ascent + c_y1;
-
-        if(y_temp > height)
-        {
-        	height = y_temp;
-        }
-
         /* how wide is this character */
         int ax;
         stbtt_GetCodepointHMetrics(gFontInfo, p[0], &ax, 0);
@@ -166,6 +159,7 @@ void Text::setText(const char* text)
         width += kern * scale;
     }
 
+    //check if old bitmap exists, and delete it
 	uint8_t* oldBitmap = pBitmap;
 	pBitmap = (uint8_t*)malloc(width*height);
 	if(oldBitmap)
@@ -210,6 +204,7 @@ void Text::setText(const char* text)
         kern = stbtt_GetCodepointKernAdvance(gFontInfo, p[0], p[1]);
         x += kern * scale;
     }
+	LOCK_RELEASE(gFtLock);
 
 	updateBitmap = true;
 }
