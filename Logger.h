@@ -35,7 +35,7 @@
 #define MAX_BUF 1024
 
 // #define LOGISON // if this is defined, logging is on.  this define comes from "mappings.h"
-//#define LOGTOSOCKET // if this is defined, data is sent to socket. Other native logger interface is used
+#define LOGTOSOCKET // if this is defined, data is sent to socket. Otherwise native logger interface is used
 #define LOGID //if this is enabled, id is generated to a matching object/integer
 //#define USESEQNUMBERS // if this is defined, instead of time, running sequence number is as timestamp
 

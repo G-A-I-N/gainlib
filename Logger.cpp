@@ -21,6 +21,7 @@
 
 #include <stdio.h>
 #include <errno.h>
+#include <pthread.h>
 #include <sys/time.h>
 #include "Logger.h"
 
@@ -28,8 +29,8 @@ Logger::Logger() :
 	running_number(0),seq_number(0)
 {
 
+#ifdef LOGTOSOCKET
 #ifdef TARGET_LOGGER_ADDRESS
-
 	//socket
 	sockd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockd == -1)
@@ -57,9 +58,9 @@ Logger::Logger() :
 		// no connection
 	}
 	LOGITIMETOPIC("connection ready\n");
-
-	gettimeofday(&start, NULL);
 #endif
+#endif
+	gettimeofday(&start, NULL);
 }
 
 Logger::~Logger() {
@@ -79,49 +80,63 @@ Logger* Logger::Instance()
 
 void Logger::EventStart(const char* eventName)
 {
+	int tid = gettid();
+
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), ";event;start;%s",eventName);
+	snprintf(buf,sizeof(buf), ";event;start;[%u]%s",tid,eventName);
 	WriteItem(buf);
 }
 
 void Logger::EventStop(const char* eventName)
 {
+	int tid = gettid();
+
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), ";event;stop;%s",eventName);
+	snprintf(buf,sizeof(buf), ";event;stop;[%u]%s",tid,eventName);
 	WriteItem(buf);
 }
 
 void Logger::EventStart(const char* eventName,const char* eventName2)
 {
+	int tid = gettid();
+
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), ";event;start;%s%s",eventName,eventName2);
+	snprintf(buf,sizeof(buf), ";event;start;[%u]%s%s",tid,eventName,eventName2);
 	WriteItem(buf);
 }
 
 void Logger::EventStop(const char* eventName,const char* eventName2)
 {
+	int tid = gettid();
+
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), ";event;stop;%s%s",eventName,eventName2);
+	snprintf(buf,sizeof(buf), ";event;stop;[%u]%s%s",tid,eventName,eventName2);
 	WriteItem(buf);
 }
 
 void Logger::FreeText(const char* eventName)
 {
+	int tid = gettid();
+
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), ";%s",eventName);
+	snprintf(buf,sizeof(buf), ";[%u]%s",tid,eventName);
 	WriteItem(buf);
 }
 
 void Logger::StateMachine(const char* machineName, const char* stateName)
 {
+	int tid = gettid();
+
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), ";state;%s;%s",machineName,stateName);
+	snprintf(buf,sizeof(buf), ";state;[%u]%s;%s",tid,machineName,stateName);
 	WriteItem(buf);
 }
 void Logger::ValueABS(const char* valueName,int value)
 {
+	int tid = gettid();
+
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), ";valueabs;%d;%s",value,valueName);
+	snprintf(buf,sizeof(buf), ";valueabs;%d;[%u]%s",value,tid,valueName);
 	WriteItem(buf);
 }
 
@@ -130,12 +145,12 @@ void Logger::WriteItem(const char* item)
 {
 #ifdef LOGTOSOCKET
 	char buf[MAX_BUF];
-	snprintf(buf,sizeof(buf), "%f;%s\n",Elapsed(),item);
+	snprintf(buf,sizeof(buf), "%f%s\n",Elapsed(),item);
 
 	if(status == 0){
 		write(sockd, buf, strlen(buf));
 	} else {
-        printf(buf);
+        //printf(&buf[0)]);
     }
 #else
 	/* Use current native logger port */
