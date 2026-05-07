@@ -46,14 +46,21 @@
 #endif
 
 
-#ifdef __APPLE__ 
-#include "platform_utils.h"
-#define IOS
-#endif
-
 #ifdef ANDROID
 #include <android/log.h> // this is needed to make android logging working.
+#ifndef PTHREAD
 #define PTHREAD
+#endif
+#endif
+
+#ifdef __APPLE__
+// macOS desktop OpenGL — GLES 2.0 is a strict subset of the GL 2.1 surface
+// Apple's <OpenGL/gl.h> exposes. iOS still needs a different code path; if/when
+// we target iOS, gate that on TARGET_OS_IPHONE rather than __APPLE__.
+#define USE_DESKTOP_GL
+#ifndef PTHREAD
+#define PTHREAD
+#endif
 #endif
 
 
@@ -63,7 +70,11 @@
 
 #ifndef USE_OPENGL
 
-#ifdef IOS
+#ifdef USE_DESKTOP_GL
+#define GL_SILENCE_DEPRECATION 1
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+#elif defined(IOS)
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 #else
