@@ -52,8 +52,6 @@ Core::Core() :
 	,gSecG(0)
 	,gDeltaSecG(0)
 {
-    LOCK_INIT(touchClientsLock);
-
 	myCoreUpdateLoopCallCounter.SetName("updateGLoop rate");
 	myAppUpdateLoopCallCounter.SetName("updateLoop rate");
 	myRenderLoopCallCounter.SetName("RenderLoop rate");
@@ -179,31 +177,32 @@ void Core::updateG(float time, float deltaTime)
 
 //    LOCK_RELEASE(renderClientsLock);
 
-    LOCK_ACQUIRE(touchClientsLock);
-    if (pScenes.size() > SCENE_DEFAULT_BACK) {
-		Gain::Layer* current = pScenes[SCENE_DEFAULT_BACK];
-		if (current->getState() == NOT_INITIALIZED) {
-			current->setupGraphics();
-		}
-		current->updateG(time, deltaTime);
-	}
+    {
+        std::lock_guard<std::mutex> guard(touchClientsLock);
+        if (pScenes.size() > SCENE_DEFAULT_BACK) {
+            Gain::Layer* current = pScenes[SCENE_DEFAULT_BACK];
+            if (current->getState() == NOT_INITIALIZED) {
+                current->setupGraphics();
+            }
+            current->updateG(time, deltaTime);
+        }
 
-	if (pScene > SCENE_DEFAULT_FRONT && pScene < pScenes.size()) {
-		Gain::Layer* current = pScenes[pScene];
-		if (current->getState() == NOT_INITIALIZED) {
-			current->setupGraphics();
-		}
-		current->updateG(time, deltaTime);
-	}
+        if (pScene > SCENE_DEFAULT_FRONT && pScene < pScenes.size()) {
+            Gain::Layer* current = pScenes[pScene];
+            if (current->getState() == NOT_INITIALIZED) {
+                current->setupGraphics();
+            }
+            current->updateG(time, deltaTime);
+        }
 
-	if (pScenes.size() > SCENE_DEFAULT_FRONT) {
-		Gain::Layer* current = pScenes[SCENE_DEFAULT_FRONT];
-		if (current->getState() == NOT_INITIALIZED) {
-			current->setupGraphics();
-		}
-		current->updateG(time, deltaTime);
-	}
-    LOCK_RELEASE(touchClientsLock);
+        if (pScenes.size() > SCENE_DEFAULT_FRONT) {
+            Gain::Layer* current = pScenes[SCENE_DEFAULT_FRONT];
+            if (current->getState() == NOT_INITIALIZED) {
+                current->setupGraphics();
+            }
+            current->updateG(time, deltaTime);
+        }
+    }
 
     /* Update renderClients performance counter */
     myRenderClientsCountCounter.SetCounterValue(renderClientItems);
@@ -309,64 +308,51 @@ void Core::invalidateAllRenderers(bool /*fullReset*/)
 
 void Core::addTouchClient(TouchInterface* aInterface)
 {
-    LOCK_ACQUIRE(touchClientsLock);
-	LOGSCOPE;
-	pTouchClients.push_back(aInterface);
-    LOCK_RELEASE(touchClientsLock);
+    LOGSCOPE;
+    std::lock_guard<std::mutex> guard(touchClientsLock);
+    pTouchClients.push_back(aInterface);
 }
 
 void Core::removeTouchClient(TouchInterface* aInterface)
 {
-    LOCK_ACQUIRE(touchClientsLock);
-	LOGSCOPE;
-	std::vector<TouchInterface*>::iterator it = pTouchClients.begin();
-	while(it != pTouchClients.end())
-	{
-		if (aInterface == *it) {
-			std::vector<TouchInterface*>::iterator it_rem = it++;
-			pTouchClients.erase(it_rem);
-			return;
-		}
-	}
-
-    LOCK_RELEASE(touchClientsLock);
+    LOGSCOPE;
+    std::lock_guard<std::mutex> guard(touchClientsLock);
+    auto it = pTouchClients.begin();
+    while (it != pTouchClients.end())
+    {
+        if (aInterface == *it) {
+            pTouchClients.erase(it);
+            return;
+        }
+        ++it;
+    }
 }
 
 
 void Core::offerTouch(TouchPoint* aTouchPoint, TouchType aType)
 {
-	TouchState touchState = TOUCH_NOT_CONSUMED;
-	LOGSCOPE;
-	LOCK_ACQUIRE(touchClientsLock);
+    TouchState touchState = TOUCH_NOT_CONSUMED;
+    LOGSCOPE;
+    std::lock_guard<std::mutex> guard(touchClientsLock);
 
-	//offer to added touch clients first
-	if(touchState == TOUCH_NOT_CONSUMED) {
-		std::vector<TouchInterface*>::iterator it;
+    // Offer to externally added touch clients first.
+    for (auto it = pTouchClients.begin();
+         touchState == TOUCH_NOT_CONSUMED && it != pTouchClients.end();
+         ++it)
+    {
+        touchState = (*it)->offerTouch(aTouchPoint, aType);
+    }
 
-		for(it = pTouchClients.begin();touchState == TOUCH_NOT_CONSUMED && it != pTouchClients.end();++it)
-		{
-			TouchInterface* current = *it;
-			touchState = current->offerTouch(aTouchPoint,aType);
-		}
-	}
-
-	//offer to front
-	if(touchState == TOUCH_NOT_CONSUMED)
-	{
-		touchState = pScenes[SCENE_DEFAULT_FRONT]->offerTouch(aTouchPoint, aType);
-	}
-	//current
-	if(touchState == TOUCH_NOT_CONSUMED)
-	{
-		touchState = pScenes[pScene]->offerTouch(aTouchPoint, aType);
-	}
-	//back
-	if(touchState == TOUCH_NOT_CONSUMED)
-	{
-		touchState = pScenes[SCENE_DEFAULT_BACK]->offerTouch(aTouchPoint, aType);
-	}
-
-    LOCK_RELEASE(touchClientsLock);
+    // Then layered scenes: front, current, back.
+    if (touchState == TOUCH_NOT_CONSUMED) {
+        touchState = pScenes[SCENE_DEFAULT_FRONT]->offerTouch(aTouchPoint, aType);
+    }
+    if (touchState == TOUCH_NOT_CONSUMED) {
+        touchState = pScenes[pScene]->offerTouch(aTouchPoint, aType);
+    }
+    if (touchState == TOUCH_NOT_CONSUMED) {
+        touchState = pScenes[SCENE_DEFAULT_BACK]->offerTouch(aTouchPoint, aType);
+    }
 }
 
 void Core::offerTouchDown(TouchPoint* aTouchPoint)
