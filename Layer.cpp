@@ -21,32 +21,25 @@ namespace Gain {
 Layer::Layer() :
 	Gain::Base()
 {
-    LOCK_INIT(renderClientsLock);
 }
 
-Layer::~Layer() {
-	// TODO Auto-generated destructor stub
-}
+Layer::~Layer() = default;
 
 void Layer::addRenderClient(Gain::Base* aBase)
 {
-    LOCK_ACQUIRE(renderClientsLock);
-	addClientsFifo.push(aBase);
-	LOCK_RELEASE(renderClientsLock);
+    std::lock_guard<std::mutex> guard(renderClientsLock);
+    addClientsFifo.push(aBase);
 }
 void Layer::removeRenderClient(Gain::Base* aBase)
 {
-    LOCK_ACQUIRE(renderClientsLock);
-	removeClientsFifo.push(aBase);
-   	LOCK_RELEASE(renderClientsLock);
+    std::lock_guard<std::mutex> guard(renderClientsLock);
+    removeClientsFifo.push(aBase);
 }
 
 void Layer::removeAllRenderClients()
 {
-    LOCK_ACQUIRE(renderClientsLock);
-	;
-	//renderClients.clear();
-    LOCK_RELEASE(renderClientsLock);
+    std::lock_guard<std::mutex> guard(renderClientsLock);
+    // renderClients.clear();  // intentionally a no-op for now
 }
 
 void Layer::renderPre() const
@@ -88,32 +81,30 @@ void Layer::updateG(float time, float deltaTime)
 
 	super::updateG(time, deltaTime);
 
-	LOCK_ACQUIRE(renderClientsLock);
-    while( !removeClientsFifo.empty() )
     {
-    	Gain::Base* base = removeClientsFifo.front();
-    	removeClientsFifo.pop();
-        std::set<Gain::Base*, Gain::BaseCompare>::iterator it =
-                renderClients.find(base);
-
-        if(it != renderClients.end())
+        std::lock_guard<std::mutex> guard(renderClientsLock);
+        while (!removeClientsFifo.empty())
         {
-            renderClients.erase(it);
-            if(!(base->flags & FLAG_DIRTY_ZORDER))
+            Gain::Base* base = removeClientsFifo.front();
+            removeClientsFifo.pop();
+            auto it = renderClients.find(base);
+            if (it != renderClients.end())
             {
-            	delete base;
+                renderClients.erase(it);
+                if (!(base->flags & FLAG_DIRTY_ZORDER))
+                {
+                    delete base;
+                }
             }
         }
-	}
-    while( !addClientsFifo.empty() )
-    {
-
-    	Gain::Base* base = addClientsFifo.front();
-    	addClientsFifo.pop();
-    	renderClients.insert(base);
-    	base->flags &= 0xffffffff^FLAG_DIRTY_ZORDER;
+        while (!addClientsFifo.empty())
+        {
+            Gain::Base* base = addClientsFifo.front();
+            addClientsFifo.pop();
+            renderClients.insert(base);
+            base->flags &= 0xffffffff ^ FLAG_DIRTY_ZORDER;
+        }
     }
-    LOCK_RELEASE(renderClientsLock);
 
     std::set<Gain::Base*, Gain::BaseCompare>::iterator it;
 	for (it=renderClients.begin(); it!=renderClients.end(); ++it)

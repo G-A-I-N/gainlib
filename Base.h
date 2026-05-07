@@ -236,17 +236,24 @@ protected:
 	BaseState pState;
 
 	int pZOrder;
-    
+
+	// Monotonic id assigned at construction; tie-breaks BaseCompare so
+	// render order is deterministic (insertion-order) when two bases share
+	// the same z-order. Without this the fallback was pointer comparison,
+	// which is ASLR-dependent and varies run to run.
+	uint64_t pSeqId;
 
 	std::set<AnimationContainer*> pAnimationList;
 
 	friend struct BaseCompare;
 };
-    
+
 struct BaseCompare {
     bool operator()(const Base* aLeft, const Base* aRigth) const {
-        return (aLeft->pZOrder < aRigth->pZOrder) ||
-               ((aLeft->pZOrder == aRigth->pZOrder) && (aLeft < aRigth));
+        if (aLeft->pZOrder != aRigth->pZOrder) {
+            return aLeft->pZOrder < aRigth->pZOrder;
+        }
+        return aLeft->pSeqId < aRigth->pSeqId;
     }
 };
 
