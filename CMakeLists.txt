@@ -58,8 +58,8 @@ else()
 endif()
 
 # --- Compile-time configuration -------------------------------------------
-# Threading model used by mappings.h's LOCK macros.
-target_compile_definitions(Gain PUBLIC PTHREAD)
+# (Threading switch is gone now that LOCK is std::mutex on every platform.
+# Threads::Threads above still pulls in -lpthread on POSIX.)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
     target_compile_options(Gain PRIVATE
