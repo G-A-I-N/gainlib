@@ -16,7 +16,16 @@
 
 #include "Base.h"
 
+#include <atomic>
+
 namespace Gain {
+
+namespace {
+// Monotonic source for Base::pSeqId. Atomic so concurrent construction is
+// safe; relaxed because the only invariant we need is uniqueness, not any
+// happens-before ordering with other memory.
+std::atomic<uint64_t> sNextSeqId{0};
+}
 
 Base::Base() :
 	flags(0),
@@ -25,7 +34,8 @@ Base::Base() :
 	pPositionY(0),
     pProgram(0),
     pState(NOT_INITIALIZED),
-    pZOrder(0)
+    pZOrder(0),
+    pSeqId(sNextSeqId.fetch_add(1, std::memory_order_relaxed))
 {
 	for(int n=0;n<COLOR_SIZE;++n)
 	{
