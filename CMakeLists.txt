@@ -43,13 +43,15 @@ find_package(Threads REQUIRED)
 target_link_libraries(Gain PUBLIC glm::glm Threads::Threads)
 
 # --- Platform GL backend ---------------------------------------------------
-if(APPLE)
-    # macOS / iOS share __APPLE__; mappings.h gates iOS via TARGET_OS_IPHONE
-    # (TODO: re-introduce when iOS bring-up resumes). Desktop links the system
-    # OpenGL framework; mappings.h includes <OpenGL/gl.h> in this profile.
+if(APPLE AND NOT IOS)
+    # macOS desktop: GLBackend.h's TARGET_OS_IPHONE check picks <OpenGL/gl.h>.
     find_library(OPENGL_FRAMEWORK OpenGL REQUIRED)
     find_library(COCOA_FRAMEWORK   Cocoa  REQUIRED)
     target_link_libraries(Gain PUBLIC ${OPENGL_FRAMEWORK} ${COCOA_FRAMEWORK})
+elseif(APPLE AND IOS)
+    # iOS: GLBackend.h picks <OpenGLES/ES2/gl.h>; consumer's xcode toolchain
+    # links the OpenGLES framework — we don't add it here so we stay
+    # generator-agnostic.
 elseif(ANDROID)
     target_link_libraries(Gain PUBLIC GLESv2 log android)
 else()

@@ -2,13 +2,13 @@
 // for the build target. Defines INIT_GL, GL_EXT_FUNC, and the inline
 // checkGlError helper used by render code.
 //
-// Backends:
-//   USE_DESKTOP_GL  — macOS (auto-set on __APPLE__) and any host requesting
-//                     desktop GL 2.1; uses <OpenGL/gl.h> + <OpenGL/glext.h>.
-//   IOS             — iOS GLES2 via <OpenGLES/ES2/gl.h>. Currently dormant;
-//                     reintroduce with TARGET_OS_IPHONE rather than __APPLE__.
-//   USE_OPENGL      — Qt/QGLFunctions integration; included for legacy users.
-//   default         — Linux / Android GLES2 via <GLES2/gl2.h>.
+// Apple platforms split via <TargetConditionals.h>:
+//   - TARGET_OS_IPHONE   — iOS / iPadOS / tvOS: <OpenGLES/ES2/gl.h>.
+//   - else (macOS / Catalyst): desktop GL via <OpenGL/gl.h> + glext.
+//
+// Other backends:
+//   ANDROID + Linux  — GLES2 via <GLES2/gl2.h>.
+//   USE_OPENGL       — Qt/QGLFunctions integration; legacy.
 
 #ifndef GAIN_GLBACKEND_H_
 #define GAIN_GLBACKEND_H_
@@ -16,10 +16,12 @@
 #include "LogMacros.h"
 
 #ifdef __APPLE__
+#include <TargetConditionals.h>
+#if !TARGET_OS_IPHONE
 // macOS desktop OpenGL — GLES 2.0 is a strict subset of the GL 2.1 surface
-// Apple's <OpenGL/gl.h> exposes. iOS still wants its own path; reintroduce
-// it via TARGET_OS_IPHONE rather than __APPLE__ when bring-up resumes.
+// Apple's <OpenGL/gl.h> exposes.
 #define USE_DESKTOP_GL
+#endif
 #endif
 
 #ifndef USE_OPENGL
@@ -28,7 +30,7 @@
 #define GL_SILENCE_DEPRECATION 1
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
-#elif defined(IOS)
+#elif defined(__APPLE__) && TARGET_OS_IPHONE
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 #else
