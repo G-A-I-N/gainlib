@@ -161,7 +161,9 @@ public:
     	LOGEVENTSTOP(mName);
     }
 private:
-    const char* mName;
+    // LOGEVENTSTOP collapses to a no-op when LOGISON is undefined, so the
+    // compiler sees mName as written-but-never-read. Mark it explicitly.
+    [[maybe_unused]] const char* mName;
 };
 
 
