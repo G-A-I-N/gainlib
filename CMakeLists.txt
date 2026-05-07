@@ -42,6 +42,13 @@ find_package(Threads REQUIRED)
 
 target_link_libraries(Gain PUBLIC glm::glm Threads::Threads)
 
+# CRITICAL: glm 1.0 changed default constructors from identity to zero
+# (`glm::mat4()` is now a zero matrix; previously identity). gainlib's
+# Base/Layer keep their `anim` matrices default-constructed and assume
+# identity, so without this define every render multiplies by zero and
+# nothing draws. PUBLIC so consumers see the same definition.
+target_compile_definitions(Gain PUBLIC GLM_FORCE_CTOR_INIT)
+
 # --- Platform GL backend ---------------------------------------------------
 if(APPLE AND NOT IOS)
     # macOS desktop: GLBackend.h's TARGET_OS_IPHONE check picks <OpenGL/gl.h>.
