@@ -157,26 +157,6 @@ void Core::updateG(float time, float deltaTime)
 		return;
 	}
 
-	//lock add and removal
-//    LOCK_ACQUIRE(renderClientsLock);
-#if 0
-	LOGSCOPE;
-
-    static int lastTime = 0;
-    int newTime = time;
-    if(newTime != lastTime)
-	{
-		char buf[32];
-		sprintf(buf, "fps(%d)\0",pFps);
-
-		LOGI(buf);
-		pFps=0;
-	}
-    lastTime = time;
-#endif
-
-//    LOCK_RELEASE(renderClientsLock);
-
     {
         std::lock_guard<std::mutex> guard(touchClientsLock);
         if (pScenes.size() > SCENE_DEFAULT_BACK) {

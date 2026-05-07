@@ -38,8 +38,13 @@ void Layer::removeRenderClient(Gain::Base* aBase)
 
 void Layer::removeAllRenderClients()
 {
+    // Queue every current client for removal. updateG drains the FIFO and
+    // deletes each base (matching removeRenderClient's lifecycle), so this
+    // method is consistent with single-removal semantics.
     std::lock_guard<std::mutex> guard(renderClientsLock);
-    // renderClients.clear();  // intentionally a no-op for now
+    for (auto* base : renderClients) {
+        removeClientsFifo.push(base);
+    }
 }
 
 void Layer::renderPre() const
