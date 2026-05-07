@@ -23,7 +23,6 @@ Button::Button(float x, float y, float width, float height) :
 	pActiveState(ButtonUp),
 	pPointerId(-1)
 {
-	LOCK_INIT(pButtonStateLock);
 	setTouchable();
 }
 
@@ -33,29 +32,25 @@ Button::Button() :
 	pActiveState(ButtonUp),
 	pPointerId(-1)
 {
-	LOCK_INIT(pButtonStateLock);
 	setTouchable();
 }
 
 
-Button::~Button()
-{}
+Button::~Button() = default;
 
 
 Button* Button::addButtonState(Gain::Rect* aRect, ButtonState aState, ButtonIndex aIndex)
 {
-	LOCK_ACQUIRE(pButtonStateLock);
+	std::lock_guard<std::mutex> guard(pButtonStateLock);
 	while (pButtonFaces.size() <= aIndex) {
 		pButtonFaces.resize(aIndex+1);
 	}
-	if(pButtonFaces[aIndex].size() < 2)
-	{
+	if (pButtonFaces[aIndex].size() < 2) {
 		pButtonFaces[aIndex].resize(2);
 	}
 
 	pButtonFaces[aIndex][aState] = aRect;
 	pActiveIndex = aIndex;
-	LOCK_RELEASE(pButtonStateLock);
 	return this;
 }
 

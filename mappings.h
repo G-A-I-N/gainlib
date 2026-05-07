@@ -46,14 +46,15 @@
 #endif
 
 
-#ifdef __APPLE__ 
-#include "platform_utils.h"
-#define IOS
-#endif
-
 #ifdef ANDROID
 #include <android/log.h> // this is needed to make android logging working.
-#define PTHREAD
+#endif
+
+#ifdef __APPLE__
+// macOS desktop OpenGL — GLES 2.0 is a strict subset of the GL 2.1 surface
+// Apple's <OpenGL/gl.h> exposes. iOS still needs a different code path; if/when
+// we target iOS, gate that on TARGET_OS_IPHONE rather than __APPLE__.
+#define USE_DESKTOP_GL
 #endif
 
 
@@ -63,7 +64,11 @@
 
 #ifndef USE_OPENGL
 
-#ifdef IOS
+#ifdef USE_DESKTOP_GL
+#define GL_SILENCE_DEPRECATION 1
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+#elif defined(IOS)
 #include <OpenGLES/ES2/gl.h>
 #include <OpenGLES/ES2/glext.h>
 #else
@@ -130,32 +135,21 @@ inline void checkGlError(const char* op) {
 }
 
 
-//THREAD pthread
+// Locking primitive: std::mutex on every platform.
+//
+// LOCK is a type alias rather than a macro so it composes with templates and
+// shows up cleanly in debuggers. The ACQUIRE / RELEASE / INIT macros stay for
+// callsite compatibility — internal gainlib code is migrating to RAII
+// (std::lock_guard / std::scoped_lock) where the lock scope is clear.
+#include <mutex>
 
-#ifdef PTHREAD
+typedef std::mutex LOCK;
 
-#include <pthread.h>
-
-#define LOCK pthread_mutex_t
-#define LOCK_INIT( lock ) pthread_mutex_init( &lock , NULL)
-#define LOCK_ACQUIRE( lock ) pthread_mutex_lock( &lock )
-#define LOCK_RELEASE( lock ) pthread_mutex_unlock( &lock )
-
-#elif QTHREAD
-
-#define LOCK int
-#define LOCK_INIT(lock)
-#define LOCK_ACQUIRE(lock)
-#define LOCK_RELEASE(lock)
-
-#else
-
-#define LOCK volatile int
-#define LOCK_INIT(lock) {(lock) = 0;}
-#define LOCK_ACQUIRE(lock) {while((lock)==1) { } (lock) = 1;}
-#define LOCK_RELEASE(lock) {(lock) = 0;}
-
-#endif
+// Param name `_m` deliberately mangled — `lock` would collide with the
+// std::mutex::lock() method during macro substitution.
+#define LOCK_INIT(_m)                ((void)0)   // std::mutex default-constructs
+#define LOCK_ACQUIRE(_m)             (_m).lock()
+#define LOCK_RELEASE(_m)             (_m).unlock()
 
 
 
