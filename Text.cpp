@@ -78,8 +78,6 @@ void Text::internalInit(int pixelSize)
 	if(gFontInfo)
 		return;
 
-	LOCK_INIT(gFtLock);
-
 #ifdef IOS
     const char* font = get_asset_filepath( "Roboto-Regular.ttf" );
 #else
@@ -134,7 +132,7 @@ void Text::setText(const char* text)
 	int width=0,height=0;
 
     /* calculate font scaling */
-	LOCK_ACQUIRE(gFtLock);
+	std::lock_guard<std::mutex> guard(gFtLock);
     //float scale = stbtt_ScaleForPixelHeight(gFontInfo, pPixelSize);
     float scale = stbtt_ScaleForMappingEmToPixels(gFontInfo, pPixelSize);
 
@@ -204,7 +202,6 @@ void Text::setText(const char* text)
         kern = stbtt_GetCodepointKernAdvance(gFontInfo, p[0], p[1]);
         x += kern * scale;
     }
-	LOCK_RELEASE(gFtLock);
 
 	updateBitmap = true;
 }
