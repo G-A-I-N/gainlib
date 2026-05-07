@@ -48,7 +48,9 @@
 
 #ifdef ANDROID
 #include <android/log.h> // this is needed to make android logging working.
+#ifndef PTHREAD
 #define PTHREAD
+#endif
 #endif
 
 #ifdef __APPLE__
@@ -56,7 +58,9 @@
 // Apple's <OpenGL/gl.h> exposes. iOS still needs a different code path; if/when
 // we target iOS, gate that on TARGET_OS_IPHONE rather than __APPLE__.
 #define USE_DESKTOP_GL
+#ifndef PTHREAD
 #define PTHREAD
+#endif
 #endif
 
 
