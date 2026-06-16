@@ -145,6 +145,14 @@ bool Layer::setupGraphics()
 	setReady();
 	return true;
 }
+void Layer::invalidate()
+{
+	super::invalidate();   // reset this layer (pProgram=0, pState=NOT_INITIALIZED)
+	std::lock_guard<std::mutex> guard(renderClientsLock);
+	for (Gain::Base* child : renderClients) {
+		child->invalidate();   // a child Layer recurses on its own lock
+	}
+}
 bool Layer::initVariables()
 {
 	return true;

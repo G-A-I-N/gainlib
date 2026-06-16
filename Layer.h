@@ -41,6 +41,13 @@ public:
 	virtual void enableAttributes() const;
 	virtual void disableAttributes() const;
 
+	// A bare Base::invalidate only resets THIS layer, leaving the child render
+	// clients with stale GL handles after an EGL context loss (Android
+	// background/resume), so they never rebuild and the screen stays black.
+	// Recurse so every descendant is reset too; Layer::updateG then re-runs the
+	// setupGraphics of any client whose state is NOT_INITIALIZED.
+	virtual void invalidate();
+
 	void addRenderClient(Gain::Base* aBase);
 	void removeRenderClient(Gain::Base* aBase);
 	void removeAllRenderClients();
